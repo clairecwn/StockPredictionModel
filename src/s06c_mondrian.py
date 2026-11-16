@@ -10,7 +10,7 @@ Needs s06_sizing.py first. Run: LIVE_FEATS=1 python src/s06c_mondrian.py
 import os, warnings; warnings.filterwarnings("ignore")
 os.environ.setdefault("LIVE_FEATS", "1")
 import numpy as np, pandas as pd, joblib, pyarrow.parquet as pq
-from config import PROC, MODELS
+from config import PROC, MODELS, RESULTS
 from modeling import ev
 NB = 5
 sz = joblib.load(MODELS / "sizing.joblib")
@@ -51,6 +51,7 @@ for beta, m in sz["q_models"].items():
 T = pd.DataFrame(rows).round(3)
 print(f"check: offsets set on {E.day0.dt.year.min()}, breaches scored on later events ({int(test_y.sum()):,})")
 print(T.to_string(index=False))
+T.to_csv(RESULTS / "mondrian_check.csv", index=False)
 sz["mondrian_edges"] = [float(x) for x in edges]; sz["mondrian_offset"] = mond
 joblib.dump(sz, MODELS / "sizing.joblib")
 print("saved per-bucket offsets into", MODELS / "sizing.joblib")

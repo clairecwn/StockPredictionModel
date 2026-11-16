@@ -212,6 +212,18 @@ say(pd.DataFrame(res).round(3).to_string(index=False))
 say("breach_rate = share of traded positions whose worst point cost more than the tier's limit; it should be <= the promised chance.")
 say("Sizing does not make returns predictable. Its job is to keep each tier's worst case where it says it will be.")
 
+# out-of-sample trades, saved for the Monte Carlo account simulation in s12_figures.py
+if not TEST:
+    trades = []
+    for tier, t in TIERS.items():
+        w = size(tier, bound[t["beta"]][1]); m = test & w.notna() & (w > 0)
+        trades.append(pd.DataFrame({"tier": tier, "day0": dates[m].values, "w": w[m].values,
+                                    "r20": E.tot_r20[m].values, "trough": E.tot_trough[m].values}))
+    for name, wf in (("fixed_10pct", 0.10), ("all_in", 1.0)):                  # benchmarks on every test event
+        trades.append(pd.DataFrame({"tier": name, "day0": dates[test].values, "w": wf,
+                                    "r20": E.tot_r20[test].values, "trough": E.tot_trough[test].values}))
+    pd.concat(trades).to_parquet(RESULTS / "sizing_trades.parquet")
+
 # mean-variance check: risk-adjusted return per $ at risk by tier
 section(5, "Risk-adjusted outcome per trade (2016-2026): mean / std of P&L in $")
 for tier, t in TIERS.items():

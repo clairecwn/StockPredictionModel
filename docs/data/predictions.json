@@ -1,5 +1,5 @@
 {
- "generated_utc": "2026-11-16T11:33+00:00",
+ "generated_utc": "2026-11-16T11:38+00:00",
  "tickers": [
   "NVDA",
   "TSLA",
@@ -250,7 +250,7 @@
    "event_class": "other",
    "event_headline": "",
    "day0": "2026-11-04",
-   "car_0_1_pct": -8.16912,
+   "car_0_1_pct": -8.16911,
    "decision_day": 7,
    "risk": {
     "drift_1_20": {
@@ -499,7 +499,7 @@
    "event_class": "earnings_guidance",
    "event_headline": "",
    "day0": "2026-10-29",
-   "car_0_1_pct": -25.7612,
+   "car_0_1_pct": -25.76121,
    "decision_day": 11,
    "risk": {
     "drift_1_20": {
