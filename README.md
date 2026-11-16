@@ -392,7 +392,7 @@ This project avoids all five, so its accuracy for direction sits close to 50%, w
 ## Live board
 
 <!-- LIVE-BOARD:START -->
-_Updated 2026-11-16 12:04 UTC. Research only, not financial advice._
+_Updated 2026-11-16 12:27 UTC. Research only, not financial advice._
 
 | Stock | Price | Event (day 0) | Day | Signal | Expected further dip | 1-in-10 worst point (20 days) | Risk vs normal | Recommended share if buying |
 |---|---|---|---|---|---|---|---|---|
@@ -401,7 +401,7 @@ _Updated 2026-11-16 12:04 UTC. Research only, not financial advice._
 | META | 641.69 | quiet: no event in the last 15 trading days | | | | | | |
 | BABA | 94.38 | price/volume shock, no matched news (2026-11-05) | 6 | BUY ⚠️ | 4.5% | -16.5% | 1.09x | 8% |
 | BA | 171.50 | earnings guidance (2026-10-27) | 13 | WAIT | 2.3% | -10.4% | 0.95x | 25% |
-| INTC | 59.66 | earnings guidance (2026-10-29) | 11 | BUY ⚠️ | 5.7% | -21.9% | 0.94x | 18% |
+| INTC | nan | no price data | | | | | | |
 | AAPL | 356.27 | earnings guidance (2026-11-02) | 9 | WAIT | 2.4% | -5.8% | 1.03x | 11% |
 | GRAB | 3.24 | price/volume shock, no matched news (2026-11-05) | 6 | WAIT ⚠️ | 4.5% | -18.7% | 0.88x | 6% |
 | SE | 75.36 | earnings guidance (2026-11-10) | 3 | WAIT ⚠️ | 5.1% | -14.5% | 1.07x | 17% |

@@ -83,6 +83,8 @@ for w in WL["stocks"]:
         item["status"] = "no price data"; board.append(item); continue
     item["price"] = float(f.c.iloc[-1]); item["price_date"] = str(f.index[-1].date())
     item["chg_1d_pct"] = 100 * float(f.ret.iloc[-1])
+    tail = f.c.iloc[-45:]                                       # recent closes for the price chart on the page
+    item["closes"] = [round(float(x), 2) for x in tail]; item["close_dates"] = [str(d.date()) for d in tail.index]
     news = finnhub(t)
     news["relevant"] = [relevant(h, w) for h in news.headline] if len(news) else []
     past_earn, next_earn = earnings_days(t)

@@ -13,161 +13,158 @@
 <script>try { const t = localStorage.getItem("theme"); if (t) document.documentElement.dataset.theme = t; } catch (e) {}</script>
 <style>
 :root {
-  --bg:#ECEEE8; --surface:#F8F9F5; --raised:#FFFFFF; --ink:#1D2320; --mute:#5D6761; --faint:#8A938D; --line:#D6DAD2;
-  --pine:#2F5D50; --pine-soft:#DFE8E3; --on-pine:#F3F5F0;
-  --buy:#2D6B49; --buy-soft:#DDEBE1; --wait:#93630F; --wait-soft:#F3E8D2; --risk:#9E3A2A; --risk-soft:#F3DFDA;
-  --serif:"Newsreader", Georgia, serif; --sans:"Public Sans", system-ui, sans-serif;
-  --r:10px;
+  --bg:#EDEFEA; --surface:#F9FAF7; --raised:#FFFFFF; --ink:#1E2421; --mute:#5C6660; --line:#D7DBD3;
+  --pine:#2F5D50; --pine-soft:#E0E9E4; --on-pine:#F4F6F1;
+  --buy:#2F6A4B; --buy-soft:#E0ECE4; --wait:#86601F; --wait-soft:#F1E7D5; --risk:#9C4637; --risk-soft:#F3E3DE;
+  --chart:#2F5D50; --chart-fill:rgba(47,93,80,.10);
+  --serif:"Newsreader", Georgia, serif; --sans:"Public Sans", system-ui, sans-serif; --r:12px;
 }
 @media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) {
-  --bg:#131715; --surface:#1A1F1C; --raised:#212724; --ink:#E3E7E2; --mute:#9BA49E; --faint:#727B75; --line:#2D3430;
-  --pine:#8EC0AA; --pine-soft:#22332C; --on-pine:#10201A;
-  --buy:#7FC59C; --buy-soft:#1E3327; --wait:#DFB05A; --wait-soft:#362B16; --risk:#E68D79; --risk-soft:#3A221D; } }
+  --bg:#171B19; --surface:#1D2220; --raised:#242A27; --ink:#E5E8E3; --mute:#A5ADA7; --line:#323A35;
+  --pine:#A7C6B8; --pine-soft:#28362F; --on-pine:#15201B;
+  --buy:#A6C9B1; --buy-soft:#25332A; --wait:#D2B485; --wait-soft:#342D21; --risk:#D7A496; --risk-soft:#3A2A26;
+  --chart:#A7C6B8; --chart-fill:rgba(167,198,184,.10); } }
 :root[data-theme="dark"] {
-  --bg:#131715; --surface:#1A1F1C; --raised:#212724; --ink:#E3E7E2; --mute:#9BA49E; --faint:#727B75; --line:#2D3430;
-  --pine:#8EC0AA; --pine-soft:#22332C; --on-pine:#10201A;
-  --buy:#7FC59C; --buy-soft:#1E3327; --wait:#DFB05A; --wait-soft:#362B16; --risk:#E68D79; --risk-soft:#3A221D; }
+  --bg:#171B19; --surface:#1D2220; --raised:#242A27; --ink:#E5E8E3; --mute:#A5ADA7; --line:#323A35;
+  --pine:#A7C6B8; --pine-soft:#28362F; --on-pine:#15201B;
+  --buy:#A6C9B1; --buy-soft:#25332A; --wait:#D2B485; --wait-soft:#342D21; --risk:#D7A496; --risk-soft:#3A2A26;
+  --chart:#A7C6B8; --chart-fill:rgba(167,198,184,.10); }
 
 * { box-sizing:border-box; }
 html { -webkit-text-size-adjust:100%; }
-body { margin:0; background:var(--bg); color:var(--ink); font:15.5px/1.55 var(--sans); font-variant-numeric:tabular-nums; }
+body { margin:0; background:var(--bg); color:var(--ink); font:16px/1.6 var(--sans); font-variant-numeric:tabular-nums; }
 button, input { font:inherit; color:inherit; }
 button { cursor:pointer; }
 a { color:var(--pine); text-underline-offset:3px; }
 :focus-visible { outline:2px solid var(--pine); outline-offset:2px; border-radius:6px; }
-.mute { color:var(--mute); }
+p { margin:0; }
 
-/* top bar */
-.top { max-width:1180px; margin:0 auto; padding:18px 20px 10px; display:flex; align-items:center; gap:14px; }
+.top { max-width:1160px; margin:0 auto; padding:18px 20px 14px; display:flex; align-items:center; gap:14px; }
 .brand { display:flex; align-items:center; gap:10px; text-decoration:none; color:var(--ink); }
 .brand svg { width:30px; height:30px; flex:none; }
-.brand b { font:500 24px/1 var(--serif); letter-spacing:-0.01em; }
-.tagline { color:var(--mute); font-size:14px; }
+.brand b { font:500 25px/1 var(--serif); }
+.tagline { color:var(--mute); }
 .top-actions { margin-left:auto; display:flex; gap:8px; }
-.ghost { background:none; border:1px solid var(--line); border-radius:999px; padding:7px 14px; font-size:14px; font-weight:500; }
-.ghost:hover { border-color:var(--faint); }
+.ghost { background:none; border:1px solid var(--line); border-radius:999px; padding:7px 15px; font-weight:500; font-size:15px; }
+.ghost:hover { border-color:var(--mute); }
 
-/* steps */
-.steps { max-width:1180px; margin:0 auto; padding:0 20px 14px; display:flex; gap:22px; flex-wrap:wrap; font-size:14px; color:var(--mute); }
-.steps span b { display:inline-grid; place-items:center; width:20px; height:20px; border-radius:50%; background:var(--pine-soft); color:var(--pine); font-size:12px; margin-right:6px; }
-
-/* layout */
-.app { max-width:1180px; margin:0 auto; padding:0 20px 120px; display:grid; grid-template-columns:300px 1fr; gap:18px; align-items:start; }
+.app { max-width:1160px; margin:0 auto; padding:0 20px 120px; display:grid; grid-template-columns:280px 1fr; gap:18px; align-items:start; }
 .list { background:var(--surface); border:1px solid var(--line); border-radius:var(--r); overflow:hidden; position:sticky; top:12px; }
-.list h2 { font:600 13px var(--sans); color:var(--mute); margin:0; padding:12px 14px 8px; }
-.row { width:100%; display:grid; grid-template-columns:1fr auto; gap:2px 10px; text-align:left; background:none; border:0; border-top:1px solid var(--line); padding:11px 14px; }
+.list-head { padding:14px 16px 10px; }
+.list-head b { display:block; font-weight:600; }
+.list-head span { color:var(--mute); font-size:15px; }
+.row { width:100%; display:grid; grid-template-columns:1fr auto; align-items:center; gap:0 10px; text-align:left; background:none; border:0; border-top:1px solid var(--line); padding:12px 16px; }
 .row:hover { background:var(--raised); }
 .row[aria-selected="true"] { background:var(--pine-soft); box-shadow:inset 3px 0 0 var(--pine); }
-.row .t { font-weight:700; font-size:16px; }
-.row .s { font-size:13px; color:var(--mute); grid-column:1; }
-.row .p { font-size:14px; text-align:right; }
-.row .pill { grid-row:2; grid-column:2; justify-self:end; }
-.row.quiet .t { font-weight:600; color:var(--mute); }
-.pill { font-size:12.5px; font-weight:600; padding:2px 9px; border-radius:999px; white-space:nowrap; }
+.row .t { font-weight:700; }
+.row .s { color:var(--mute); font-size:15px; }
+.row.quiet .t { color:var(--mute); font-weight:600; }
+.pill { font-size:14px; font-weight:600; padding:3px 11px; border-radius:999px; white-space:nowrap; }
 .pill.BUY { background:var(--buy-soft); color:var(--buy); } .pill.WAIT { background:var(--wait-soft); color:var(--wait); }
-.pill.none { background:transparent; color:var(--faint); padding-right:0; }
-.pill.risk { background:var(--risk-soft); color:var(--risk); }
+.pill.none { color:var(--mute); padding-right:0; }
 
-/* detail */
-.detail { background:var(--surface); border:1px solid var(--line); border-radius:var(--r); padding:24px 26px; min-height:420px; }
-.d-head { display:flex; align-items:baseline; gap:10px 14px; flex-wrap:wrap; }
-.d-head h1 { margin:0; font:700 30px/1 var(--sans); letter-spacing:-0.01em; }
+.detail { background:var(--surface); border:1px solid var(--line); border-radius:var(--r); padding:24px 26px; }
+.d-head { display:flex; align-items:center; gap:8px 14px; flex-wrap:wrap; }
+.d-head h1 { margin:0; font:700 28px/1 var(--sans); }
 .d-head .name { color:var(--mute); }
-.d-head .px { margin-left:auto; font-size:20px; font-weight:600; }
-.chg.up { color:var(--buy); } .chg.down { color:var(--risk); }
-.story { font:400 21px/1.45 var(--serif); margin:16px 0 6px; max-width:62ch; }
-.story strong { font-weight:500; }
-.sub { color:var(--mute); font-size:14px; margin:0 0 4px; max-width:70ch; }
-.flag { margin:14px 0 0; padding:10px 12px; border-radius:8px; background:var(--risk-soft); color:var(--risk); font-size:14.5px; }
+.d-head .px { margin-left:auto; text-align:right; line-height:1.25; }
+.d-head .px b { font-size:20px; display:block; }
+.up { color:var(--buy); } .down { color:var(--risk); }
 
-.block { margin-top:24px; padding-top:20px; border-top:1px solid var(--line); }
-.block h3 { margin:0 0 4px; font-size:16px; font-weight:600; }
-.block .help { margin:0 0 14px; color:var(--mute); font-size:14px; max-width:70ch; }
+.verdict { margin-top:18px; display:flex; gap:14px; align-items:flex-start; padding:16px 18px; border-radius:10px; background:var(--raised); border:1px solid var(--line); }
+.verdict .tag { flex:none; font-weight:700; padding:5px 14px; border-radius:999px; }
+.verdict.BUY .tag { background:var(--buy-soft); color:var(--buy); } .verdict.WAIT .tag { background:var(--wait-soft); color:var(--wait); }
+.verdict.none .tag { background:var(--pine-soft); color:var(--pine); }
+.verdict p { font:400 19px/1.5 var(--serif); }
 
-/* budget + tiers */
-.budget { display:flex; flex-wrap:wrap; gap:14px 20px; align-items:end; }
-.field { display:flex; flex-direction:column; gap:6px; font-size:13.5px; color:var(--mute); font-weight:500; }
+.sec { margin-top:22px; }
+.sec h2 { margin:0 0 6px; font-size:17px; font-weight:600; }
+.sec > p { max-width:68ch; }
+.chart { margin-top:10px; }
+.chart svg { width:100%; height:auto; display:block; overflow:visible; }
+.legend { display:flex; flex-wrap:wrap; gap:6px 18px; margin-top:8px; }
+.legend span { display:inline-flex; align-items:baseline; gap:8px; }
+.legend i { width:18px; height:0; border-top:2px solid; display:inline-block; }
+
+.facts { display:grid; grid-template-columns:repeat(3, minmax(0,1fr)); gap:10px; margin-top:14px; }
+.fact { padding:12px 14px; border-radius:10px; background:var(--raised); border:1px solid var(--line); }
+.fact b { display:block; font-size:16px; }
+.fact span { display:block; color:var(--mute); }
+
+.risk { margin-top:18px; border-radius:10px; background:var(--risk-soft); padding:16px 18px; display:grid; grid-template-columns:1fr 220px; gap:14px 22px; align-items:center; }
+.risk h3 { margin:0 0 4px; font-size:17px; color:var(--risk); }
+.bars { display:grid; gap:8px; }
+.bar { display:grid; grid-template-columns:1fr; gap:3px; }
+.bar div { height:10px; border-radius:5px; background:color-mix(in srgb, var(--risk) 22%, transparent); }
+.bar div i { display:block; height:100%; border-radius:5px; background:var(--risk); }
+.bar.other div i { background:var(--mute); }
+
+.note { margin-top:14px; padding:12px 16px; border-left:3px solid var(--wait); background:var(--wait-soft); border-radius:0 8px 8px 0; }
+
+.amount { margin-top:22px; padding:18px; border-radius:10px; background:var(--pine-soft); }
+.amount h2 { margin:0 0 4px; font-size:17px; }
+.controls { display:flex; flex-wrap:wrap; gap:12px 22px; align-items:end; margin-top:12px; }
+.field { display:flex; flex-direction:column; gap:6px; font-weight:500; }
 .money { display:flex; align-items:center; background:var(--raised); border:1px solid var(--line); border-radius:8px; }
 .money:focus-within { border-color:var(--pine); }
 .money span { padding-left:12px; color:var(--mute); }
-.money input { width:130px; border:0; background:none; padding:9px 12px 9px 4px; font-size:19px; font-weight:600; outline:none; }
-.seg { display:inline-flex; background:var(--bg); border:1px solid var(--line); border-radius:999px; padding:3px; }
-.seg button { border:0; background:none; border-radius:999px; padding:6px 14px; font-size:14px; font-weight:600; color:var(--mute); }
-.seg button[aria-pressed="true"] { background:var(--raised); color:var(--ink); box-shadow:0 1px 2px rgba(0,0,0,.08); }
+.money input { width:130px; border:0; background:none; padding:9px 12px 9px 4px; font-size:18px; font-weight:600; outline:none; }
+.seg { display:inline-flex; background:var(--raised); border:1px solid var(--line); border-radius:999px; padding:3px; }
+.seg button { border:0; background:none; border-radius:999px; padding:6px 15px; font-weight:600; color:var(--mute); }
+.seg button[aria-pressed="true"] { background:var(--pine); color:var(--on-pine); }
 .answer { margin-top:16px; display:flex; flex-wrap:wrap; align-items:center; gap:10px 18px; }
-.answer .amt { font:700 34px/1 var(--sans); letter-spacing:-0.01em; }
-.answer p { margin:0; color:var(--mute); font-size:14.5px; max-width:46ch; }
-.add { margin-left:auto; background:var(--pine); color:var(--on-pine); border:0; border-radius:999px; padding:9px 16px; font-weight:600; font-size:14px; }
+.answer .amt { font:700 32px/1 var(--sans); }
+.answer p { max-width:44ch; }
+.add { margin-left:auto; background:var(--pine); color:var(--on-pine); border:0; border-radius:999px; padding:10px 18px; font-weight:600; }
 .add[aria-pressed="true"] { background:none; color:var(--pine); border:1px solid var(--pine); }
-.add:disabled { opacity:.45; cursor:not-allowed; }
+.add:disabled { opacity:.5; cursor:not-allowed; }
 
-/* risk ruler */
-.ruler { position:relative; height:46px; margin:8px 4px 6px; }
-.ruler .track { position:absolute; left:0; right:0; top:20px; height:6px; border-radius:3px;
-  background:linear-gradient(90deg, var(--pine-soft), var(--wait-soft) 55%, var(--risk-soft)); }
-.ruler .mk { position:absolute; top:12px; width:2px; height:22px; background:var(--ink); }
-.ruler .mk.r { background:var(--risk); }
-.ruler .lab { position:absolute; top:-4px; transform:translateX(-50%); font-size:12.5px; white-space:nowrap; color:var(--mute); }
-.ruler .lab b { color:var(--ink); }
-.scale { display:flex; justify-content:space-between; font-size:12px; color:var(--faint); margin:0 4px; }
+details { margin-top:18px; border-top:1px solid var(--line); padding-top:14px; }
+summary { color:var(--pine); font-weight:600; }
+details ul { margin:10px 0 0; padding-left:18px; } details li { margin:6px 0; }
+.quietmsg { margin-top:18px; font:400 19px/1.5 var(--serif); max-width:60ch; }
 
-.facts { display:grid; grid-template-columns:repeat(3, minmax(0,1fr)); gap:10px; margin-top:16px; }
-.fact { background:var(--raised); border:1px solid var(--line); border-radius:8px; padding:10px 12px; }
-.fact span { display:block; font-size:13px; color:var(--mute); }
-.fact b { display:block; margin-top:2px; font-size:18px; }
-.fact small { font-weight:400; color:var(--mute); font-size:12.5px; }
-details { margin-top:16px; }
-summary { color:var(--pine); font-weight:600; font-size:14.5px; }
-details ul { margin:10px 0 0; padding-left:18px; font-size:14.5px; } details li { margin:6px 0; }
-
-.empty { display:grid; place-items:center; text-align:center; min-height:360px; color:var(--mute); }
-.empty .story { color:var(--ink); }
-
-/* plan bar */
-.plan { position:fixed; left:50%; bottom:16px; transform:translateX(-50%); width:min(760px, calc(100% - 24px));
-  background:var(--raised); border:1px solid var(--line); border-radius:14px; box-shadow:0 8px 28px rgba(20,30,25,.16); z-index:5; }
+.plan { position:fixed; left:50%; bottom:16px; transform:translateX(-50%); width:min(720px, calc(100% - 24px));
+  background:var(--raised); border:1px solid var(--line); border-radius:14px; box-shadow:0 10px 30px rgba(20,30,25,.14); z-index:5; }
 .plan[hidden] { display:none; }
-.plan-bar { display:flex; align-items:center; gap:12px; padding:10px 12px 10px 16px; }
-.plan-bar b { font-size:15px; }
+.plan-bar { display:flex; align-items:center; gap:4px 12px; flex-wrap:wrap; padding:10px 12px 10px 16px; }
 .plan-bar .go { margin-left:auto; }
-.plan-body { padding:0 16px 14px; border-top:1px solid var(--line); }
-.plan-body table { width:100%; border-collapse:collapse; margin-top:10px; font-size:14.5px; }
-.plan-body th, .plan-body td { text-align:right; padding:6px 4px; border-bottom:1px solid var(--line); }
+.plan-body { padding:4px 16px 14px; border-top:1px solid var(--line); }
+.plan-body table { width:100%; border-collapse:collapse; margin-top:8px; }
+.plan-body th, .plan-body td { text-align:right; padding:7px 4px; border-bottom:1px solid var(--line); }
 .plan-body th:first-child, .plan-body td:first-child { text-align:left; }
-.plan-body th { color:var(--mute); font-weight:500; font-size:13px; }
-.plan-body p { margin:10px 0 0; font-size:13.5px; color:var(--mute); }
+.plan-body th { color:var(--mute); font-weight:500; }
+.plan-body p { margin-top:10px; }
 
-/* dialogs */
 dialog { border:1px solid var(--line); border-radius:14px; background:var(--surface); color:var(--ink); padding:0; width:min(620px, calc(100% - 24px)); max-height:85vh; }
 dialog::backdrop { background:rgba(15,20,18,.45); }
 .dlg { padding:22px 24px; overflow:auto; max-height:85vh; }
 .dlg h2 { font:500 24px/1.2 var(--serif); margin:0 0 10px; }
-.dlg h3 { font-size:15px; margin:18px 0 4px; }
-.dlg p, .dlg li { font-size:15px; } .dlg ul { padding-left:18px; }
-.dlg dl { margin:0; } .dlg .it { padding:10px 0; border-bottom:1px solid var(--line); }
-.dlg dt { font-weight:600; font-size:14.5px; } .dlg dd { margin:2px 0 0; color:var(--mute); font-size:14.5px; }
+.dlg h3 { font-size:16px; margin:18px 0 4px; }
+.dlg p { margin:0 0 8px; } .dlg ul { padding-left:18px; } .dlg li { margin:5px 0; }
+.dlg .it { padding:10px 0; border-bottom:1px solid var(--line); }
+.dlg dt { font-weight:600; } .dlg dd { margin:2px 0 0; color:var(--mute); }
 .dlg .close { float:right; }
-
-footer { max-width:1180px; margin:0 auto; padding:0 20px 40px; font-size:13.5px; color:var(--mute); }
+footer { max-width:1160px; margin:0 auto; padding:0 20px 40px; color:var(--mute); }
 
 @media (max-width:820px) {
-  .top { padding:14px 14px 8px; } .tagline { display:none; }
-  .steps { padding:0 14px 10px; gap:12px; font-size:13px; }
-  .app { grid-template-columns:1fr; padding:0 14px 140px; gap:12px; }
-  .list { position:sticky; top:0; z-index:4; border-radius:0 0 var(--r) var(--r); border-top:0; margin:0 -14px; display:flex; overflow-x:auto; scroll-snap-type:x mandatory; }
-  .list h2 { display:none; }
-  .row { width:auto; min-width:108px; border-top:0; border-right:1px solid var(--line); scroll-snap-align:start; grid-template-columns:1fr; padding:9px 12px; }
-  .row .p, .row .s { display:none; } .row .pill { grid-row:auto; grid-column:1; justify-self:start; margin-top:3px; }
+  .top { padding:12px 14px 10px; } .tagline { display:none; }
+  .app { grid-template-columns:1fr; padding:0 14px 150px; gap:12px; }
+  .list { position:sticky; top:0; z-index:4; margin:0 -14px; border-radius:0; border-width:0 0 1px; display:flex; overflow-x:auto; scrollbar-width:none; }
+  .list::-webkit-scrollbar { display:none; }
+  .list-head { display:none; }
+  .row { width:auto; min-width:96px; border-top:0; border-right:1px solid var(--line); grid-template-columns:1fr; gap:4px; padding:10px 12px; }
+  .row .s { display:none; } .row .pill { justify-self:start; }
   .row[aria-selected="true"] { box-shadow:inset 0 -3px 0 var(--pine); }
   .detail { padding:18px 16px; }
-  .d-head h1 { font-size:26px; } .story { font-size:19px; }
-  .facts { grid-template-columns:1fr 1fr; }
-  .add { margin-left:0; width:100%; padding:11px; }
-  .answer .amt { font-size:30px; }
+  .d-head h1 { font-size:24px; }
+  .verdict { flex-direction:column; gap:10px; padding:14px; } .verdict p { font-size:18px; }
+  .facts { grid-template-columns:1fr; gap:8px; }
+  .fact { display:flex; justify-content:space-between; gap:12px; padding:10px 14px; } .fact span { text-align:right; }
+  .risk { grid-template-columns:1fr; }
+  .add { margin-left:0; width:100%; }
 }
-@media (prefers-reduced-motion: no-preference) {
-  .row, .seg button, .ghost, .add { transition:background-color .15s, color .15s, border-color .15s; }
-}
+@media (prefers-reduced-motion: no-preference) { .row, .seg button, .ghost, .add { transition:background-color .15s, color .15s, border-color .15s; } }
 </style>
 </head>
 <body>
@@ -182,14 +179,10 @@ footer { max-width:1180px; margin:0 auto; padding:0 20px 40px; font-size:13.5px;
     <button class="ghost" id="themeBtn" type="button">Dark</button>
   </div>
 </header>
-<div class="steps" aria-label="How to use this page">
-  <span><b>1</b>Pick a stock</span><span><b>2</b>Read what happened</span><span><b>3</b>Enter your budget</span><span><b>4</b>Add up to three to a plan</span>
-</div>
-
 <main class="app">
-  <nav class="list" id="list" aria-label="Watchlist"><h2 id="listTitle">Watchlist</h2></nav>
+  <nav class="list" id="list" aria-label="Watchlist"></nav>
   <section class="detail" id="detail" aria-live="polite">
-    <div class="empty"><div><p class="story">Loading today's board</p><p class="sub">This takes a second.</p></div></div>
+    <p class="quietmsg">Loading today's board.</p>
   </section>
 </main>
 
@@ -210,7 +203,7 @@ footer { max-width:1180px; margin:0 auto; padding:0 20px 40px; font-size:13.5px;
     <li><b>Buy or Wait</b> compares buying today with waiting a few days. It is based on the expected move over the next five trading days.</li>
     <li><b>Expected further dip</b> is how much lower the stock may still go before its 20-day low.</li>
     <li><b>Bad case</b> is a level the stock should fall below only about 1 time in 10 while you hold it for 20 trading days.</li>
-    <li><b>Safest, Balanced and Bold</b> are three position sizes. Each one caps the chance of losing more than a set share of your budget.</li>
+    <li><b>Safest, Balanced and Bold</b> are three position sizes. Each one limits the chance of losing more than 2%, 4% or 8% of your budget.</li>
     <li><b>High drop risk</b> means the stock is in the riskiest fifth of comparable past events.</li>
   </ul>
   <h3>Combining stocks</h3>
@@ -223,26 +216,25 @@ footer { max-width:1180px; margin:0 auto; padding:0 20px 40px; font-size:13.5px;
 <script>
 const TIERS = {safest:{label:"Safest", d:0.02, beta:0.05}, recommended:{label:"Balanced", d:0.04, beta:0.10}, bold:{label:"Bold", d:0.08, beta:0.10}};
 const STRESS = 0.4, MAX_TOTAL = 0.8;
-const KIND = {earnings_guidance:"its earnings report", analyst:"an analyst rating change", leadership:"a leadership change",
-  legal_regulatory:"legal or regulatory news", accounting_fraud:"an accounting issue", activist_short:"an activist or short-seller campaign",
-  credit_distress:"credit news", operational:"operational news", politics_policy:"policy news", ma_strategy:"deal news", capital:"a capital raise",
-  other:"a large price move with no matched news"};
+const WARN = {flagged:35, other:15};        // results/live_models/sizing.md, section 7 (2016-2025, out of sample)
+const KIND = {earnings_guidance:"after its earnings report", analyst:"after an analyst changed their rating", leadership:"after a change in leadership",
+  legal_regulatory:"after legal or regulatory news", accounting_fraud:"after an accounting issue came to light", activist_short:"after an activist or short-seller campaign",
+  credit_distress:"after credit news", operational:"after operational news", politics_policy:"after policy news", ma_strategy:"after deal news", capital:"after a capital raise",
+  other:"with no clear news behind the move"};
 const $ = s => document.querySelector(s);
 const fmt = (x, d=1) => (x == null || isNaN(x)) ? "–" : Number(x).toFixed(d);
 const money = x => "$" + Number(x || 0).toLocaleString("en-US", {minimumFractionDigits:2, maximumFractionDigits:2});
 const esc = x => String(x ?? "").replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
 const safeUrl = u => /^https?:\/\//i.test(u || "") ? esc(u) : "#";
-const day = d => d ? new Date(d + "T12:00:00Z").toLocaleDateString("en-GB", {day:"numeric", month:"short"}) : "";
+const day = d => d ? new Date(String(d).slice(0, 10) + "T12:00:00Z").toLocaleDateString("en-GB", {day:"numeric", month:"short"}) : "";
 const store = { get(k, v) { try { const x = localStorage.getItem(k); return x == null ? v : JSON.parse(x); } catch (e) { return v; } },
                 set(k, v) { try { localStorage.setItem(k, JSON.stringify(v)); } catch (e) {} } };
-
 let DATA = null, sel = null, plan = store.get("plan", []), tier = store.get("tier", "recommended"), budget = store.get("budget", 200), planOpen = false;
 
-// theme
 const root = document.documentElement, themeBtn = $("#themeBtn");
 const dark = () => root.dataset.theme ? root.dataset.theme === "dark" : matchMedia("(prefers-color-scheme: dark)").matches;
 const syncTheme = () => { themeBtn.textContent = dark() ? "Light" : "Dark"; themeBtn.setAttribute("aria-label", dark() ? "Switch to light theme" : "Switch to dark theme"); };
-themeBtn.onclick = () => { root.dataset.theme = dark() ? "light" : "dark"; store.set("theme", root.dataset.theme); try { localStorage.setItem("theme", root.dataset.theme); } catch (e) {} syncTheme(); };
+themeBtn.onclick = () => { root.dataset.theme = dark() ? "light" : "dark"; try { localStorage.setItem("theme", root.dataset.theme); } catch (e) {} syncTheme(); renderDetail(); };
 syncTheme();
 $("#howBtn").onclick = () => $("#howDlg").showModal();
 document.querySelectorAll("[data-close]").forEach(b => b.onclick = () => b.closest("dialog").close());
@@ -261,91 +253,112 @@ const corrOf = (a, b) => { const i = DATA.tickers.indexOf(a), j = DATA.tickers.i
 const stockOf = t => DATA.stocks.find(s => s.ticker === t);
 const live = s => s && s.status === "event";
 const sig = s => (s.entry?.signal === "BUY" || s.entry?.signal === "WAIT") ? s.entry.signal : null;
+const oneIn = p => p > 0 ? `about 1 in ${Math.max(2, Math.round(1 / p))}` : "–";
+const swings = v => !v ? "–" : v < 0.85 ? "Calmer than usual" : v > 1.15 ? "Bigger than usual" : "About usual";
 
 function renderList() {
-  const order = [...DATA.stocks].sort((a, b) => (live(b) - live(a)));
-  $("#list").innerHTML = '<h2 id="listTitle">Watchlist</h2>' + order.map(s => {
+  const order = [...DATA.stocks].sort((a, b) => live(b) - live(a));
+  $("#list").innerHTML = `<div class="list-head"><b>Watchlist</b><span>Pick a stock to see the details.</span></div>` + order.map(s => {
     const g = live(s) ? sig(s) : null;
-    const pill = g ? `<span class="pill ${g}">${g === "BUY" ? "Buy" : "Wait"}</span>` : `<span class="pill none">${live(s) ? "No signal" : "Quiet"}</span>`;
-    const sub = live(s) ? `Day ${s.decision_day} after ${s.event_class === "other" ? "a big move" : (s.event_class === "earnings_guidance" ? "earnings" : "news")}` : "No recent news";
-    return `<button class="row ${live(s) ? "" : "quiet"}" role="tab" aria-selected="${s.ticker === sel}" data-t="${esc(s.ticker)}">
-      <span class="t">${esc(s.ticker)}</span><span class="p">${fmt(s.price, 2)}</span><span class="s">${sub}</span>${pill}</button>`;
+    const pill = g ? `<span class="pill ${g}">${g === "BUY" ? "Buy" : "Wait"}</span>` : `<span class="pill none">${live(s) ? "Closed" : "Quiet"}</span>`;
+    const sub = live(s) ? `Day ${s.decision_day} after ${s.event_class === "earnings_guidance" ? "earnings" : s.event_class === "other" ? "a big move" : "news"}` : "No recent news";
+    return `<button class="row ${live(s) ? "" : "quiet"}" aria-selected="${s.ticker === sel}" data-t="${esc(s.ticker)}"><span><span class="t">${esc(s.ticker)}</span><br><span class="s">${sub}</span></span>${pill}</button>`;
   }).join("");
-  document.querySelectorAll(".row").forEach(b => b.onclick = () => { sel = b.dataset.t; store.set("sel", sel); renderAll(); if (matchMedia("(max-width:820px)").matches) $("#detail").scrollIntoView({block:"start"}); });
+  document.querySelectorAll(".row").forEach(b => b.onclick = () => { sel = b.dataset.t; store.set("sel", sel); renderAll(); });
+  const on = document.querySelector('.row[aria-selected="true"]'); if (on && matchMedia("(max-width:820px)").matches) on.scrollIntoView({inline:"center", block:"nearest"});
 }
 
-function ruler(dip, bad) {
-  const max = Math.max(25, Math.ceil(Math.abs(bad || 0) / 5) * 5 + 5), pos = v => (Math.min(Math.abs(v), max) / max * 100).toFixed(1) + "%";
-  return `<div class="ruler" role="img" aria-label="Expected further dip ${fmt(dip)} percent, bad case ${fmt(bad)} percent">
-    <div class="track"></div>
-    <div class="mk" style="left:${pos(dip)}"></div><div class="lab" style="left:${pos(dip)}">Expected dip <b>-${fmt(dip)}%</b></div>
-    ${bad != null ? `<div class="mk r" style="left:${pos(bad)}"></div><div class="lab" style="left:${pos(bad)};top:36px">Bad case <b>${fmt(bad)}%</b></div>` : ""}
-  </div><div class="scale" style="margin-top:14px"><span>Today</span><span>-${max}%</span></div>`;
+function chart(s) {
+  const c = s.closes || [], dts = s.close_dates || [];
+  if (c.length < 5) return "";
+  const narrow = matchMedia("(max-width:820px)").matches, W = narrow ? Math.max(300, Math.min(innerWidth - 60, 520)) : 640, H = narrow ? 180 : 190, padL = 6, padR = narrow ? 84 : 112, padT = 12, padB = 26;
+  const px = s.price, dip = s.entry?.expected_further_dip_pct, bad = s.sizing?.tiers?.recommended?.bad_case_pct;
+  const lowLvl = dip != null ? px * (1 - dip / 100) : null, badLvl = bad != null ? px * (1 + bad / 100) : null;
+  const vals = c.concat([lowLvl, badLvl].filter(v => v != null));
+  const lo = Math.min(...vals) * 0.985, hi = Math.max(...vals) * 1.015;
+  const x = i => padL + i / (c.length - 1) * (W - padL - padR), y = v => padT + (hi - v) / (hi - lo) * (H - padT - padB);
+  const path = c.map((v, i) => `${i ? "L" : "M"}${x(i).toFixed(1)},${y(v).toFixed(1)}`).join(" ");
+  const area = path + ` L${x(c.length - 1).toFixed(1)},${H - padB} L${x(0).toFixed(1)},${H - padB} Z`;
+  const ei = dts.indexOf(s.day0), xe = ei >= 0 ? x(ei) : null, xEnd = x(c.length - 1), xF = W - 8;
+  const css = getComputedStyle(root), col = n => css.getPropertyValue(n).trim();
+  const lvl = (v, color, dash) => v == null ? "" : `<line x1="${xEnd}" x2="${xF}" y1="${y(v)}" y2="${y(v)}" stroke="${color}" stroke-width="2" stroke-dasharray="${dash}"/>
+     <text x="${xF}" y="${y(v) - 6}" text-anchor="end" font-size="13" fill="${color}" font-family="Public Sans, sans-serif">${fmt(v, 2)}</text>`;
+  return `<div class="chart"><svg viewBox="0 0 ${W} ${H}" role="img" aria-label="Price over the last ${c.length} trading days, with the expected low and bad case ahead">
+    <path d="${area}" fill="${col("--chart-fill")}"/>
+    <path d="${path}" fill="none" stroke="${col("--chart")}" stroke-width="2.2" stroke-linejoin="round"/>
+    ${xe != null ? `<line x1="${xe}" x2="${xe}" y1="${padT}" y2="${H - padB}" stroke="${col("--mute")}" stroke-width="1" stroke-dasharray="3 4"/>
+      <text x="${xe > W * 0.55 ? xe - 6 : xe + 6}" text-anchor="${xe > W * 0.55 ? "end" : "start"}" y="${padT + 12}" font-size="13" fill="${col("--mute")}" font-family="Public Sans, sans-serif">News day</text>` : ""}
+    <circle cx="${xEnd}" cy="${y(px)}" r="4.5" fill="${col("--chart")}"/>
+    <rect x="${xEnd + 4}" y="${padT}" width="${xF - xEnd - 4}" height="${H - padT - padB}" fill="${col("--line")}" opacity=".35" rx="6"/>
+    <text x="${(xEnd + xF) / 2}" y="${H - 8}" text-anchor="middle" font-size="13" fill="${col("--mute")}" font-family="Public Sans, sans-serif">${narrow ? "Ahead" : "Next 4 weeks"}</text>
+    <text x="${padL}" y="${H - 8}" font-size="13" fill="${col("--mute")}" font-family="Public Sans, sans-serif">${day(dts[0])}</text>
+    ${lvl(lowLvl, col("--wait"), "6 4")}${lvl(badLvl, col("--risk"), "2 4")}
+  </svg>
+  <div class="legend"><span><i style="border-color:var(--wait);border-top-style:dashed"></i>Expected low, about ${fmt(dip)}% below today</span>
+    ${bad != null ? `<span><i style="border-color:var(--risk);border-top-style:dotted"></i>Bad case, ${fmt(-bad)}% below today (1 in 10 chance of worse)</span>` : ""}</div></div>`;
 }
 
 function renderDetail() {
   const s = stockOf(sel), el = $("#detail");
-  if (!s) { el.innerHTML = `<div class="empty"><div><p class="story">Pick a stock on the left to begin.</p></div></div>`; return; }
-  const chg = s.chg_1d_pct, chgH = chg == null ? "" : `<span class="chg ${chg >= 0 ? "up" : "down"}">${chg >= 0 ? "+" : ""}${fmt(chg, 2)}%</span>`;
-  const head = `<div class="d-head"><h1>${esc(s.ticker)}</h1><span class="name">${esc(s.name || "")}</span><span class="px">${fmt(s.price, 2)}</span>${chgH}</div>`;
+  if (!s) { el.innerHTML = `<p class="quietmsg">Pick a stock from the watchlist to begin.</p>`; return; }
+  const chg = s.chg_1d_pct;
+  const head = `<div class="d-head"><h1>${esc(s.ticker)}</h1><span class="name">${esc(s.name || "")}</span>
+    <div class="px"><b>${fmt(s.price, 2)}</b>${chg == null ? "" : `<span class="${chg >= 0 ? "up" : "down"}">${chg >= 0 ? "Up" : "Down"} ${fmt(Math.abs(chg), 2)}% on ${day(s.price_date)}</span>`}</div></div>`;
   if (!live(s)) {
-    el.innerHTML = head + `<p class="story">${esc(s.ticker)} has had no company news in the last 15 trading days, so there is nothing to time right now.</p>
-      <p class="sub">${s.next_earnings ? `The next earnings report is due on ${day(s.next_earnings)}. Check back after it.` : "Check back after its next news event."}</p>`;
+    el.innerHTML = head + `<p class="quietmsg">${esc(s.ticker)} has had no company news in the last three weeks, so there is nothing to time right now.${s.next_earnings ? ` Its next earnings report is due on ${day(s.next_earnings)}, and the board will update after it.` : ""}</p>${chart(s)}`;
     return;
   }
-  const e = s.entry || {}, r = s.risk || {}, g = sig(s), T = TIERS[tier];
-  const t = s.sizing?.tiers?.[tier] || {}, bad = s.sizing?.tiers?.recommended?.bad_case_pct;
-  const mv = s.car_0_1_pct, moved = mv >= 0 ? `rose <strong>${fmt(mv)}%</strong>` : `fell <strong>${fmt(-mv)}%</strong>`;
-  const dip = e.expected_further_dip_pct;
-  let advice;
-  if (g === "BUY") advice = `The model leans towards <strong>buying now</strong> rather than waiting. It still allows for about ${fmt(dip)}% more downside before the 20-day low.`;
-  else if (g === "WAIT") advice = `The model suggests <strong>waiting</strong>. It expects about ${fmt(dip)}% more downside before the 20-day low.`;
-  else advice = `The 15-day timing window has closed, so there is no buy or wait call.`;
+  const e = s.entry || {}, r = s.risk || {}, g = sig(s), T = TIERS[tier], t = s.sizing?.tiers?.[tier] || {};
+  const mv = s.car_0_1_pct, dip = e.expected_further_dip_pct;
+  const what = `${esc(s.ticker)} ${mv >= 0 ? "rose" : "fell"} ${fmt(Math.abs(mv))}% more than the overall market on ${day(s.day0)}, ${KIND[s.event_class] || "after company news"}.`;
+  let call, tag;
+  if (g === "BUY") { tag = "Buy now"; call = `Buying now looks reasonable. The model expects a small rise over the next week, although the price could still dip about ${fmt(dip)}% at some point in the next four weeks.`; }
+  else if (g === "WAIT") { tag = "Wait"; call = `Waiting may get you a better price. The model expects the stock could slip about ${fmt(dip)}% further before it reaches its lowest point in the next four weeks.`; }
+  else { tag = "No call"; call = `It has been more than three weeks since the news, so the timing model no longer applies.`; }
   const amt = (t.weight || 0) * budget, inPlan = plan.includes(s.ticker);
-  const lean = r.drift_1_20 ? (r.drift_1_20.pred > 0.01 ? "Slightly up" : r.drift_1_20.pred < -0.01 ? "Slightly down" : "Flat") : "–";
+  const d20 = r.drift_1_20?.pred, lean = d20 == null ? "–" : d20 > 0.01 ? "Slightly up" : d20 < -0.01 ? "Slightly down" : "No clear lean";
   const hl = (s.headlines || []).slice(0, 5);
   el.innerHTML = head + `
-    <p class="story">${esc(s.ticker)} ${moved} against the market after ${KIND[s.event_class] || "company news"} on ${day(s.day0)}. ${advice}</p>
-    <p class="sub">Day ${s.decision_day} of 20 since the news, using prices from the ${day(s.price_date)} close.${s.event_class === "other" ? " The model never trained on moves without news, so read this one with extra care." : ""}</p>
-    ${s.warning_big_drop ? `<p class="flag">High drop risk. Comparable past events in this group fell further than most.</p>` : ""}
+    <div class="verdict ${g || "none"}"><span class="tag">${tag}</span><p>${what} ${call}</p></div>
+    ${s.event_class === "other" ? `<p class="note">There was no news story the board could match to this move. The model learned from moves that had news behind them, so treat this reading as less certain.</p>` : ""}
 
-    <div class="block">
-      <h3>How far it could fall</h3>
-      <p class="help">Measured from today's price over the next 20 trading days.</p>
-      ${ruler(dip, bad)}
-      <div class="facts">
-        <div class="fact"><span>Volatility vs usual</span><b>${r.vol_ratio_2_20 ? fmt(r.vol_ratio_2_20.pred, 2) + "×" : "–"}</b></div>
-        ${e.at_new_low ? `<div class="fact"><span>Chance today's low holds</span><b>${fmt(100 * (e.p_low_holds ?? NaN), 0)}%</b></div>` : `<div class="fact"><span>Days since the news</span><b>${s.decision_day}</b></div>`}
-        <div class="fact"><span>20-day direction</span><b>${lean} <small>weak signal</small></b></div>
-      </div>
+    <div class="sec">
+      <h2>Price so far and what could come next</h2>
+      ${chart(s)}
+    </div>
+    ${s.warning_big_drop ? `<div class="risk"><div><h3>Higher chance of a sharp further drop</h3>
+        <p>Stocks that moved like ${esc(s.ticker)} have often kept falling. In past events like this one, ${WARN.flagged} in 100 went on to have one of the biggest drops, compared with ${WARN.other} in 100 for other stocks. If you still want to buy, the Safest level keeps the amount small.</p></div>
+        <div class="bars" aria-hidden="true"><div class="bar"><b>Like ${esc(s.ticker)}: ${WARN.flagged} in 100</b><div><i style="width:${WARN.flagged}%"></i></div></div>
+          <div class="bar other"><b>Other stocks: ${WARN.other} in 100</b><div><i style="width:${WARN.other}%"></i></div></div></div></div>` : ""}
+    <div class="facts">
+      <div class="fact"><b>Price swings</b><span>${swings(r.vol_ratio_2_20?.pred)}</span></div>
+      ${e.at_new_low ? `<div class="fact"><b>Chance today is the low</b><span>${oneIn(e.p_low_holds)}</span></div>` : `<div class="fact"><b>Days since the news</b><span>${s.decision_day} of 15</span></div>`}
+      <div class="fact"><b>Longer-term direction</b><span>${lean}, weak signal</span></div>
     </div>
 
-    <div class="block">
-      <h3>How much to put in</h3>
-      <p class="help">Type your budget and choose how much risk you accept. The amount updates as you type.</p>
-      <div class="budget">
-        <label class="field">Budget<span class="money"><span>$</span><input id="budget" type="number" inputmode="decimal" min="1" step="1" value="${budget}"></span></label>
+    <div class="amount">
+      <h2>How much to put in</h2>
+      <p>Enter your budget and choose a risk level. The amount changes as you type.</p>
+      <div class="controls">
+        <label class="field">Your budget<span class="money"><span>$</span><input id="budget" type="number" inputmode="decimal" min="1" step="1" value="${budget}"></span></label>
         <div class="field">Risk level<div class="seg" role="group" aria-label="Risk level">${Object.entries(TIERS).map(([k, v]) => `<button type="button" data-tier="${k}" aria-pressed="${k === tier}">${v.label}</button>`).join("")}</div></div>
       </div>
-      <div class="answer">
-        <span class="amt">${money(amt)}</span>
-        <p>${amt > 0 ? `in ${esc(s.ticker)}, with at most a ${Math.round(T.beta * 100)}% chance of being down more than ${money(budget * T.d)} at any point over 20 trading days.` : `The model's expected return is not positive here, so it suggests holding cash.`}</p>
-        <button class="add" id="addBtn" type="button" aria-pressed="${inPlan}" ${!inPlan && plan.length >= 3 ? "disabled" : ""}>${inPlan ? "Remove from plan" : (plan.length >= 3 ? "Plan is full (3 stocks)" : "Add to plan")}</button>
-      </div>
+      <div class="answer"><span class="amt" id="amt">${money(amt)}</span><p id="amtNote"></p>
+        <button class="add" id="addBtn" type="button" aria-pressed="${inPlan}" ${!inPlan && plan.length >= 3 ? "disabled" : ""}>${inPlan ? "Remove from plan" : plan.length >= 3 ? "Plan is full" : "Add to plan"}</button></div>
     </div>
-    ${hl.length ? `<details><summary>Recent headlines (${hl.length})</summary><ul>${hl.map(h => `<li><a href="${safeUrl(h.url)}" target="_blank" rel="noopener noreferrer">${esc(h.headline)}</a> <span class="mute">${day(String(h.date).slice(0, 10))}</span></li>`).join("")}</ul></details>` : ""}
-    ${s.next_earnings ? `<p class="sub" style="margin-top:14px">Next earnings report: ${day(s.next_earnings)}.</p>` : ""}`;
+    ${hl.length ? `<details><summary>Recent headlines</summary><ul>${hl.map(h => `<li><a href="${safeUrl(h.url)}" target="_blank" rel="noopener noreferrer">${esc(h.headline)}</a>, ${day(h.date)}</li>`).join("")}</ul></details>` : ""}`;
+  updateAnswer();
   const bi = $("#budget");
   bi.oninput = () => { budget = Math.max(Number(bi.value) || 0, 0); store.set("budget", budget); updateAnswer(); renderPlan(); };
   document.querySelectorAll("[data-tier]").forEach(b => b.onclick = () => { tier = b.dataset.tier; store.set("tier", tier); renderDetail(); renderPlan(); });
-  $("#addBtn").onclick = () => { plan = inPlan ? plan.filter(x => x !== s.ticker) : [...plan, s.ticker].slice(0, 3); store.set("plan", plan); renderDetail(); renderPlan(); };
+  $("#addBtn").onclick = () => { plan = inPlan ? plan.filter(x => x !== s.ticker) : [...plan, s.ticker].slice(0, 3); store.set("plan", plan); if (!inPlan) planOpen = true; renderDetail(); renderPlan(); };
 }
-function updateAnswer() {           // keep focus in the input while typing
-  const s = stockOf(sel), T = TIERS[tier], t = s?.sizing?.tiers?.[tier] || {}, amt = (t.weight || 0) * budget;
-  const a = document.querySelector(".answer .amt"), p = document.querySelector(".answer p");
-  if (!a) return;
-  a.textContent = money(amt);
-  p.textContent = amt > 0 ? `in ${s.ticker}, with at most a ${Math.round(T.beta * 100)}% chance of being down more than ${money(budget * T.d)} at any point over 20 trading days.` : "The model's expected return is not positive here, so it suggests holding cash.";
+function updateAnswer() {
+  const s = stockOf(sel), T = TIERS[tier], amt = (s?.sizing?.tiers?.[tier]?.weight || 0) * budget;
+  if (!$("#amt")) return;
+  $("#amt").textContent = money(amt);
+  $("#amtNote").textContent = amt > 0 ? `in ${s.ticker}. At this level there is at most a ${Math.round(T.beta * 100)}% chance of being down more than ${money(budget * T.d)} at any point over the next four weeks.`
+                                      : `The model does not expect a positive return here, so it suggests keeping this money in cash.`;
 }
 
 function renderPlan() {
@@ -358,13 +371,13 @@ function renderPlan() {
   const ws = rows.length > 1 ? basketScale(w, q, C, T.d) : w.map(x => Math.min(x, MAX_TOTAL));
   const amt = ws.map(x => x * budget), tot = amt.reduce((a, b) => a + b, 0);
   $("#planTitle").textContent = `Your plan: ${plan.join(", ")}`;
-  $("#planSum").textContent = `${money(tot)} of ${money(budget)}, ${T.label}`;
-  $("#planBody").innerHTML = `<table><tr><th>Stock</th><th>Amount</th><th>Share of budget</th><th></th></tr>
+  $("#planSum").textContent = `${money(tot)} of your ${money(budget)} budget`;
+  $("#planBody").innerHTML = `<table><tr><th>Stock</th><th>Amount</th><th>Share</th><th></th></tr>
     ${rows.map((r, i) => `<tr><td><b>${esc(r.ticker)}</b></td><td>${money(amt[i])}</td><td>${fmt(100 * ws[i], 0)}%</td><td><button class="ghost" type="button" data-rm="${esc(r.ticker)}">Remove</button></td></tr>`).join("")}
     <tr><td><b>Total</b></td><td><b>${money(tot)}</b></td><td>${fmt(100 * tot / Math.max(budget, 1e-9), 0)}%</td><td></td></tr></table>
-    <p>${rows.length > 1 ? "Amounts are smaller than buying each stock alone, because stocks tend to fall together in a sell-off." : "Add another stock to see how the split changes."} The plan keeps at most a ${Math.round(T.beta * 100)}% chance of being down more than ${money(budget * T.d)} in total. The rest stays in cash.</p>`;
+    <p>${rows.length > 1 ? "Each amount is smaller than it would be on its own, because stocks often fall together in a sell-off." : "Add another stock to see how the money is shared."} Together, the plan keeps at most a ${Math.round(T.beta * 100)}% chance of being down more than ${money(budget * T.d)}, and the rest stays in cash.</p>`;
   $("#planBody").hidden = !planOpen;
-  $("#planToggle").textContent = planOpen ? "Hide split" : "Show split";
+  $("#planToggle").textContent = planOpen ? "Hide" : "Show split";
   $("#planToggle").setAttribute("aria-expanded", planOpen);
   document.querySelectorAll("[data-rm]").forEach(b => b.onclick = () => { plan = plan.filter(x => x !== b.dataset.rm); store.set("plan", plan); renderDetail(); renderPlan(); });
 }
@@ -372,10 +385,9 @@ $("#planToggle").onclick = () => { planOpen = !planOpen; renderPlan(); };
 
 function renderSkill() {
   const sk = DATA.skill || {};
-  $("#skillList").innerHTML = Object.entries(sk).filter(([k]) => k !== "How these were measured")
-    .map(([k, v]) => `<div class="it"><dt>${esc(k)}</dt><dd>${esc(v)}</dd></div>`).join("");
+  $("#skillList").innerHTML = Object.entries(sk).filter(([k]) => k !== "How these were measured").map(([k, v]) => `<div class="it"><dt>${esc(k)}</dt><dd>${esc(v)}</dd></div>`).join("");
   fetch("data/forward_scores.json?" + Date.now()).then(r => r.json()).then(f => {
-    $("#fwdLine").textContent = `Live record: ${f.n_logged || 0} predictions logged so far, ${f.n_scored || 0} with a known 20-day outcome.${f.too_early ? " It is too early to judge them." : ""}`;
+    $("#fwdLine").textContent = `Live record so far: ${f.n_logged || 0} predictions logged, ${f.n_scored || 0} of them old enough to check.${f.too_early ? " That is too few to judge yet." : ""}`;
   }).catch(() => {});
 }
 function renderAll() { renderList(); renderDetail(); renderPlan(); }
@@ -384,9 +396,10 @@ fetch("data/predictions.json?" + Date.now()).then(r => r.json()).then(d => {
   DATA = d;
   const remembered = store.get("sel", null);
   sel = (remembered && stockOf(remembered)) ? remembered : (d.stocks.find(live) || d.stocks[0] || {}).ticker;
-  $("#foot").textContent = `Updated ${d.generated_utc.replace("T", " ").replace("+00:00", "")} UTC. Research project. Signals are probabilities learned from 2001 to 2025 and can be wrong. Nothing here is advice to buy or sell a security.`;
+  $("#foot").textContent = `Updated ${d.generated_utc.replace("T", " ").replace("+00:00", "")} UTC. This is a research project. Its signals are probabilities learned from 2001 to 2025 and can be wrong, so nothing here is advice to buy or sell.`;
   renderAll(); renderSkill();
-}).catch(() => { $("#detail").innerHTML = `<div class="empty"><div><p class="story">Today's board could not be loaded.</p><p class="sub">Refresh the page to try again.</p></div></div>`; });
+  let rt; addEventListener("resize", () => { clearTimeout(rt); rt = setTimeout(renderDetail, 200); });
+}).catch(() => { $("#detail").innerHTML = `<p class="quietmsg">Today's board could not be loaded. Refresh the page to try again.</p>`; });
 </script>
 </body>
 </html>
