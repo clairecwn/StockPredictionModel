@@ -317,7 +317,7 @@ function renderDetail() {
         <div class="facts">
           <div class="fact"><b>Typical move</b><span>about ${fmt(pv.typical_move_pct)}%, either direction</span></div>
           <div class="fact"><b>Large move</b><span>1 in 10 chance of more than ${fmt(pv.upper_move_pct)}%</span></div>
-          <div class="fact"><b>Direction</b><span>Not predictable before the report</span></div>
+          ${pv.drawdown_pct != null ? `<div class="fact"><b>Deepest dip after</b><span>about ${fmt(Math.abs(pv.drawdown_pct))}% below the market at some point in the following four weeks</span></div>` : `<div class="fact"><b>Direction</b><span>Not predictable before the report</span></div>`}
         </div>
         <p class="note">The direction of an earnings reaction cannot be forecast from public information, so the preview only says how big the move may be. A buy or wait call appears after the report, once the reaction is known.</p>
         <div class="sec"><h2>Price over the last two months</h2>${chart(s)}</div>`;

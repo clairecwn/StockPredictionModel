@@ -86,6 +86,14 @@ if xc.exists() and os.environ.get("EXP_ABLATION") != "1":
     x = pd.read_parquet(xc).drop_duplicates(["permno", "day0"])[["permno", "day0"] + CAL_F]
     x["permno"] = x.permno.astype(ev.permno.dtype); x["day0"] = pd.to_datetime(x.day0)
     ev = ev.merge(x, on=["permno", "day0"], how="left")
+# experiment 6 (x05): pre-event liquidity and trading activity (s02f). Splits, scandal contagion, news co-mentions and
+# customer-supplier links failed the test and are not used.
+LIQ_F = ["turn_chg", "amihud_chg", "zero_ret_60", "pre_abvol_5", "spread_chg"]
+xl = PROC / "spillover_features.parquet"
+if xl.exists() and os.environ.get("EXP_NO_LIQ") != "1":
+    x = pd.read_parquet(xl).drop_duplicates(["permno", "day0"])[["permno", "day0"] + LIQ_F]
+    x["permno"] = x.permno.astype(ev.permno.dtype); x["day0"] = pd.to_datetime(x.day0)
+    ev = ev.merge(x, on=["permno", "day0"], how="left")
 # supervised news sentiment learned from our own returns (s03e, out of sample by year)
 xs = PROC / "sestm_features.parquet"
 if xs.exists() and HAVE_SENT:
@@ -109,7 +117,7 @@ FEATS = ["car_0_1", "ar_day0_sd", "abn_volume_0_1", "beta", "idio_vol_pre", "vol
          "log_claim", "activist_stake", "restate_adverse", "rec_net", "ceo_tenure", "ceo_age", "ceo_own_pct", "long_tenure_ceo",
          "yz_vol_5", "yz_vol_20", "yz_vol_60", "yz_term", "range_shock_01", "n_same_day_earn", "friday", "react_per_sue", "sue_react_clash",
          "peer_car_01", "own_vs_peer", "peer_pre20", "peer_event", "peer_corr", "si_pre", "si_chg",
-         "eps_sue", "eps_surp_rel", "eps_beat", "est_dispersion", "n_analysts", "analyst_cov"] + CAL_F \
+         "eps_sue", "eps_surp_rel", "eps_beat", "est_dispersion", "n_analysts", "analyst_cov"] + CAL_F + LIQ_F \
         + [f"has_{c}" for c in CLASSES] + [f"cls_{c}" for c in CLASSES] + REGIME
 FEATS = [f for f in FEATS if f in ev]
 # Live mode: keep only what can be rebuilt from free live data (daily OHLCV for the stock and SPY, FRED, event class
@@ -118,7 +126,8 @@ from config import LIVE
 LIVE_OK = {"car_0_1", "ar_day0_sd", "abn_volume_0_1", "beta", "idio_vol_pre", "vol_pre", "mom_20", "mom_60", "mom_250",
            "dist_52w_high", "alpha_pre", "amihud", "log_dollar_vol", "log_mcap", "mkt_day0", "mkt_pre5", "mkt_vol20",
            "yz_vol_5", "yz_vol_20", "yz_vol_60", "yz_term", "range_shock_01", "friday", "scandal_word", "n_events",
-           "vix", "epu", "hy_oas", "umcsent", "exp_earn_in_win", "days_to_exp_earn", "days_since_earn", "earn_react_hist"} | {f"cls_{c}" for c in CLASSES} | {f"has_{c}" for c in CLASSES}
+           "vix", "epu", "hy_oas", "umcsent", "exp_earn_in_win", "days_to_exp_earn", "days_since_earn", "earn_react_hist",
+           "turn_chg", "amihud_chg", "zero_ret_60", "pre_abvol_5"} | {f"cls_{c}" for c in CLASSES} | {f"has_{c}" for c in CLASSES}
 if LIVE:
     FEATS = [f for f in FEATS if f in LIVE_OK]
     HAVE_SENT = False

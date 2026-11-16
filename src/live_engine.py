@@ -81,6 +81,16 @@ def event_features(f, i0, cls="other", headline="", log_mcap=np.nan, regime=None
     dv = p_all[i0 - 60:i0] * v_all[i0 - 60:i0]
     x["amihud"] = np.nanmean(np.abs(r_all[i0 - 60:i0]) / np.where(dv > 0, dv, np.nan)) * 1e6
     x["log_dollar_vol"] = np.log1p(np.nanmean(dv)); x["log_mcap"] = log_mcap
+    # experiment 6: pre-event liquidity and trading activity (same windows as s02f; volume ratios equal turnover
+    # ratios while shares outstanding are unchanged)
+    lg = lambda a: np.log(a) if np.isfinite(a) and a > 0 else np.nan
+    v_now, v_base = np.nanmean(v_all[i0 - 20:i0]), np.nanmean(v_all[i0 - 250:i0 - 20])
+    x["turn_chg"] = lg(v_now) - lg(v_base)
+    x["pre_abvol_5"] = lg(np.nanmean(v_all[i0 - 5:i0])) - lg(v_base)
+    dvl = np.abs(p_all[i0 - 250:i0]) * v_all[i0 - 250:i0]
+    ill = np.abs(r_all[i0 - 250:i0]) / np.where(dvl > 0, dvl, np.nan) * 1e6
+    x["amihud_chg"] = lg(np.nanmean(ill[-20:])) - lg(np.nanmean(ill[:-20]))
+    x["zero_ret_60"] = float(np.mean(r_all[i0 - 60:i0] == 0))
     x["mkt_day0"] = m_all[i0]; x["mkt_pre5"] = np.nansum(m_all[i0 - 5:i0]); x["mkt_vol20"] = np.nanstd(m_all[i0 - 20:i0]) * np.sqrt(252)
     yz, pk = _yz_series(f)
     for nn in (5, 20, 60):
@@ -271,7 +281,20 @@ def predict_all(f, i0, ev, sr=None, vix_now=None, vix0=None):
 
 
 # ---------------------------------------------------------------- earnings preview (experiment 3, x03_earnings_preview.py)
-def earnings_preview(f, report_date, earn_dates, regime=None, log_mcap=np.nan):
+D_N = {2: 1.128, 3: 1.693, 4: 2.059, 5: 2.326, 6: 2.534, 7: 2.704, 8: 2.847, 9: 2.970, 10: 3.078, 12: 3.258, 15: 3.472,
+       20: 3.735, 25: 3.931, 30: 4.086}
+def analyst_dispersion(low, high, avg, n):
+    """Standard deviation of analyst estimates from their range: E[range] = d_n * sd for n normal draws (d_n interpolated),
+    then scaled as in training: sd / max(|mean|, 0.05), capped at 5."""
+    try:
+        n = int(n)
+        if n < 2 or not np.isfinite(low) or not np.isfinite(high): return np.nan
+        ks = sorted(D_N); d = float(np.interp(min(n, 30), ks, [D_N[k] for k in ks]))
+        return float(min((high - low) / d / max(abs(avg), 0.05), 5.0))
+    except Exception:
+        return np.nan
+
+def earnings_preview(f, report_date, earn_dates, regime=None, log_mcap=np.nan, extra=None):
     """Expected size of the two-day reaction to an upcoming report, from features known at the latest close.
     A placeholder row dated on the report day is appended so the event-feature code sees 'day 0' after today's close;
     every feature it uses ends on the previous row, so nothing about the report itself is used."""
@@ -286,6 +309,7 @@ def earnings_preview(f, report_date, earn_dates, regime=None, log_mcap=np.nan):
     i0 = len(g) - 1
     x = event_features(g, i0, "earnings_guidance", "", log_mcap, regime)
     x.update(calendar_features(g, i0, earn_dates))
+    x.update(extra or {})
     X = pd.DataFrame([{c: x.get(c, np.nan) for c in pv["feats"]}]).astype(float)
     move = float(np.exp(pv["move"].predict(X)[0]) * pv["smear"] - 0.002)
     upper = float(np.exp(pv["q90"].predict(X)[0] + pv["q90_offset"]) - 0.002)

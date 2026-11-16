@@ -31,16 +31,16 @@ Every number is tested out of sample on years the models never saw during traini
 
 ## Results at a glance
 
-All figures are out of sample and come from the models used on the live board, which include the earnings-calendar features described under [Detailed results](#detailed-results). Test years run from 2006 to 2025 under purged walk-forward validation, which is described in the [Validation](#validation) section. A rank correlation of 0 means no skill and 1 means a perfect ordering of outcomes.
+All figures are out of sample and come from the models used on the live board, which include the earnings-calendar and pre-event liquidity features described under [Detailed results](#detailed-results). Test years run from 2006 to 2025 under purged walk-forward validation, which is described in the [Validation](#validation) section. A rank correlation of 0 means no skill and 1 means a perfect ordering of outcomes.
 
 | What is predicted | Out-of-sample skill | Verdict |
 |---|---|---|
 | Volatility over days 2 to 20, relative to normal | rank correlation 0.49 (shuffled-label placebo 0.00) | Strong |
-| Trading volume over days 2 to 20, relative to normal | rank correlation 0.60 | Strong |
+| Trading volume over days 2 to 20, relative to normal | rank correlation 0.66 | Strong |
 | Deepest abnormal drop over days 2 to 20 | rank correlation 0.20; AUC 0.68 for the worst 20% (naive baseline 0.61) | Useful |
 | Downside bound ("at most a 10% chance of falling below this") | breached 9.4% of the time in 2021 to 2025 | Calibrated |
-| Buy-or-wait rule | entries 0.08 percentage points closer to the 20-day low than buying on day 1 (Holm-adjusted p = 0.001) | Small but significant |
-| Position sizing tiers | losses beyond the stated limit in 2.7%, 2.5% and 1.4% of trades, against promises of 5%, 10% and 10% | Promises kept |
+| Buy-or-wait rule | entries 0.05 percentage points closer to the 20-day low than buying on day 1 (Holm-adjusted p = 0.013) | Small but significant |
+| Position sizing tiers | losses beyond the stated limit in 2.8%, 2.6% and 1.4% of trades, against promises of 5%, 10% and 10% | Promises kept |
 | Direction of the 20-day abnormal return | rank correlation 0.03, right sign 51% of the time | Not significant |
 | Whether a new low will hold | AUC 0.57, equal to a baseline that only counts days since the event | No added skill |
 
@@ -162,10 +162,10 @@ Here $\hat{\sigma}_i$ is the stock's daily idiosyncratic volatility before the e
 
 ### 3. Features
 
-The live models use 53 features, and the research models add the peer, positioning and text groups. The features fall into six groups:
+The live models use 57 features, and the research models add the peer, positioning and text groups. The features fall into six groups:
 
 - **Reaction:** $CAR_{0,1}$, the day-0 move in standard deviations, and abnormal volume on days 0 and 1.
-- **Stock state:** momentum over 20, 60 and 250 days, distance from the 52-week high, beta, idiosyncratic volatility, Amihud illiquidity, dollar volume and size.
+- **Stock state:** momentum over 20, 60 and 250 days, distance from the 52-week high, beta, idiosyncratic volatility, Amihud illiquidity, dollar volume and size, plus how turnover and illiquidity changed in the month before the news.
 - **Range-based volatility:** Yang-Zhang volatility over 5, 20 and 60 days (a HAR-style term structure) and the size of the reaction-day price range relative to normal.
 - **Market regime:** VIX, economic policy uncertainty, the high-yield credit spread and consumer sentiment (lagged one month), plus market returns and volatility.
 - **Peers and positioning (research mode):** the reaction of each stock's 10 most correlated peers from the previous year, short interest and the FINRA short-sale ratio (lagged one day).
@@ -313,7 +313,7 @@ Financial data makes overfitting easy, so the evaluation is deliberately strict.
 | Target | Ridge (live features) | LightGBM (live features) | Stacked ensemble (all features) | Placebo |
 |---|---|---|---|---|
 | Volatility ratio, days 2 to 20 | 0.45 | 0.49 | 0.48 | -0.01 |
-| Volume ratio, days 2 to 20 | 0.45 | 0.60 | 0.59 | 0.01 |
+| Volume ratio, days 2 to 20 | 0.63 | 0.66 | 0.59 | 0.02 |
 | Trough, days 2 to 20 | 0.16 | 0.20 | 0.20 | 0.08 |
 | Drift, days 2 to 20 | 0.02 | 0.03 | 0.03 | 0.00 |
 
@@ -401,11 +401,38 @@ A quiet stock with an earnings report coming up had nothing on the board, even t
 | Forecast (live features) | Model | Own usual move | Pre-report volatility | Result |
 |---|---|---|---|---|
 | Size of the two-day move | 0.369 | 0.355 (t = 6.8) | 0.264 (t = 11.2) | Passed, shown on the board |
-| Deepest fall over four weeks | 0.180 | 0.134 (t = 5.7) | 0.174 (t = 1.2) | Failed, not shown |
+| Deepest fall over four weeks | 0.180 | 0.134 (t = 5.7) | 0.174 (t = 1.2) | Failed at first |
+| Deepest fall, with analyst disagreement | 0.186 | 0.134 (t = 6.3) | 0.174 (t = 2.6) | Passed, shown on the board |
 
 The predicted move sizes are well calibrated: in each fifth of reports ranked by the forecast, the average predicted move is within 0.2 percentage points of the realised one. The model also picks out reports that move at least twice the stock's usual amount (AUC 0.66). An upper bound that the move should exceed only 1 time in 10 is recalibrated on the latest 12 months, and on 2016 to 2025 it was exceeded in 10.2% of reports. The direction of an earnings reaction was not forecast, because nothing in this project has shown that direction is predictable.
 
 The first research run of this experiment reported a much higher score, which turned out to come from a leak: several news features were built from headlines on the report day and the day after. Once those were removed, the research features still improved the move forecast from 0.369 to 0.394, mostly through analyst forecast disagreement, short interest and how closely the stock moves with its peers. These are not available from free live data, so the board uses the live version.
+
+A follow-up test added analyst disagreement, the spread of analysts' earnings estimates relative to their average, together with the number of analysts. It did not improve the move forecast (monthly t = 0.02), but it lifted the drawdown forecast past the volatility rule, so the board now shows both. Training uses the I/B/E/S standard deviation of estimates. The board only has Yahoo's lowest and highest estimate, so it converts the range with the standard result that the range of $n$ normally distributed estimates averages $d_n$ standard deviations ($d_n \approx 2.3$ for five analysts). The two measures agree on average but not stock by stock, which is a known source of error on the board.
+
+### Experiment: volatility decay and a structural bad case
+
+After a shock, a stock's extra volatility fades roughly as a power law of the day number, the same shape as aftershocks after an earthquake (the Omori law). Fitting $m(k, s) = 1 + A\,s\,k^{-p}$ to squared daily abnormal returns, with $s$ the size of the day-0 shock, gave $p$ between 0.4 and 0.7 depending on the period, so about a third of the extra volatility is gone by day 5. Adding up the decaying variance over the holding period and applying the reflection principle for random walks gives each event a structural bad case, $-1.645\sqrt{V}$ for the 1-in-10 level.
+
+These structural features were added to the downside-bound models and scored on 2016 to 2025 by pinball loss, the standard score for quantile forecasts. They improved the 5% bound slightly (monthly t = 2.8) but not the 10% bound (t = -0.1), so they were not adopted. The gradient-boosted bound models already capture how risk scales with the size of the shock. The test also showed that, with calibration fixed before each test block, the most volatile fifth of stocks was not under-protected (6.7% to 6.9% breaches against a 10% promise). The small excess seen in the live calibration check therefore comes from 2025 being a riskier year, not from a blind spot for volatile stocks.
+
+### Experiment: links between companies, liquidity and stock splits
+
+News about one company can move others: rivals in the same industry, firms named in the same headline, customers and suppliers, or peers caught up in a scandal. Before an announcement, trading can also pick up as informed investors act, and a stock split is a choice that managers may use to signal confidence. Five groups of features were built from data already in the project and tested the same way as the earnings calendar, with a Holm correction across all 30 tests:
+
+| Feature group | What it measures | Result |
+|---|---|---|
+| Liquidity and trading activity | change in turnover and Amihud illiquidity over the 20 days before the news against the year before, zero-return days, and the trading run-up in the last five days | Kept |
+| Stock splits | a forward or reverse split in the past year, found where shares outstanding jump and the price moves by the inverse factor | No |
+| Scandal contagion | accounting or legal events at the 10 most correlated peers in the month before | No |
+| News co-mentions | the reaction of firms tagged in the same headlines last year (2010 to 2023), and headlines about lawsuits, accusations or criticism between them | No |
+| Customers and suppliers | the returns of a firm's major customers and suppliers named in its filings (Compustat segments, 2000 to 2025), usable 90 days after the filing date | No |
+
+The liquidity group lifted the forecast of trading volume over the next four weeks from a rank correlation of 0.616 to 0.665, better in 99% of test months (monthly t = 35) and by the same amount from 2021 on. Trading activity persists: a stock whose trading was already rising before the news keeps trading heavily after it, and the model previously saw only the spike on days 0 and 1. All but the bid-ask spread can be rebuilt from free daily data, so the live models use it too.
+
+None of the groups predicted direction. The customer-supplier test was the most likely candidate, because Cohen and Frazzini (2008) found that suppliers' returns follow their customers' returns with a delay. Around company news it found nothing: the correlation between customers' returns over the previous month and the supplier's drift over the next month was 0.002. That effect was measured on monthly portfolios of all stocks and may also have faded since it was published. The drift after stock splits reported by Ikenberry, Rankine and Stice (1996) did not appear either, consistent with later work finding it has weakened.
+
+One pattern is worth further work. The volatility forecast's errors line up with the trading run-up before the news (monthly t = -9.4 from 2021 on): when trading was already elevated, volatility rose less afterwards than predicted. Adding the raw features did not help the tree model use it, so it is not yet in the forecasts.
 
 ### Why the headline numbers are modest
 
@@ -422,19 +449,19 @@ This project avoids all five, so its accuracy for direction sits close to 50%, w
 ## Live board
 
 <!-- LIVE-BOARD:START -->
-_Updated 2026-11-16 15:08 UTC. Research only, not financial advice._
+_Updated 2026-11-16 17:05 UTC. Research only, not financial advice._
 
 | Stock | Price | Event (day 0) | Day | Signal | Expected further dip | 1-in-10 worst point (20 days) | Risk vs normal | Recommended share if buying |
 |---|---|---|---|---|---|---|---|---|
-| NVDA | 162.85 | price/volume shock, no matched news (2026-11-12) | 1 | WAIT | 5.4% | -14.9% | 1.00x | 16% |
-| TSLA | 390.22 | price/volume shock, no matched news (2026-11-04) | 7 | WAIT ⚠️ | 4.6% | -12.0% | 0.90x | 25% |
+| NVDA | nan | no price data | | | | | | |
+| TSLA | 390.22 | price/volume shock, no matched news (2026-11-04) | 7 | WAIT ⚠️ | 4.5% | -12.8% | 0.92x | 25% |
 | META | 641.69 | quiet: no event in the last 15 trading days | | | | | | |
-| BABA | 94.38 | price/volume shock, no matched news (2026-11-05) | 6 | BUY | 4.5% | -18.1% | 1.11x | 4% |
-| BA | 171.50 | earnings guidance (2026-10-27) | 13 | WAIT | 2.3% | -9.6% | 0.94x | 23% |
-| INTC | 59.66 | earnings guidance (2026-10-29) | 11 | BUY ⚠️ | 5.9% | -21.7% | 0.95x | 18% |
-| AAPL | 356.27 | earnings guidance (2026-11-02) | 9 | WAIT | 2.4% | -5.8% | 0.97x | 15% |
-| GRAB | 3.24 | price/volume shock, no matched news (2026-11-05) | 6 | WAIT ⚠️ | 4.1% | -14.9% | 0.85x | 5% |
-| SE | 75.36 | earnings guidance (2026-11-10) | 3 | WAIT ⚠️ | 5.4% | -13.6% | 1.06x | 18% |
+| BABA | 94.38 | price/volume shock, no matched news (2026-11-05) | 6 | BUY | 4.2% | -17.2% | 1.10x | 8% |
+| BA | 171.50 | earnings guidance (2026-10-27) | 13 | WAIT | 2.3% | -8.8% | 0.96x | 25% |
+| INTC | 59.66 | earnings guidance (2026-10-29) | 11 | BUY ⚠️ | 5.6% | -21.1% | 0.96x | 19% |
+| AAPL | 356.27 | earnings guidance (2026-11-02) | 9 | WAIT | 2.4% | -5.1% | 0.98x | 12% |
+| GRAB | 3.24 | price/volume shock, no matched news (2026-11-05) | 6 | WAIT ⚠️ | 4.0% | -15.7% | 0.85x | 5% |
+| SE | 75.36 | earnings guidance (2026-11-10) | 3 | BUY ⚠️ | 5.8% | -13.9% | 1.09x | 14% |
 <!-- LIVE-BOARD:END -->
 
 The board runs on GitHub Actions twice per trading day, once after the US close and once in the morning to refresh headlines. Each run follows six steps:
@@ -442,7 +469,7 @@ The board runs on GitHub Actions twice per trading day, once after the US close 
 1. Download daily prices for the watchlist and SPY. An unfinished intraday bar is never used, because the models were trained on closing values.
 2. Look for an event in the last 15 trading days. An earnings date from the calendar comes first, then a classified headline that names the company, then an unexplained price or volume shock. Events are dated to the announcement day, which is the same convention as in training.
 3. Rebuild the features with the same code that was checked against the training data. Over 1,500 historical events, the live code matches the training values with rank correlations of 0.97 to 1.00.
-4. Predict risk, entry timing and sizing with the live models. These models are retrained on the 53 features that free data can supply.
+4. Predict risk, entry timing and sizing with the live models. These models are retrained on the 57 features that free data can supply.
 5. Publish `docs/data/predictions.json`, which drives the page, and update the table above.
 6. Log each prediction in `docs/data/forward_log.csv` and score it once its 20-day outcome is known. This gives a forward test that cannot be affected by look-ahead.
 
@@ -508,9 +535,11 @@ A full run takes about 6 to 8 hours on a laptop. Most of that time is spent in t
 ## References
 
 - Bernard, V. and Thomas, J. (1989). Post-earnings-announcement drift: delayed price response or risk premium? *Journal of Accounting Research*.
+- Cohen, L. and Frazzini, A. (2008). Economic links and predictable returns. *Journal of Finance*.
 - Fama, E. and French, K. (2015). A five-factor asset pricing model. *Journal of Financial Economics*.
 - Gibbs, I. and Candès, E. (2021). Adaptive conformal inference under distribution shift. *NeurIPS*.
 - Grinold, R. and Kahn, R. (2000). *Active Portfolio Management*. McGraw-Hill.
+- Ikenberry, D., Rankine, G. and Stice, E. (1996). What do stock splits really signal? *Journal of Financial and Quantitative Analysis*.
 - Ke, Z., Kelly, B. and Xiu, D. (2019). Predicting returns with text data. NBER Working Paper.
 - Ledoit, O. and Wolf, M. (2004). A well-conditioned estimator for large-dimensional covariance matrices. *Journal of Multivariate Analysis*.
 - Longin, F. and Solnik, B. (2001). Extreme correlation of international equity markets. *Journal of Finance*.

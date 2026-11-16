@@ -34,6 +34,8 @@ DROP = {"car_0_1", "ar_day0_sd", "abn_volume_0_1", "range_shock_01", "mkt_day0",
         "news_n_01", "news_abn", "stale_share", "relevant_share", "disagree", "txt_novelty", "txt_dispersion", "has_news",
         "rec_net", "ceo_involved", "exec_departure", "forced_exit", "gov_involved", "log_claim", "activist_stake", "restate_adverse"}
 PRE = [f for f in FEATS if f not in DROP and not f.startswith(("has_", "cls_", "sent", "sestm", "emb", "lex", "nov", "ana"))]
+EXTRA = [c for c in os.environ.get("EXTRA_PRE", "").split(",") if c and c in ev and c not in PRE]   # e.g. est_dispersion,n_analysts
+BASE_PRE = list(PRE); PRE = PRE + EXTRA
 E = ev[ev.cls == "earnings_guidance"].copy()
 if TEST: E = E[E.permno.isin(np.sort(E.permno.unique())[:600])]
 sd = (E.idio_vol_pre / np.sqrt(252)).clip(lower=0.003)
@@ -84,6 +86,16 @@ for tname, y, real in (("move", E.y_move, E.move), ("dd", E.y_dd, E.dd)):
         E["p_dd"] = p
     rows.append(r)
 T = pd.DataFrame(rows); say("\nOut-of-sample skill on 2016-25 (Spearman; t = monthly paired test against each baseline)"); say(T.round(4).to_string(index=False))
+if EXTRA:
+    Xb = E[BASE_PRE].astype(float)
+    pb = pd.Series(np.nan, index=E.index)
+    for tr, te in splits(d0, E.y_move):
+        pb[te] = _fit(gbm(**P), Xb[tr], E.y_move[tr], WU[tr].values).predict(Xb[te])
+    ok = late & pb.notna() & E.p_move.notna()
+    mx, mb_ = monthly(E.move, E.p_move, ok), monthly(E.move, pb, ok); dlt = (mx - mb_).dropna()
+    say(f"\nadded {EXTRA}: move skill {spearmanr(E.move[ok], E.p_move[ok]).correlation:.4f} vs {spearmanr(E.move[ok], pb[ok]).correlation:.4f} "
+        f"without them; monthly paired t = {dlt.mean() / (dlt.std() / np.sqrt(len(dlt))):.2f}; coverage of the added features "
+        f"{E.loc[late, EXTRA].notna().mean().round(3).to_dict()}")
 
 # 90% upper bound on the move. The quantile model is fit per fold; its correction is ROLLING, as on the live board:
 # for each report, the 90th percentile of the model's errors on reports in the 365 days ending 7 days before it.

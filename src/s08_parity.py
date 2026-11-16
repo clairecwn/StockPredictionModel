@@ -21,6 +21,11 @@ if cf.exists():
     c = pd.read_parquet(cf).drop_duplicates(["permno", "day0"])[["permno", "day0"] + CAL]; c["day0"] = pd.to_datetime(c.day0)
     ev = ev.merge(c, on=["permno", "day0"], how="left")
 import os
+LIQ = ["turn_chg", "amihud_chg", "zero_ret_60", "pre_abvol_5"]
+lf = PROC / "spillover_features.parquet"
+if lf.exists():
+    l = pd.read_parquet(lf, columns=["permno", "day0"] + LIQ).drop_duplicates(["permno", "day0"])
+    ev = ev.merge(l, on=["permno", "day0"], how="left")
 ev = ev[(ev.day0.dt.year >= 2012) & ev.drift_1_20.notna()].sample(150 if os.environ.get("PARITY_TEST") == "1" else 1500, random_state=0)
 perm = [int(p) for p in ev.permno.unique()]
 D = pq.read_table(PROC / "crsp_daily.parquet", columns=["permno", "date", "ret", "mkt", "vol"], filters=[("permno", "in", perm)]).to_pandas()
@@ -40,6 +45,8 @@ if cf.exists():
     rq = pd.read_csv(find_file("comp_rdq"), usecols=["gvkey", "rdq"]).dropna()
     for g, d in rq.groupby("gvkey"): RDQ[int(g)] = list(pd.to_datetime(d.rdq))
     COMPARE = COMPARE + CAL
+if lf.exists():
+    COMPARE = COMPARE + LIQ
 rows = []
 for _, e in ev.iterrows():
     f = frames.get(e.permno)

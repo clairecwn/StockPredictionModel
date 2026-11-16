@@ -54,6 +54,17 @@ def yahoo_earnings(t, limit=16):
     except Exception:
         return []
 
+def yahoo_estimates(t):
+    """Analyst disagreement for the coming quarter from Yahoo's low / high / average EPS estimate (see analyst_dispersion)."""
+    try:
+        import yfinance as yf
+        from live_engine import analyst_dispersion
+        q = yf.Ticker(t).earnings_estimate.loc["0q"]
+        return {"est_dispersion": analyst_dispersion(float(q["low"]), float(q["high"]), float(q["avg"]), q["numberOfAnalysts"]),
+                "n_analysts": float(q["numberOfAnalysts"])}
+    except Exception:
+        return {}
+
 def finnhub(t, days=25):
     key = os.environ.get("FINNHUB_API_KEY")
     if not key: return pd.DataFrame(columns=["date", "day", "headline", "url"])
@@ -117,7 +128,7 @@ for w in WL["stocks"]:
                 cap = np.nan
             try:
                 item["preview"] = earnings_preview(f, next_earn, past_earn + yahoo_earnings(t), fred_row(f.index[-1], fred_csv),
-                                                   np.log1p(cap) if np.isfinite(cap) else np.nan)
+                                                   np.log1p(cap) if np.isfinite(cap) else np.nan, yahoo_estimates(t))
             except Exception as e:
                 print(f"preview failed for {t}: {e}")
         board.append(item); continue
