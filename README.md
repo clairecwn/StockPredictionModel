@@ -392,7 +392,7 @@ This project avoids all five, so its accuracy for direction sits close to 50%, w
 ## Live board
 
 <!-- LIVE-BOARD:START -->
-_Updated 2026-11-16 11:50 UTC. Research only, not financial advice._
+_Updated 2026-11-16 12:04 UTC. Research only, not financial advice._
 
 | Stock | Price | Event (day 0) | Day | Signal | Expected further dip | 1-in-10 worst point (20 days) | Risk vs normal | Recommended share if buying |
 |---|---|---|---|---|---|---|---|---|
