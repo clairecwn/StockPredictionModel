@@ -96,13 +96,21 @@ def finra_ratio(t, dates):
     return pd.Series(vals, index=dates)
 
 frames = yahoo_frames(TICKERS)
+try:                                                            # last good board, used if a stock's prices fail to load
+    PREV = {x["ticker"]: x for x in json.loads((DOCS / "predictions.json").read_text())["stocks"] if x.get("price") is not None}
+except Exception:
+    PREV = {}
 fred_csv = PUBLIC / "fred_daily.csv"
 board, log_rows = [], []
 for w in WL["stocks"]:
     t = w["ticker"]; f = frames.get(t)
     item = {"ticker": t, "name": w.get("name", t)}
     if f is None or len(f) < 300:
-        item["status"] = "no price data"; board.append(item); continue
+        if t in PREV:
+            item = {**PREV[t], "stale": True}                  # shown as the last update, not logged as a new prediction
+        else:
+            item["status"] = "no price data"
+        board.append(item); continue
     item["price"] = float(f.c.iloc[-1]); item["price_date"] = str(f.index[-1].date())
     item["chg_1d_pct"] = 100 * float(f.ret.iloc[-1])
     tail = f.c.iloc[-45:]                                       # recent closes for the price chart on the page

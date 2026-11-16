@@ -26,6 +26,19 @@ def yahoo_frames(tickers, period="3y"):
         try:
             x = d[t].dropna(subset=["Close"])
         except KeyError:
+            x = pd.DataFrame()
+        for attempt in range(3):                                    # Yahoo sometimes drops a ticker from a batch: retry it alone
+            if len(x) >= 300:
+                break
+            import time; time.sleep(3 * (attempt + 1))
+            try:
+                x = yf.download(t, period=period, auto_adjust=True, progress=False)
+                if isinstance(x.columns, pd.MultiIndex):
+                    x.columns = x.columns.get_level_values(0)
+                x = x.dropna(subset=["Close"])
+            except Exception:
+                x = pd.DataFrame()
+        if len(x) == 0:
             continue
         if len(x) and x.index[-1].date() == now_et.date() and not closed:
             x = x.iloc[:-1]                                         # training features use closing values only

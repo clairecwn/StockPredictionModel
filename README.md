@@ -449,11 +449,11 @@ This project avoids all five, so its accuracy for direction sits close to 50%, w
 ## Live board
 
 <!-- LIVE-BOARD:START -->
-_Updated 2026-11-16 17:05 UTC. Research only, not financial advice._
+_Updated 2026-11-16 17:13 UTC. Research only, not financial advice._
 
 | Stock | Price | Event (day 0) | Day | Signal | Expected further dip | 1-in-10 worst point (20 days) | Risk vs normal | Recommended share if buying |
 |---|---|---|---|---|---|---|---|---|
-| NVDA | nan | no price data | | | | | | |
+| NVDA | 162.85 | price/volume shock, no matched news (2026-11-12) | 1 | BUY ⚠️ | 5.3% | -14.9% | 1.01x | 17% |
 | TSLA | 390.22 | price/volume shock, no matched news (2026-11-04) | 7 | WAIT ⚠️ | 4.5% | -12.8% | 0.92x | 25% |
 | META | 641.69 | quiet: no event in the last 15 trading days | | | | | | |
 | BABA | 94.38 | price/volume shock, no matched news (2026-11-05) | 6 | BUY | 4.2% | -17.2% | 1.10x | 8% |

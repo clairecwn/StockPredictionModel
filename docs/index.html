@@ -264,7 +264,7 @@ function renderList() {
     const g = live(s) ? sig(s) : null;
     const pill = g ? `<span class="pill ${g}">${g === "BUY" ? "Buy" : "Wait"}</span>` : `<span class="pill none">${live(s) ? "Closed" : s.preview ? "Preview" : "Quiet"}</span>`;
     const sub = live(s) ? `Day ${s.decision_day} after ${s.event_class === "earnings_guidance" ? "earnings" : s.event_class === "other" ? "a big move" : "news"}`
-              : s.preview ? `Earnings on ${day(s.preview.report_date)}` : "No recent news";
+              : s.status === "no price data" ? "Prices not loaded" : s.preview ? `Earnings on ${day(s.preview.report_date)}` : "No recent news";
     return `<button class="row ${live(s) ? "" : "quiet"}" aria-selected="${s.ticker === sel}" data-t="${esc(s.ticker)}"><span><span class="t">${esc(s.ticker)}</span><br><span class="s">${sub}</span></span>${pill}</button>`;
   }).join("");
   document.querySelectorAll(".row").forEach(b => b.onclick = () => { sel = b.dataset.t; store.set("sel", sel); renderAll(); });
@@ -306,7 +306,7 @@ function renderDetail() {
   if (!s) { el.innerHTML = `<p class="quietmsg">Pick a stock from the watchlist to begin.</p>`; return; }
   const chg = s.chg_1d_pct;
   const head = `<div class="d-head"><h1>${esc(s.ticker)}</h1><span class="name">${esc(s.name || "")}</span>
-    <div class="px"><b>${fmt(s.price, 2)}</b>${chg == null ? "" : `<span class="${chg >= 0 ? "up" : "down"}">${chg >= 0 ? "Up" : "Down"} ${fmt(Math.abs(chg), 2)}% on ${day(s.price_date)}</span>`}</div></div>`;
+    <div class="px"><b>${fmt(s.price, 2)}</b>${chg == null ? "" : `<span class="${chg >= 0 ? "up" : "down"}">${chg >= 0 ? "Up" : "Down"} ${fmt(Math.abs(chg), 2)}% on ${day(s.price_date)}</span>`}</div></div>${s.stale ? `<p class="note">Today's prices could not be loaded, so this is the reading from ${day(s.price_date)}.</p>` : ""}`;
   if (!live(s)) {
     const pv = s.preview;
     if (pv) {
@@ -321,6 +321,10 @@ function renderDetail() {
         </div>
         <p class="note">The direction of an earnings reaction cannot be forecast from public information, so the preview only says how big the move may be. A buy or wait call appears after the report, once the reaction is known.</p>
         <div class="sec"><h2>Price over the last two months</h2>${chart(s)}</div>`;
+      return;
+    }
+    if (s.status === "no price data") {
+      el.innerHTML = head + `<p class="quietmsg">Prices for ${esc(s.ticker)} could not be loaded at the last update, so there is no reading for it yet. The board tries again at the next update.</p>`;
       return;
     }
     el.innerHTML = head + `<p class="quietmsg">${esc(s.ticker)} has had no company news in the last three weeks, so there is nothing to time right now.${s.next_earnings ? ` Its next earnings report is due on ${day(s.next_earnings)}, and the board will update after it.` : ""}</p>${chart(s)}`;
