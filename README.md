@@ -31,16 +31,16 @@ Every number is tested out of sample on years the models never saw during traini
 
 ## Results at a glance
 
-All figures are out of sample and come from the models used on the live board, which include the earnings-calendar and pre-event liquidity features described under [Detailed results](#detailed-results). Test years run from 2006 to 2025 under purged walk-forward validation, which is described in the [Validation](#validation) section. A rank correlation of 0 means no skill and 1 means a perfect ordering of outcomes.
+All figures are out of sample and come from the models used on the live board, which include the earnings-calendar, pre-event liquidity and volatility-gap features described under [Detailed results](#detailed-results). Test years run from 2006 to 2025 under purged walk-forward validation, which is described in the [Validation](#validation) section. A rank correlation of 0 means no skill and 1 means a perfect ordering of outcomes.
 
 | What is predicted | Out-of-sample skill | Verdict |
 |---|---|---|
-| Volatility over days 2 to 20, relative to normal | rank correlation 0.49 (shuffled-label placebo 0.00) | Strong |
+| Volatility over days 2 to 20, relative to normal | rank correlation 0.51 (shuffled-label placebo -0.01) | Strong |
 | Trading volume over days 2 to 20, relative to normal | rank correlation 0.66 | Strong |
 | Deepest abnormal drop over days 2 to 20 | rank correlation 0.20; AUC 0.68 for the worst 20% (naive baseline 0.61) | Useful |
 | Downside bound ("at most a 10% chance of falling below this") | breached 9.4% of the time in 2021 to 2025 | Calibrated |
-| Buy-or-wait rule | entries 0.05 percentage points closer to the 20-day low than buying on day 1 (Holm-adjusted p = 0.013) | Small but significant |
-| Position sizing tiers | losses beyond the stated limit in 2.8%, 2.6% and 1.4% of trades, against promises of 5%, 10% and 10% | Promises kept |
+| Buy-or-wait rule | entries 0.05 percentage points closer to the 20-day low than buying on day 1 (Holm-adjusted p = 0.020) | Small but significant |
+| Position sizing tiers | losses beyond the stated limit in 2.7%, 2.5% and 1.4% of trades, against promises of 5%, 10% and 10% | Promises kept |
 | Direction of the 20-day abnormal return | rank correlation 0.03, right sign 51% of the time | Not significant |
 | Whether a new low will hold | AUC 0.57, equal to a baseline that only counts days since the event | No added skill |
 
@@ -162,7 +162,7 @@ Here $\hat{\sigma}_i$ is the stock's daily idiosyncratic volatility before the e
 
 ### 3. Features
 
-The live models use 57 features, and the research models add the peer, positioning and text groups. The features fall into six groups:
+The live models use 61 features, and the research models add the peer, positioning and text groups. The features fall into six groups:
 
 - **Reaction:** $CAR_{0,1}$, the day-0 move in standard deviations, and abnormal volume on days 0 and 1.
 - **Stock state:** momentum over 20, 60 and 250 days, distance from the 52-week high, beta, idiosyncratic volatility, Amihud illiquidity, dollar volume and size, plus how turnover and illiquidity changed in the month before the news.
@@ -312,8 +312,8 @@ Financial data makes overfitting easy, so the evaluation is deliberately strict.
 
 | Target | Ridge (live features) | LightGBM (live features) | Stacked ensemble (all features) | Placebo |
 |---|---|---|---|---|
-| Volatility ratio, days 2 to 20 | 0.45 | 0.49 | 0.48 | -0.01 |
-| Volume ratio, days 2 to 20 | 0.63 | 0.66 | 0.59 | 0.02 |
+| Volatility ratio, days 2 to 20 | 0.49 | 0.51 | 0.48 | -0.01 |
+| Volume ratio, days 2 to 20 | 0.62 | 0.66 | 0.59 | 0.02 |
 | Trough, days 2 to 20 | 0.16 | 0.20 | 0.20 | 0.08 |
 | Drift, days 2 to 20 | 0.02 | 0.03 | 0.03 | 0.00 |
 
@@ -434,6 +434,20 @@ None of the groups predicted direction. The customer-supplier test was the most 
 
 One pattern is worth further work. The volatility forecast's errors line up with the trading run-up before the news (monthly t = -9.4 from 2021 on): when trading was already elevated, volatility rose less afterwards than predicted. Adding the raw features did not help the tree model use it, so it is not yet in the forecasts.
 
+### Experiment: volatility mean reversion and insider trading
+
+The volatility target divides the next four weeks' volatility by the volatility of the previous 60 days. When those 60 days were unusually calm or unusually wild for the stock, the ratio tends to move back towards normal. Tree models are poor at building ratios from raw inputs, so the model was given the gaps directly, as logarithms of long-run, last-week and range-based volatility over the 60-day level. This lifted the volatility forecast from a rank correlation of 0.488 to 0.499, better in 80% of test months (monthly t = 10.0) and by the same amount from 2021 on. The features are simple transformations of inputs the live board already has, so the live models use them, and the live volatility forecast rose from 0.49 to 0.51.
+
+Insider trades came from the SEC's free Form 4 data sets: 3.35 million open-market purchases and sales from 2006 on, 91% matched to a stock. Following Cohen, Malloy and Pomorski (2012), an insider who traded in the same calendar month in each of the previous three years was treated as routine, and one who traded every year but off that pattern as opportunistic, since only the second group's trades are known to carry information. Only trades filed by the day after the news were used. Neither all insider trades nor opportunistic trades alone improved any forecast after the Holm correction; the best was opportunistic buying on 60-day drift (monthly t = 1.5). Only 2.3% of events had an opportunistic purchase in the 90 days before, so the signal may be real but too rare to matter at the level of all events.
+
+### Experiment: limits to arbitrage
+
+Mispricing should survive only where it is expensive to trade away (Shleifer and Vishny, 1997). Each month, events were split into five groups by a friction score, the average rank of Amihud illiquidity, idiosyncratic volatility, small size, low analyst coverage and the bid-ask spread. The out-of-sample drift forecast does rank stocks better as friction rises: for the 60-day drift, its monthly rank correlation is 0.031 in the least frictional fifth and 0.052 in the most frictional, and the gap between the forecast's top and bottom fifths grows from 1.0% to 2.5% over 60 days before costs.
+
+The second test asked whether that gap survives three corrections: Newey-West standard errors for the overlap between 60-day returns in consecutive months, a cost of the quoted spread plus 0.10% on each leg with a borrowing fee of up to 5% a year for the short leg, and a split into 2006 to 2015, 2016 to 2025 and 2021 to 2025. A result counted only if it stayed positive with t above 2 in both recent periods. None of the long-short results did. In the most frictional fifth, the 60-day gap of 2.0% in 2016 to 2025 shrank to 0.4% after costs (t = 0.7), and from 2021 the net result was negative. A long-only version, buying the forecast's top fifth, did pass in the fourth friction fifth with the research features (1.1% over 60 days in 2016 to 2025, t = 3.7; 1.0% in 2021 to 2025, t = 2.6), but not with the live features (t = 1.9 and 1.2), and it is one of 20 combinations tried, so it does not survive a correction for multiple testing.
+
+The pattern is what the theory predicts: the drift that the model can see is largest exactly where trading costs absorb it. The forecast carries information about direction, but not enough to pay for acting on it, which is why the board does not give directional calls.
+
 ### Why the headline numbers are modest
 
 Published stock models often report directional accuracy of 90% or more. In almost every case, figures like this come from one of five problems:
@@ -449,19 +463,19 @@ This project avoids all five, so its accuracy for direction sits close to 50%, w
 ## Live board
 
 <!-- LIVE-BOARD:START -->
-_Updated 2026-11-16 17:13 UTC. Research only, not financial advice._
+_Updated 2026-11-16 18:30 UTC. Research only, not financial advice._
 
 | Stock | Price | Event (day 0) | Day | Signal | Expected further dip | 1-in-10 worst point (20 days) | Risk vs normal | Recommended share if buying |
 |---|---|---|---|---|---|---|---|---|
-| NVDA | 162.85 | price/volume shock, no matched news (2026-11-12) | 1 | BUY ⚠️ | 5.3% | -14.9% | 1.01x | 17% |
-| TSLA | 390.22 | price/volume shock, no matched news (2026-11-04) | 7 | WAIT ⚠️ | 4.5% | -12.8% | 0.92x | 25% |
+| NVDA | 162.85 | price/volume shock, no matched news (2026-11-12) | 1 | BUY | 5.4% | -13.9% | 1.07x | 15% |
+| TSLA | 390.22 | price/volume shock, no matched news (2026-11-04) | 7 | WAIT ⚠️ | 4.5% | -11.2% | 0.92x | 25% |
 | META | 641.69 | quiet: no event in the last 15 trading days | | | | | | |
-| BABA | 94.38 | price/volume shock, no matched news (2026-11-05) | 6 | BUY | 4.2% | -17.2% | 1.10x | 8% |
-| BA | 171.50 | earnings guidance (2026-10-27) | 13 | WAIT | 2.3% | -8.8% | 0.96x | 25% |
-| INTC | 59.66 | earnings guidance (2026-10-29) | 11 | BUY ⚠️ | 5.6% | -21.1% | 0.96x | 19% |
-| AAPL | 356.27 | earnings guidance (2026-11-02) | 9 | WAIT | 2.4% | -5.1% | 0.98x | 12% |
-| GRAB | 3.24 | price/volume shock, no matched news (2026-11-05) | 6 | WAIT ⚠️ | 4.0% | -15.7% | 0.85x | 5% |
-| SE | 75.36 | earnings guidance (2026-11-10) | 3 | BUY ⚠️ | 5.8% | -13.9% | 1.09x | 14% |
+| BABA | 94.38 | price/volume shock, no matched news (2026-11-05) | 6 | BUY | 4.8% | -15.7% | 1.11x | 5% |
+| BA | 171.50 | earnings guidance (2026-10-27) | 13 | WAIT | 2.4% | -9.2% | 0.93x | 25% |
+| INTC | 59.66 | earnings guidance (2026-10-29) | 11 | BUY ⚠️ | 5.3% | -20.9% | 0.88x | 19% |
+| AAPL | 356.27 | earnings guidance (2026-11-02) | 9 | WAIT | 2.6% | -6.2% | 0.96x | 11% |
+| GRAB | 3.24 | price/volume shock, no matched news (2026-11-05) | 6 | WAIT ⚠️ | 4.2% | -15.5% | 0.88x | 5% |
+| SE | 75.36 | earnings guidance (2026-11-10) | 3 | BUY ⚠️ | 5.4% | -13.8% | 1.20x | 12% |
 <!-- LIVE-BOARD:END -->
 
 The board runs on GitHub Actions twice per trading day, once after the US close and once in the morning to refresh headlines. Each run follows six steps:
@@ -469,7 +483,7 @@ The board runs on GitHub Actions twice per trading day, once after the US close 
 1. Download daily prices for the watchlist and SPY. An unfinished intraday bar is never used, because the models were trained on closing values.
 2. Look for an event in the last 15 trading days. An earnings date from the calendar comes first, then a classified headline that names the company, then an unexplained price or volume shock. Events are dated to the announcement day, which is the same convention as in training.
 3. Rebuild the features with the same code that was checked against the training data. Over 1,500 historical events, the live code matches the training values with rank correlations of 0.97 to 1.00.
-4. Predict risk, entry timing and sizing with the live models. These models are retrained on the 57 features that free data can supply.
+4. Predict risk, entry timing and sizing with the live models. These models are retrained on the 61 features that free data can supply.
 5. Publish `docs/data/predictions.json`, which drives the page, and update the table above.
 6. Log each prediction in `docs/data/forward_log.csv` and score it once its 20-day outcome is known. This gives a forward test that cannot be affected by look-ahead.
 
@@ -535,6 +549,7 @@ A full run takes about 6 to 8 hours on a laptop. Most of that time is spent in t
 ## References
 
 - Bernard, V. and Thomas, J. (1989). Post-earnings-announcement drift: delayed price response or risk premium? *Journal of Accounting Research*.
+- Cohen, L., Malloy, C. and Pomorski, L. (2012). Decoding inside information. *Journal of Finance*.
 - Cohen, L. and Frazzini, A. (2008). Economic links and predictable returns. *Journal of Finance*.
 - Fama, E. and French, K. (2015). A five-factor asset pricing model. *Journal of Financial Economics*.
 - Gibbs, I. and Candès, E. (2021). Adaptive conformal inference under distribution shift. *NeurIPS*.
@@ -546,6 +561,7 @@ A full run takes about 6 to 8 hours on a laptop. Most of that time is spent in t
 - López de Prado, M. (2018). *Advances in Financial Machine Learning*. Wiley.
 - Martineau, C. (2022). Rest in peace post-earnings announcement drift. *Critical Finance Review*.
 - Romano, Y., Patterson, E. and Candès, E. (2019). Conformalized quantile regression. *NeurIPS*.
+- Shleifer, A. and Vishny, R. (1997). The limits of arbitrage. *Journal of Finance*.
 - Vovk, V., Lindsay, D., Nouretdinov, I. and Gammerman, A. (2003). Mondrian confidence machine. Technical report, Royal Holloway.
 - Yang, D. and Zhang, Q. (2000). Drift-independent volatility estimation based on high, low, open and close prices. *Journal of Business*.
 

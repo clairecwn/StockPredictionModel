@@ -18,6 +18,7 @@ Run: python src/x06_frictions_vol_insider.py     (quick: EXP_TEST=1; skip parts:
 Output: results/experiments/x06_frictions_vol_insider.md
 """
 import os, warnings; warnings.filterwarnings("ignore")
+os.environ["EXP_NO_VOLGAP"] = "1"       # base = the model before experiment 8
 import numpy as np, pandas as pd
 from scipy.stats import spearmanr, norm
 from config import PROC, ROOT, LIVE

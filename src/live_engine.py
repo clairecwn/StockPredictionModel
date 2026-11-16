@@ -6,6 +6,7 @@ against the training data). Research tool, not investment advice.
 Frame format (one stock): DataFrame indexed by trading date with columns o, h, l, c (prices), vol (shares),
 ret (total return), mkt (market return: SPY live, CRSP value-weighted index in the parity check).
 """
+import os
 import numpy as np, pandas as pd, joblib
 from config import EST_WINDOW, MODELS
 from taxonomy import CLASSES, classify_headline, is_scandal
@@ -14,11 +15,46 @@ KMAX = 15
 H_RET = {"drift_1_5": 4, "drift_1_20": 19, "drift_1_60": 59, "trough_2_20": 19}
 
 # ---------------------------------------------------------------- data
+def alpaca_bars(symbols, years=3):
+    """Daily split/dividend-adjusted bars from Alpaca's free market data (consolidated SIP feed, which the free plan
+    allows once data is 15+ minutes old). Needs ALPACA_KEY_ID and ALPACA_SECRET. Returns {symbol: DataFrame}."""
+    import requests
+    kid, sec = os.environ.get("ALPACA_KEY_ID"), os.environ.get("ALPACA_SECRET")
+    if not kid or not sec:
+        return {}
+    end = (pd.Timestamp.utcnow() - pd.Timedelta(minutes=20)).strftime("%Y-%m-%dT%H:%M:%SZ")
+    start = (pd.Timestamp.utcnow() - pd.Timedelta(days=365 * years + 10)).strftime("%Y-%m-%d")
+    rows, tok = {}, None
+    for _ in range(50):
+        q = {"symbols": ",".join(symbols), "timeframe": "1Day", "start": start, "end": end, "adjustment": "all",
+             "feed": "sip", "limit": 10000}
+        if tok: q["page_token"] = tok
+        r = requests.get("https://data.alpaca.markets/v2/stocks/bars", params=q, timeout=60,
+                         headers={"APCA-API-KEY-ID": kid, "APCA-API-SECRET-KEY": sec})
+        if r.status_code != 200:
+            print(f"  Alpaca: HTTP {r.status_code} {r.text[:120]}"); break
+        js = r.json()
+        for sym, bars in (js.get("bars") or {}).items():
+            rows.setdefault(sym, []).extend(bars)
+        tok = js.get("next_page_token")
+        if not tok: break
+    out = {}
+    for sym, b in rows.items():
+        d = pd.DataFrame(b)
+        d.index = pd.to_datetime(d.t).dt.tz_convert("America/New_York").dt.tz_localize(None).dt.normalize()
+        out[sym] = d.rename(columns={"o": "Open", "h": "High", "l": "Low", "c": "Close", "v": "Volume"})[["Open", "High", "Low", "Close", "Volume"]]
+    return out
+
 def yahoo_frames(tickers, period="3y"):
     """Daily OHLCV for each ticker plus SPY as the market, from Yahoo Finance (split/dividend adjusted)."""
     import yfinance as yf
     d = yf.download(list(tickers) + ["SPY"], period=period, auto_adjust=True, progress=False, group_by="ticker", threads=True)
-    spy = d["SPY"]["Close"].pct_change()
+    missing = [t for t in list(tickers) + ["SPY"] if t not in d.columns.get_level_values(0) or d[t]["Close"].notna().sum() < 300]
+    alp = alpaca_bars(missing) if missing else {}
+    if missing:
+        print(f"  Yahoo returned no usable prices for {missing}; Alpaca filled {sorted(alp)}")
+    spy_c = alp["SPY"]["Close"] if "SPY" in alp else d["SPY"]["Close"]
+    spy = spy_c.pct_change()
     now_et = pd.Timestamp.now(tz="America/New_York")
     closed = now_et.hour * 60 + now_et.minute >= 16 * 60 + 15        # bars are final ~15 min after the 4pm close
     out = {}
@@ -27,6 +63,8 @@ def yahoo_frames(tickers, period="3y"):
             x = d[t].dropna(subset=["Close"])
         except KeyError:
             x = pd.DataFrame()
+        if len(x) < 300 and t in alp:
+            x = alp[t]
         for attempt in range(3):                                    # Yahoo sometimes drops a ticker from a batch: retry it alone
             if len(x) >= 300:
                 break
@@ -111,6 +149,9 @@ def event_features(f, i0, cls="other", headline="", log_mcap=np.nan, regime=None
     x["yz_term"] = np.log(max(x["yz_vol_5"], 0.01) / max(x["yz_vol_60"], 0.01)) if np.isfinite(x["yz_vol_5"]) else np.nan
     pk1 = pk.iloc[i0 + 1] if d1 else pk.iloc[i0]
     x["range_shock_01"] = np.log(max(np.sqrt((pk.iloc[i0] + pk1) / 2 * 252), 0.01) / max(x["yz_vol_20"], 0.02))
+    lgv = lambda a, b: float(np.log(max(a, 1e-4) / max(b, 1e-4))) if np.isfinite(a) and np.isfinite(b) else np.nan
+    x["lv_long"], x["lv_5"] = lgv(x["idio_vol_pre"], x["vol_pre"]), lgv(x["yz_vol_5"], x["vol_pre"])
+    x["lv_20"], x["lv_range"] = lgv(x["yz_vol_20"], x["vol_pre"]), lgv(x["yz_vol_60"], x["vol_pre"])
     x["friday"] = int(f.index[i0].weekday() == 4)
     x["scandal_word"] = int(is_scandal(headline)); x["n_events"] = 1
     for c in CLASSES:
