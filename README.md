@@ -122,23 +122,23 @@ The size of an earnings surprise strongly predicts the immediate reaction but no
 
 To separate a company's own news from moves in the wider market, each stock's normal behaviour is estimated over trading days $-250$ to $-30$ before the event with a six-factor model:
 
-$$
+```math
 r_{i,t} - r_{f,t} = a_i + \boldsymbol{\beta}_i^{\top}\mathbf{f}_t + \varepsilon_{i,t},
 \qquad
 \mathbf{f}_t = \left(\mathrm{MKT}_t,\ \mathrm{SMB}_t,\ \mathrm{HML}_t,\ \mathrm{RMW}_t,\ \mathrm{CMA}_t,\ \mathrm{UMD}_t\right)^{\top}
-$$
+```
 
 Single-stock loadings are noisy, so they are shrunk toward a typical stock, with a market beta of 1 and zero on the other factors:
 
-$$
+```math
 \tilde{\boldsymbol{\beta}}_i = 0.67\,\hat{\boldsymbol{\beta}}_i + 0.33\,\mathbf{e}_1
-$$
+```
 
 The abnormal return is the part of the return that the factors do not explain. The intercept $a_i$ is left out because past outperformance does not reliably persist:
 
-$$
+```math
 AR_{i,t} = \left(r_{i,t} - r_{f,t}\right) - \tilde{\boldsymbol{\beta}}_i^{\top}\mathbf{f}_t
-$$
+```
 
 ### 2. Timing convention and targets
 
@@ -146,17 +146,17 @@ Day 0 is the announcement day. All features use only information available at th
 
 | Target | Definition |
 |---|---|
-| Reaction (feature) | $CAR_{0,1} = AR_{i,0} + AR_{i,1}$ |
-| Drift | $D^{(h)}_i = \sum_{t=2}^{h} AR_{i,t}$ for $h \in \{5, 20, 60\}$ |
-| Trough | $T_i = \min_{2 \le k \le 20} \sum_{t=2}^{k} AR_{i,t}$ |
-| Volatility ratio | $V_i = \dfrac{\sqrt{252}\,\operatorname{sd}\left(r_{i,2:20}\right)}{\sigma_i^{\text{pre}}}$, where $\sigma_i^{\text{pre}}$ is the annualised volatility over days $-60$ to $-1$ |
-| Volume ratio | $U_i = \dfrac{\overline{\text{vol}}_{i,2:20}}{\overline{\text{vol}}_{i,\text{est}}}$ |
+| Reaction (feature) | $`CAR_{0,1} = AR_{i,0} + AR_{i,1}`$ |
+| Drift | $`D^{(h)}_i = \sum_{t=2}^{h} AR_{i,t}`$ for $`h \in \{5, 20, 60\}`$ |
+| Trough | $`T_i = \min_{2 \le k \le 20} \sum_{t=2}^{k} AR_{i,t}`$ |
+| Volatility ratio | $`V_i = \dfrac{\sqrt{252}\,\mathrm{sd}\left(r_{i,2:20}\right)}{\sigma_i^{\text{pre}}}`$, where $`\sigma_i^{\text{pre}}`$ is the annualised volatility over days $`-60`$ to $`-1`$ |
+| Volume ratio | $`U_i = \dfrac{\overline{\text{vol}}_{i,2:20}}{\overline{\text{vol}}_{i,\text{est}}}`$ |
 
 Return targets are transformed in two ways before training. They are first demeaned within each calendar month, which removes market-wide swings that no stock-level model can predict. They are then divided by the noise expected over the horizon, so that a 5% move in a calm stock counts for more than the same move in a volatile one:
 
-$$
+```math
 y_i = \frac{D^{(h)}_i - \bar{D}^{(h)}_{m(i)}}{\hat{\sigma}_i \sqrt{h}}
-$$
+```
 
 Here $\hat{\sigma}_i$ is the stock's daily idiosyncratic volatility before the event and $m(i)$ is the event's month. The volatility and volume ratios are modelled in logs.
 
@@ -175,19 +175,19 @@ The live models use 53 features, and the research models add the peer, positioni
 
 **Gradient boosting.** The main model is LightGBM with the Huber loss, which behaves like squared error for small residuals and like absolute error for large ones. This limits the influence of extreme returns:
 
-$$
+```math
 L_{\delta}(y, \hat{y}) =
 \begin{cases}
-\tfrac{1}{2}(y - \hat{y})^2 & \text{if } |y - \hat{y}| \le \delta \\[4pt]
+\tfrac{1}{2}(y - \hat{y})^2 & \text{if } |y - \hat{y}| \le \delta \\
 \delta\left(|y - \hat{y}| - \tfrac{1}{2}\delta\right) & \text{otherwise}
 \end{cases}
-$$
+```
 
 Hyperparameters are chosen inside each training window from a small grid. Events at the same firm within 30 days share most of their return window, so each event is down-weighted by its number of overlapping neighbours $n_i$. Each event class is also re-weighted so that the most common classes do not dominate:
 
-$$
+```math
 w_i = \frac{1}{1 + n_i} \cdot \frac{1}{\sqrt{\pi_{c(i)}}}
-$$
+```
 
 Here $\pi_{c}$ is the share of events in class $c$.
 
@@ -201,9 +201,9 @@ Headlines from days $-5$ to $+1$ around each event are scored in three ways:
 
 - **SESTM** (Ke, Kelly and Xiu, 2019) learns which words go with positive or negative returns in this data. It screens words by how skewed their returns are, estimates positive and negative topic distributions $O^{+}$ and $O^{-}$, and scores each headline by penalised maximum likelihood:
 
-$$
+```math
 \hat{p} = \arg\max_{p \in [0,1]} \sum_{j} d_j \log\left(p\,O^{+}_j + (1 - p)\,O^{-}_j\right) + \lambda \log\left(p(1-p)\right)
-$$
+```
 
   Each year is scored by a model trained only on earlier years. Tickers and words concentrated in a single firm are removed, so that the model cannot learn firm identities.
 - **Sentence embeddings** (all-MiniLM-L6-v2) turn each headline into a 384-dimensional vector. These vectors give novelty (distance from the firm's recent news), dispersion across headlines, and the average outcome of the most similar past events.
@@ -215,21 +215,21 @@ For each event, the entry engine builds one row per decision day $k = 1, \ldots,
 
 The label asks whether the price moves down before it moves up. With the barrier
 
-$$
+```math
 b = 0.75\,\hat{\sigma}_i\sqrt{5},
-$$
+```
 
 a row is labelled "waiting pays" if the price falls by $b$ before it rises by $b$ within the next 5 trading days. Rows where neither barrier is hit are left out of the label. A second model predicts the size of the next 5-day move in units of $\hat{\sigma}_i\sqrt{5}$, and the **expected-value rule** buys on the first day this forecast is positive.
 
 As a second opinion, the timing problem is also solved as an optimal stopping problem with fitted Q-iteration. The value of waiting on day $k$ is
 
-$$
+```math
 V_k(s) = \min\left(P_k,\ C_k(s)\right),
 \qquad
 C_k(s) = \mathbb{E}\left[V_{k+1}(s') \mid s\right],
 \qquad
 V_{15}(s) = P_{15}
-$$
+```
 
 Here $P_k$ is the price relative to the event (in units of $\hat{\sigma}_i$) and $C_k(s)$ is the expected price paid by waiting optimally. The policy buys on day $k$ when $P_k \le C_k(s)$. Each $C_k$ is estimated backwards from day 15 with cross-fitted gradient boosting.
 
@@ -239,17 +239,17 @@ A downside bound is a level the stock should fall below with probability at most
 
 **Conformalised quantile regression** (Romano, Patterson and Candès, 2019). A quantile model $\hat{q}_\beta(x)$ is fitted, and its errors are measured on a later calibration window:
 
-$$
-c = \operatorname{Quantile}_{\lceil (n+1)(1-\beta) \rceil / n}\left(\hat{q}_\beta(x_j) - y_j\right),
+```math
+c = \mathrm{Quantile}_{\lceil (n+1)(1-\beta) \rceil / n}\left(\hat{q}_\beta(x_j) - y_j\right),
 \qquad
 \text{bound}(x) = \hat{q}_\beta(x) - c
-$$
+```
 
 **Adaptive conformal inference** (Gibbs and Candès, 2021). In the backtest, the correction is updated month by month using outcomes that are already known (with a two-month lag), so the bound adapts when markets change:
 
-$$
+```math
 c_{t+1} = c_t + \gamma\left(\mathrm{err}_t - \beta\right), \qquad \gamma = 0.2
-$$
+```
 
 **Mondrian calibration** (Vovk et al., 2003). The live bound uses a separate correction within each fifth of stocks ranked by volatility. Without it, the promise held on average but was broken for the most volatile stocks.
 
@@ -259,27 +259,27 @@ Sizing works in total returns over a 19-day holding period. It combines three in
 
 **Expected return.** A CAPM prior is combined with the event signal, shrunk by the skill the signal has actually shown. This follows Grinold's fundamental law of active management:
 
-$$
+```math
 \mu_i = \beta_i \cdot \mathrm{ERP} \cdot \frac{h}{252} + \mathrm{IC}_t \cdot \sigma_i^{\text{idio}} \sqrt{\frac{h}{252}} \cdot z_i
-$$
+```
 
 Here $\mathrm{ERP} = 6\%$ a year, $z_i$ is the standardised drift forecast, and $\mathrm{IC}_t$ is the out-of-sample rank correlation measured only on earlier years. If the signal decays, $\mathrm{IC}_t$ falls and the alpha term shrinks toward zero by itself.
 
 **Risk.** Volatility is the Yang-Zhang estimate scaled by the predicted volatility ratio and by a calibration factor $\kappa_t$, which is also estimated on earlier years only:
 
-$$
+```math
 \sigma_i = \kappa_t \cdot \sigma_i^{\text{YZ}} \cdot \hat{V}_i \cdot \sqrt{\frac{h}{252}}
-$$
+```
 
 **Size.** The weight is the smallest of three limits: a chance constraint from the downside bound $q_\beta$, fractional Kelly, and a hard cap:
 
-$$
+```math
 w_i = \min\left(\frac{d}{\left|q_{\beta,i}\right|},\ \ k\,\frac{\mu_i}{\sigma_i^{2}},\ \ \text{cap}\right)
-$$
+```
 
 The first term is the exact single-stock solution of $\Pr\left(\text{loss} > d \text{ of the account}\right) \le \beta$. The three tiers are:
 
-| Tier | Loss limit $d$ | Chance $\beta$ | Kelly fraction $k$ | Cap |
+| Tier | Loss limit $`d`$ | Chance $`\beta`$ | Kelly fraction $`k`$ | Cap |
 |---|---|---|---|---|
 | Safest | 2% | 5% | 1/4 | 15% |
 | Recommended | 4% | 10% | 1/2 | 25% |
@@ -287,11 +287,11 @@ The first term is the exact single-stock solution of $\Pr\left(\text{loss} > d \
 
 **Several stocks at once.** When an account is split across up to three stocks, each stock's bad-case loss $\ell_j = w_j\left|q_j\right|$ is combined through a Ledoit-Wolf shrunk correlation matrix $C$ from the past 250 days. Correlations rise in sell-offs (Longin and Solnik, 2001), so $C$ is stressed toward 1 before use:
 
-$$
+```math
 C_s = C + 0.4\left(\mathbf{1}\mathbf{1}^{\top} - C\right),
 \qquad
 L_{\text{basket}} = \sqrt{\boldsymbol{\ell}^{\top} C_s\, \boldsymbol{\ell}}
-$$
+```
 
 All weights are scaled down until $L_{\text{basket}} \le d$, and the total invested never exceeds 80% of the account.
 
@@ -341,9 +341,9 @@ The live board uses the expected-value rule retrained on live features, which ke
 
 | Tier | Average stake | Promise | Realised breach rate | Worst 1% outcome |
 |---|---|---|---|---|
-| Safest | \$20.86 | at most 5% chance of losing more than \$4 | 2.8% | \$-5.56 |
-| Recommended | \$39.44 | at most 10% chance of losing more than \$8 | 2.5% | \$-10.89 |
-| Bold | \$63.67 | at most 10% chance of losing more than \$16 | 1.4% | \$-17.85 |
+| Safest | \$`20.86 | at most 5% chance of losing more than \`$4 | 2.8% | \$-5.56 |
+| Recommended | \$`39.44 | at most 10% chance of losing more than \`$8 | 2.5% | \$-10.89 |
+| Bold | \$`63.67 | at most 10% chance of losing more than \`$16 | 1.4% | \$-17.85 |
 
 With a single correction for all stocks, the calmest fifth was over-protected and the most volatile fifth broke the 10% promise (12.2%). Calibrating each volatility bucket separately brings that down to 10.9%. Part of the remaining gap comes from 2025 being a riskier year than 2024, when the offsets were set, which affected every bucket.
 
@@ -355,22 +355,21 @@ When three stocks are bought on the same day, scaling the basket with the stress
 
 The backtest shows what happened trade by trade, but not what a year of trading could look like. To see this, a \$200 account is simulated 10,000 times. Each simulated year draws one calendar year from 2016 to 2025 at random, so that calm and stressed markets appear in realistic proportions. It then takes 12 trades from that year in date order, since each position is held for 19 trading days. Each trade invests the tier's weight $w$ of the current balance:
 
-$$
-A_{k} = A_{k-1}\left(1 + w_k\, R_k
-ight),
+```math
+A_{k} = A_{k-1}\left(1 + w_k\, R_k\right),
 \qquad
-	ext{drawdown} = \max_{k}\left(1 - \frac{A_{k-1}\left(1 + w_k\, L_k\right)}{\max_{j < k} A_j}\right)
-$$
+\text{drawdown} = \max_{k}\left(1 - \frac{A_{k-1}\left(1 + w_k\, L_k\right)}{\max_{j < k} A_j}\right)
+```
 
 Here $R_k$ is the trade's 19-day total return and $L_k$ is its worst point while held. Every trade comes from the out-of-sample backtest, so no simulated result uses a model that saw the outcome. The same simulation is run for a fixed 10% stake and for putting the whole account into every trade.
 
 | Strategy | Median end value | 90% range of end value | Chance of ending down 10% or more | Median largest fall | 95th percentile largest fall |
 |---|---|---|---|---|---|
-| Safest | \$202.06 | \$190.66 to \$213.10 | 0.6% | 2.5% | 6.6% |
-| Recommended | \$203.88 | \$183.24 to \$226.35 | 3.1% | 4.7% | 12.2% |
-| Bold | \$206.46 | \$172.64 to \$244.48 | 9.5% | 7.6% | 19.4% |
-| Fixed 10% stake | \$202.62 | \$191.76 to \$215.55 | 0.2% | 2.6% | 7.2% |
-| All in (100%) | \$219.17 | \$121.67 to \$390.55 | 27.3% | 23.9% | 56.8% |
+| Safest | \$`202.06 | \`$190.66 to \$213.10 | 0.6% | 2.5% | 6.6% |
+| Recommended | \$`203.88 | \`$183.24 to \$226.35 | 3.1% | 4.7% | 12.2% |
+| Bold | \$`206.46 | \`$172.64 to \$244.48 | 9.5% | 7.6% | 19.4% |
+| Fixed 10% stake | \$`202.62 | \`$191.76 to \$215.55 | 0.2% | 2.6% | 7.2% |
+| All in (100%) | \$`219.17 | \`$121.67 to \$390.55 | 27.3% | 23.9% | 56.8% |
 
 The tiers behave as designed. Moving from Safest to Bold raises the median result, but it also widens the range and deepens the worst falls. Putting the whole account into every trade has the highest median, because stocks rose on average over 2016 to 2025, but it also loses 10% or more in about one simulated year in four, with a typical fall of nearly a quarter of the account.
 
@@ -393,7 +392,7 @@ This project avoids all five, so its accuracy for direction sits close to 50%, w
 ## Live board
 
 <!-- LIVE-BOARD:START -->
-_Updated 2026-11-16 11:38 UTC. Research only, not financial advice._
+_Updated 2026-11-16 11:50 UTC. Research only, not financial advice._
 
 | Stock | Price | Event (day 0) | Day | Signal | Expected further dip | 1-in-10 worst point (20 days) | Risk vs normal | Recommended share if buying |
 |---|---|---|---|---|---|---|---|---|

@@ -3,62 +3,174 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light dark">
 <title>Event Risk Board</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Sans+Condensed:wght@600&display=swap" rel="stylesheet">
+<script>
+  try { const t = localStorage.getItem("theme"); if (t) document.documentElement.dataset.theme = t; } catch (e) {}
+</script>
 <style>
-  :root { --bg:#0f1115; --card:#181b22; --ink:#e8eaf0; --mute:#9aa3b2; --line:#2a2f3a; --good:#3ecf8e; --warn:#f5a524; --bad:#f2555a; --acc:#7aa2ff; }
+  :root {
+    --bg:#F3F5F7; --surface:#FFFFFF; --ink:#17212B; --mute:#5A6573; --line:#D9DEE4; --soft:#EEF1F4;
+    --accent:#0E5A76; --accent-soft:#E2EEF3;
+    --buy:#1D7A4C; --buy-soft:#E3F2EA; --wait:#9A6200; --wait-soft:#FBF0DC; --risk:#B42A20; --risk-soft:#FBE6E3;
+  }
+  @media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) {
+    --bg:#11161C; --surface:#182029; --ink:#E5E9EE; --mute:#94A1AF; --line:#29333E; --soft:#1F2832;
+    --accent:#62B5D3; --accent-soft:#16303B;
+    --buy:#4FC58C; --buy-soft:#143326; --wait:#E3AA45; --wait-soft:#372A12; --risk:#F2766B; --risk-soft:#3A1C1A; } }
+  :root[data-theme="dark"] {
+    --bg:#11161C; --surface:#182029; --ink:#E5E9EE; --mute:#94A1AF; --line:#29333E; --soft:#1F2832;
+    --accent:#62B5D3; --accent-soft:#16303B;
+    --buy:#4FC58C; --buy-soft:#143326; --wait:#E3AA45; --wait-soft:#372A12; --risk:#F2766B; --risk-soft:#3A1C1A; }
+
   * { box-sizing:border-box; }
-  body { margin:0; font:15px/1.5 -apple-system, system-ui, Segoe UI, Roboto, sans-serif; background:var(--bg); color:var(--ink); }
-  header, main { max-width:1100px; margin:0 auto; padding:20px; }
-  h1 { font-size:24px; margin:0 0 4px; } h2 { font-size:18px; margin:28px 0 10px; }
-  .mute { color:var(--mute); font-size:13px; }
-  .banner { background:#2a2110; border:1px solid #5a4318; color:#f3d9a4; padding:10px 14px; border-radius:8px; font-size:13px; margin-top:12px; }
-  .panel { background:var(--card); border:1px solid var(--line); border-radius:10px; padding:16px; }
-  .row { display:flex; gap:12px; flex-wrap:wrap; align-items:center; }
-  input[type=number] { background:#0c0e12; color:var(--ink); border:1px solid var(--line); border-radius:6px; padding:8px 10px; width:140px; font-size:16px; }
-  .pick { display:inline-flex; gap:6px; align-items:center; border:1px solid var(--line); border-radius:999px; padding:4px 10px; cursor:pointer; user-select:none; }
-  .pick.on { border-color:var(--acc); background:#1b2440; }
-  table { width:100%; border-collapse:collapse; } th, td { text-align:left; padding:8px; border-bottom:1px solid var(--line); font-size:14px; }
-  th { color:var(--mute); font-weight:600; }
-  .grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(320px,1fr)); gap:14px; }
-  .tag { display:inline-block; padding:2px 8px; border-radius:6px; font-size:12px; font-weight:700; }
-  .BUY { background:#123d2c; color:var(--good); } .WAIT { background:#3d3112; color:var(--warn); } .other { background:#262b36; color:var(--mute); }
-  .kv { display:grid; grid-template-columns:1fr auto; gap:4px 10px; font-size:14px; margin:10px 0; }
-  .kv span:nth-child(odd) { color:var(--mute); }
-  .strength { font-size:11px; color:var(--mute); }
-  a { color:var(--acc); } ul { padding-left:18px; margin:6px 0; } li { font-size:13px; margin:3px 0; }
+  body { margin:0; background:var(--bg); color:var(--ink); font:16px/1.55 "IBM Plex Sans", system-ui, sans-serif;
+         font-variant-numeric:tabular-nums; -webkit-text-size-adjust:100%; }
+  .wrap { max-width:1040px; margin:0 auto; padding:0 20px; }
+  a { color:var(--accent); text-underline-offset:2px; }
+  :focus-visible { outline:2px solid var(--accent); outline-offset:2px; border-radius:4px; }
+  .mute { color:var(--mute); }
+  .small { font-size:14px; }
+
+  header { border-bottom:1px solid var(--line); background:var(--surface); }
+  header .wrap { display:flex; justify-content:space-between; align-items:center; gap:16px; padding-top:18px; padding-bottom:18px; }
+  h1 { font:600 22px/1.2 "IBM Plex Sans Condensed", "IBM Plex Sans", sans-serif; margin:0; letter-spacing:-0.01em; }
+  #upd { font-size:14px; margin-top:2px; }
+  .theme { background:none; border:1px solid var(--line); color:var(--ink); font:500 14px "IBM Plex Sans", sans-serif;
+           padding:7px 12px; border-radius:6px; cursor:pointer; white-space:nowrap; }
+  .theme:hover { border-color:var(--mute); }
+  .theme, .pick, summary { transition:background-color .15s, border-color .15s, color .15s; }
+  .pick:not(:disabled):hover { border-color:var(--accent); }
+
+  .note { margin:20px 0 0; padding:12px 14px; border-left:3px solid var(--accent); background:var(--accent-soft); font-size:15px; }
+  section { margin:36px 0; }
+  h2 { font:600 19px/1.3 "IBM Plex Sans", sans-serif; margin:0 0 4px; }
+  .lead { margin:0 0 14px; color:var(--mute); font-size:15px; max-width:68ch; }
+  .box { background:var(--surface); border:1px solid var(--line); border-radius:8px; }
+
+  /* calculator */
+  .calc { padding:18px; }
+  .calc-top { display:flex; flex-wrap:wrap; gap:18px 28px; align-items:flex-end; }
+  label.acct { display:flex; flex-direction:column; gap:6px; font-size:14px; color:var(--mute); }
+  .money { display:flex; align-items:center; border:1px solid var(--line); border-radius:6px; background:var(--bg); }
+  .money span { padding:0 4px 0 12px; color:var(--mute); }
+  .money input { border:0; background:none; color:var(--ink); font:500 20px "IBM Plex Sans", sans-serif; width:150px; padding:8px 12px 8px 2px; }
+  .money input:focus { outline:none; } .money:focus-within { border-color:var(--accent); }
+  .picks { display:flex; flex-wrap:wrap; gap:8px; }
+  .pick { font:500 15px "IBM Plex Sans", sans-serif; color:var(--ink); background:var(--bg); border:1px solid var(--line);
+          border-radius:6px; padding:7px 14px; cursor:pointer; }
+  .pick[aria-pressed="true"] { background:var(--accent); border-color:var(--accent); color:var(--surface); }
+  .pick:disabled { opacity:.45; cursor:not-allowed; }
+  .tiers { margin-top:18px; display:grid; gap:10px; }
+  .tier { display:grid; grid-template-columns:150px 1fr; gap:6px 18px; padding:14px 16px; background:var(--bg); border-radius:6px; }
+  .tier h3 { margin:0; font-size:16px; font-weight:600; }
+  .tier .total { font:600 24px/1.1 "IBM Plex Sans", sans-serif; }
+  .tier .split { display:flex; flex-wrap:wrap; gap:4px 18px; font-size:15px; }
+  .tier .promise { grid-column:2; font-size:14px; color:var(--mute); }
+
+  /* stocks */
+  .stocks { display:grid; gap:12px; }
+  .stock { padding:18px; border-left:4px solid var(--line); }
+  .stock.BUY { border-left-color:var(--buy); } .stock.WAIT { border-left-color:var(--wait); }
+  .stock-head { display:flex; flex-wrap:wrap; align-items:baseline; gap:6px 14px; }
+  .ticker { font:600 26px/1 "IBM Plex Sans Condensed", "IBM Plex Sans", sans-serif; letter-spacing:.01em; }
+  .price { font-size:17px; font-weight:500; }
+  .chg.up { color:var(--buy); } .chg.down { color:var(--risk); }
+  .badges { margin-left:auto; display:flex; gap:8px; flex-wrap:wrap; }
+  .badge { font:600 14px "IBM Plex Sans", sans-serif; padding:3px 10px; border-radius:4px; }
+  .badge.BUY { background:var(--buy-soft); color:var(--buy); } .badge.WAIT { background:var(--wait-soft); color:var(--wait); }
+  .badge.risk { background:var(--risk-soft); color:var(--risk); } .badge.other { background:var(--soft); color:var(--mute); }
+  .event { margin:10px 0 0; font-size:15px; color:var(--mute); max-width:75ch; }
+  .event q { color:var(--ink); }
+  .stats { display:grid; grid-template-columns:repeat(4, minmax(0,1fr)); gap:1px; margin:16px 0 4px; background:var(--line);
+           border:1px solid var(--line); border-radius:6px; overflow:hidden; }
+  .stat { background:var(--surface); padding:10px 12px; }
+  .stat dt { font-size:13px; color:var(--mute); line-height:1.3; }
+  .stat dd { margin:4px 0 0; font-size:19px; font-weight:600; }
+  .stat dd small { font-size:13px; font-weight:400; color:var(--mute); }
+  details { margin-top:12px; font-size:15px; }
+  summary { cursor:pointer; color:var(--accent); font-weight:500; }
+  details ul { margin:8px 0 0; padding-left:18px; } details li { margin:4px 0; }
+  .quiet { display:flex; flex-wrap:wrap; gap:8px 24px; padding:14px 18px; font-size:15px; }
+  .quiet b { font-weight:600; }
+
+  /* reliability */
+  .rel { padding:4px 18px; }
+  .rel dl { margin:0; }
+  .rel .item { display:grid; grid-template-columns:220px 1fr; gap:4px 20px; padding:12px 0; border-bottom:1px solid var(--line); font-size:15px; }
+  .rel .item:last-child { border-bottom:0; }
+  .rel dt { font-weight:600; } .rel dd { margin:0; color:var(--mute); }
+  footer { border-top:1px solid var(--line); padding:20px 0 40px; font-size:14px; color:var(--mute); }
+
+  @media (max-width:720px) {
+    .wrap { padding:0 14px; }
+    h1 { font-size:20px; }
+    .stats { grid-template-columns:repeat(2, minmax(0,1fr)); }
+    .tier { grid-template-columns:1fr; } .tier .promise { grid-column:1; }
+    .rel .item { grid-template-columns:1fr; }
+    .badges { margin-left:0; width:100%; }
+  }
+  @media (prefers-reduced-motion: reduce) { * { transition:none !important; } }
 </style>
 </head>
 <body>
 <header>
-  <h1>Event Risk Board</h1>
-  <div class="mute">How stocks tend to behave after company news: risk, timing and position size. <span id="upd"></span></div>
-  <div class="banner">Research project, not financial advice. Signals are probabilities learned from 2001-2025 data and can be wrong.
-    The strong outputs are risk and position size; direction is a weak lean.</div>
-</header>
-<main>
-  <h2>1. How much should I put in?</h2>
-  <div class="panel">
-    <div class="row">
-      <label>Account size ($) <input id="acct" type="number" min="1" step="1" value="200"></label>
-      <span class="mute">Pick up to 3 stocks with a live event:</span>
-    </div>
-    <div id="picks" class="row" style="margin-top:10px"></div>
-    <div style="margin-top:14px; overflow-x:auto"><table id="alloc"></table></div>
-    <p class="mute" id="allocnote"></p>
+  <div class="wrap">
+    <div><h1>Event Risk Board</h1><div id="upd" class="mute">Loading the latest predictions</div></div>
+    <button class="theme" id="theme" type="button" aria-label="Switch colour theme">Dark mode</button>
   </div>
+</header>
+<main class="wrap">
+  <p class="note">How stocks on the watchlist tend to behave after company news, learned from 317,000 events between 2001 and 2025. Risk and position size are the reliable outputs. Direction is only a weak lean. This is a research project, not financial advice.</p>
 
-  <h2>2. Stocks</h2>
-  <div id="cards" class="grid"></div>
+  <section aria-labelledby="h-size">
+    <h2 id="h-size">Position size</h2>
+    <p class="lead">Enter an account size and choose up to three stocks. Each tier keeps the chance of a large loss within its stated limit. When you pick several stocks, sizes shrink together, because stocks tend to fall together in sell-offs.</p>
+    <div class="box calc">
+      <div class="calc-top">
+        <label class="acct">Account size
+          <span class="money"><span>$</span><input id="acct" type="number" min="1" step="1" value="200" inputmode="decimal"></span>
+        </label>
+        <div><div class="small mute" style="margin-bottom:6px">Stocks with a recent event</div><div id="picks" class="picks"></div></div>
+      </div>
+      <div id="alloc" class="tiers"></div>
+      <p class="small mute" id="allocnote" style="margin:14px 0 0"></p>
+    </div>
+  </section>
 
-  <h2>3. How reliable is each number?</h2>
-  <div class="panel mute" id="skill"></div>
+  <section aria-labelledby="h-stocks">
+    <h2 id="h-stocks">Watchlist</h2>
+    <p class="lead">Buy or wait is based on the expected move over the next five trading days. A stock marked high drop risk is in the riskiest fifth of comparable past events.</p>
+    <div id="cards" class="stocks"></div>
+  </section>
+
+  <section aria-labelledby="h-rel">
+    <h2 id="h-rel">How reliable each number is</h2>
+    <p class="lead">Measured on years the models never saw while training. The live record below fills in as predictions reach their 20-day outcome.</p>
+    <div class="box rel" id="skill"></div>
+    <div id="fwd"></div>
+  </section>
 </main>
+<footer><div class="wrap">Research project. Signals are probabilities based on historical patterns and can be wrong. Nothing here is a recommendation to buy or sell a security.</div></footer>
 <script>
 const TIERS = {safest:{label:"Safest", d:0.02, beta:0.05}, recommended:{label:"Recommended", d:0.04, beta:0.10}, bold:{label:"Bold", d:0.08, beta:0.10}};
 const STRESS = 0.4, MAX_TOTAL = 0.8;
 let DATA = null, picked = [];
 const $ = s => document.querySelector(s);
 const fmt = (x, d=1) => (x === null || x === undefined || isNaN(x)) ? "–" : Number(x).toFixed(d);
+const money = x => "$" + Number(x || 0).toLocaleString("en-US", {minimumFractionDigits:2, maximumFractionDigits:2});
+const esc = x => String(x ?? "").replace(/[&<>"']/g, c => ({"&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;"}[c]));
+const safeUrl = u => /^https?:\/\//i.test(u || "") ? esc(u) : "#";
+
+// theme
+const root = document.documentElement, btn = $("#theme");
+const isDark = () => root.dataset.theme ? root.dataset.theme === "dark" : matchMedia("(prefers-color-scheme: dark)").matches;
+const syncBtn = () => { btn.textContent = isDark() ? "Light mode" : "Dark mode"; };
+btn.onclick = () => { root.dataset.theme = isDark() ? "light" : "dark"; try { localStorage.setItem("theme", root.dataset.theme); } catch (e) {} syncBtn(); };
+syncBtn();
 
 function basketScale(w, q, C, d) {          // same as src/sizing_lib.py: stressed correlation, joint bad case <= d
   const n = w.length, l = w.map((wi, i) => wi * Math.abs(q[i]));
@@ -80,71 +192,82 @@ function corrOf(a, b) {
 function renderAlloc() {
   const acct = Math.max(Number($("#acct").value) || 0, 0);
   const rows = picked.map(t => DATA.stocks.find(s => s.ticker === t)).filter(Boolean);
-  if (!rows.length) { $("#alloc").innerHTML = ""; $("#allocnote").textContent = "Select one to three stocks above."; return; }
+  if (!rows.length) { $("#alloc").innerHTML = ""; $("#allocnote").textContent = "Choose at least one stock to see amounts."; return; }
   const C = rows.map(a => rows.map(b => corrOf(a.ticker, b.ticker)));
-  let html = "<tr><th>Tier</th>" + rows.map(r => `<th>${r.ticker}</th>`).join("") + "<th>Total</th><th>Promise</th></tr>";
+  let html = "";
   for (const [k, T] of Object.entries(TIERS)) {
     const w = rows.map(r => r.sizing?.tiers?.[k]?.weight ?? 0), q = rows.map(r => (r.sizing?.tiers?.[k]?.bad_case_pct ?? -10) / 100);
     const res = rows.length > 1 ? basketScale(w, q, C, T.d) : {w: w.map(x => Math.min(x, MAX_TOTAL))};
     const amt = res.w.map(x => x * acct), tot = amt.reduce((a, b) => a + b, 0);
-    html += `<tr><td><b>${T.label}</b></td>` + amt.map(a => `<td>$${fmt(a, 2)}</td>`).join("") +
-            `<td><b>$${fmt(tot, 2)}</b></td><td class="mute">≤${Math.round(T.beta*100)}% chance of losing more than $${fmt(acct*T.d, 2)} at the worst point in 20 trading days</td></tr>`;
+    html += `<div class="tier"><div><h3>${T.label}</h3><div class="total">${money(tot)}</div></div>
+      <div class="split">${rows.map((r, i) => `<span><b>${r.ticker}</b> ${money(amt[i])}</span>`).join("")}</div>
+      <div class="promise">At most a ${Math.round(T.beta * 100)}% chance of losing more than ${money(acct * T.d)} at the worst point over 20 trading days.</div></div>`;
   }
   $("#alloc").innerHTML = html;
-  $("#allocnote").textContent = "Amounts are fractional-share dollar amounts. With several stocks, sizes are scaled down together because stocks fall together in sell-offs. A $0 means the model's expected return is not positive. Cash left over stays uninvested.";
+  $("#allocnote").textContent = "A $0.00 amount means the model's expected return is not positive. Money not allocated stays in cash.";
 }
-const esc = x => String(x ?? "").replace(/[&<>"']/g, c => ({"&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;"}[c]));
-const safeUrl = u => /^https?:\/\//i.test(u || "") ? esc(u) : "#";
+function stat(label, value) { return `<div class="stat"><dt>${label}</dt><dd>${value}</dd></div>`; }
 function card(s) {
-  if (s.status !== "event") return `<div class="panel"><b>${s.ticker}</b> <span class="mute">${s.name || ""}</span><div class="kv"><span>Price</span><span>${fmt(s.price, 2)}</span>${s.next_earnings ? `<span>Next earnings</span><span>${s.next_earnings}</span>` : ""}</div><div class="mute">${s.status || ""}</div></div>`;
+  const chg = s.chg_1d_pct, chgHtml = chg == null ? "" : `<span class="chg ${chg >= 0 ? "up" : "down"}">${chg >= 0 ? "+" : ""}${fmt(chg, 2)}%</span>`;
+  if (s.status !== "event") return null;
   const e = s.entry || {}, r = s.risk || {};
-  const sig = e.signal || "–", cls = (sig === "BUY" || sig === "WAIT") ? sig : "other";
+  const sig = (e.signal === "BUY" || e.signal === "WAIT") ? e.signal : null;
   const vr = r.vol_ratio_2_20, d20 = r.drift_1_20, bad = s.sizing?.tiers?.recommended?.bad_case_pct;
-  const evlabel = s.event_class === "other" ? "Price/volume shock with no matched news (a type the model never trained on, so treat with extra caution)" : s.event_class.replaceAll("_", " ") + " event";
-  const lean = d20 ? (d20.pred > 0.01 ? "slightly positive" : d20.pred < -0.01 ? "slightly negative" : "neutral") : "–";
-  return `<div class="panel">
-    <div class="row" style="justify-content:space-between"><div><b>${s.ticker}</b> <span class="mute">${s.name || ""}</span></div><span class="tag ${cls}">${sig}</span></div>
-    <div class="mute" style="margin-top:4px">${evlabel} on ${s.day0} (day ${s.decision_day}). Day 0-1 move ${fmt(s.car_0_1_pct)}% vs market.${s.event_headline ? `<br>“${esc(s.event_headline)}”` : ""}</div>
-    ${s.warning_big_drop ? '<div class="banner" style="margin-top:8px">⚠️ In the riskiest 20% of comparable past shocks for further downside.</div>' : ""}
-    <div class="kv">
-      <span>Price (${s.price_date})</span><span>${fmt(s.price, 2)}</span>
-      <span>Expected further dip from here</span><span>${fmt(e.expected_further_dip_pct)}%</span>
-      ${e.at_new_low ? `<span>At a new low: chance it holds</span><span>${fmt(100*(e.p_low_holds ?? NaN), 0)}%</span>` : ""}
-      <span>Worst point while holding 20 days (1-in-10 chance of worse)</span><span>${bad != null ? fmt(bad) + "%" : "–"}</span>
-      ${s.next_earnings ? `<span>Next earnings</span><span>${s.next_earnings}</span>` : ""}
-      <span>Volatility vs normal</span><span>${vr ? fmt(vr.pred, 2) + "x" : "–"}</span>
-      <span>20-day direction</span><span>${lean} <span class="strength">(weak)</span></span>
+  const kind = s.event_class === "other" ? "Large price or volume move with no matched news" : s.event_class.replaceAll("_", " ").replace(/^./, c => c.toUpperCase());
+  const lean = d20 ? (d20.pred > 0.01 ? "Slightly up" : d20.pred < -0.01 ? "Slightly down" : "Flat") : "–";
+  const stats = [
+    stat("Expected further dip", `${fmt(e.expected_further_dip_pct)}%`),
+    stat("Worst point, 1-in-10 chance", bad != null ? `${fmt(bad)}%` : "–"),
+    stat("Volatility vs normal", vr ? `${fmt(vr.pred, 2)}×` : "–"),
+    e.at_new_low ? stat("Chance this low holds", `${fmt(100 * (e.p_low_holds ?? NaN), 0)}%`)
+                 : stat("20-day direction", `${lean} <small>weak</small>`)
+  ].join("");
+  const hl = (s.headlines || []).slice(0, 4);
+  return `<article class="box stock ${sig || ""}">
+    <div class="stock-head">
+      <span class="ticker">${esc(s.ticker)}</span><span class="mute">${esc(s.name || "")}</span>
+      <span class="price">${fmt(s.price, 2)}</span>${chgHtml}
+      <div class="badges">${sig ? `<span class="badge ${sig}">${sig === "BUY" ? "Buy" : "Wait"}</span>` : `<span class="badge other">${esc(e.signal || "No signal")}</span>`}
+        ${s.warning_big_drop ? '<span class="badge risk">High drop risk</span>' : ""}</div>
     </div>
-    <div class="mute">Recent headlines</div>
-    <ul>${(s.headlines || []).slice(0, 4).map(h => `<li><a href="${safeUrl(h.url)}" target="_blank" rel="noopener noreferrer">${esc(h.headline)}</a> <span class="mute">${esc(h.date).slice(0,10)}</span></li>`).join("")}</ul>
-  </div>`;
+    <p class="event">${kind} on ${s.day0}, day ${s.decision_day} since. Move on the first two days: ${fmt(s.car_0_1_pct)}% against the market.
+      ${s.event_class === "other" ? " The model never trained on this kind of event, so read it with extra caution." : ""}
+      ${s.event_headline ? `<br><q>${esc(s.event_headline)}</q>` : ""}</p>
+    <dl class="stats">${stats}</dl>
+    <div class="small mute">Prices as of ${s.price_date} close.${s.next_earnings ? ` Next earnings ${s.next_earnings}.` : ""}</div>
+    ${hl.length ? `<details><summary>Recent headlines</summary><ul>${hl.map(h => `<li><a href="${safeUrl(h.url)}" target="_blank" rel="noopener noreferrer">${esc(h.headline)}</a> <span class="mute">${esc(h.date).slice(0, 10)}</span></li>`).join("")}</ul></details>` : ""}
+  </article>`;
 }
 function render() {
-  $("#upd").textContent = "Updated " + DATA.generated_utc.replace("T", " ") + " UTC.";
-  const live = DATA.stocks.filter(s => s.status === "event");
-  $("#picks").innerHTML = live.map(s => `<span class="pick ${picked.includes(s.ticker) ? "on" : ""}" data-t="${s.ticker}">${s.ticker}</span>`).join("") || '<span class="mute">No stock on the watchlist has a recent event right now.</span>';
+  $("#upd").textContent = "Updated " + DATA.generated_utc.replace("T", " ").replace("+00:00", "") + " UTC";
+  const live = DATA.stocks.filter(s => s.status === "event"), quiet = DATA.stocks.filter(s => s.status !== "event");
+  $("#picks").innerHTML = live.map(s => {
+    const on = picked.includes(s.ticker), full = !on && picked.length >= 3;
+    return `<button type="button" class="pick" data-t="${esc(s.ticker)}" aria-pressed="${on}" ${full ? "disabled" : ""}>${esc(s.ticker)}</button>`;
+  }).join("") || '<span class="mute">No stock on the watchlist has had an event in the last 15 trading days.</span>';
   document.querySelectorAll(".pick").forEach(el => el.onclick = () => {
     const t = el.dataset.t;
     picked = picked.includes(t) ? picked.filter(x => x !== t) : (picked.length < 3 ? [...picked, t] : picked);
     render();
   });
-  $("#cards").innerHTML = DATA.stocks.map(card).join("");
+  $("#cards").innerHTML = live.map(card).join("") + (quiet.length ? `<div class="box quiet"><span class="mute">No recent event:</span>${quiet.map(s => `<span><b>${esc(s.ticker)}</b> ${fmt(s.price, 2)}${s.next_earnings ? ` <span class="mute">earnings ${s.next_earnings}</span>` : ""}</span>`).join("")}</div>` : "");
   renderAlloc();
   const sk = DATA.skill || {};
-  $("#skill").innerHTML = (Object.keys(sk).length ? "<b>Backtest (out of sample, 2006-2026)</b><ul>" + Object.entries(sk).map(([k, v]) => `<li><b>${esc(k)}</b>: ${esc(v)}</li>`).join("") + "</ul>"
-    : "Out-of-sample results are in the repository's results folder.") + '<div id="fwd"></div>';
+  $("#skill").innerHTML = Object.keys(sk).length
+    ? "<dl>" + Object.entries(sk).map(([k, v]) => `<div class="item"><dt>${esc(k)}</dt><dd>${esc(v)}</dd></div>`).join("") + "</dl>"
+    : '<p class="mute">Results are in the project repository.</p>';
   fetch("data/forward_scores.json?" + Date.now()).then(r => r.json()).then(f => {
     const pct = x => x == null ? "–" : fmt(100 * x, 0) + "%";
-    let h = `<b>Live track record (predictions logged before the outcome existed)</b><ul><li>${f.n_logged || 0} predictions logged, ${f.n_scored || 0} with a known 20-day outcome${f.too_early ? " (too early to judge)" : ""}</li>`;
-    if (f.worst_point) h += `<li>Worst-point bound breached: ${pct(f.worst_point.breach_rate)} of ${f.worst_point.n} (promise: about 10% or less)</li>`;
-    if (f.signal) h += "<li>Next-5-day return: " + Object.entries(f.signal).map(([k, v]) => `${k} ${fmt(v.mean_ret5_pct)}% (n=${v.n})`).join(", ") + "</li>";
-    if (f.warning) h += "<li>Average worst point: " + Object.entries(f.warning).map(([k, v]) => `${k.replace("_", " ")} ${fmt(v.mean_worst_pct)}% (n=${v.n})`).join(", ") + "</li>";
-    $("#fwd").innerHTML = h + `</ul><div class="mute">${esc(f.note || "")}</div>`;
-  }).catch(() => { $("#fwd").innerHTML = '<div class="mute">Live track record starts once the first predictions are 20 trading days old.</div>'; });
+    const items = [["Predictions logged", `${f.n_logged || 0}, of which ${f.n_scored || 0} have a known 20-day outcome${f.too_early ? ". Too early to judge." : "."}`]];
+    if (f.worst_point) items.push(["Worst-point limit broken", `${pct(f.worst_point.breach_rate)} of ${f.worst_point.n} predictions. The target is 10% or less.`]);
+    if (f.signal) items.push(["Next 5-day return", Object.entries(f.signal).map(([k, v]) => `${k === "BUY" ? "Buy" : "Wait"} days ${fmt(v.mean_ret5_pct)}% (${v.n})`).join(", ")]);
+    if (f.warning) items.push(["Average worst point", Object.entries(f.warning).map(([k, v]) => `${k === "warned" ? "High drop risk" : "Others"} ${fmt(v.mean_worst_pct)}% (${v.n})`).join(", ")]);
+    $("#fwd").innerHTML = `<h2 style="margin-top:28px">Live record</h2><div class="box rel"><dl>${items.map(([k, v]) => `<div class="item"><dt>${k}</dt><dd>${esc(v)}</dd></div>`).join("")}</dl></div>`;
+  }).catch(() => { $("#fwd").innerHTML = '<p class="lead" style="margin-top:16px">The live record starts once the first predictions are 20 trading days old.</p>'; });
 }
 $("#acct").oninput = renderAlloc;
 fetch("data/predictions.json?" + Date.now()).then(r => r.json()).then(d => { DATA = d; picked = d.stocks.filter(s => s.status === "event").slice(0, 3).map(s => s.ticker); render(); })
-  .catch(() => { $("#cards").innerHTML = '<div class="panel">Could not load predictions.</div>'; });
+  .catch(() => { $("#upd").textContent = "Predictions could not be loaded. Refresh the page to try again."; });
 </script>
 </body>
 </html>
