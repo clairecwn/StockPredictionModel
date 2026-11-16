@@ -11,7 +11,7 @@ from datetime import datetime, timezone
 import numpy as np, pandas as pd, requests
 os.environ.setdefault("LIVE_FEATS", "1")
 from config import ROOT, PUBLIC, MODELS
-from live_engine import yahoo_frames, fred_row, detect_event, event_features, predict_all
+from live_engine import yahoo_frames, fred_row, detect_event, event_features, calendar_features, predict_all
 from sizing_lib import shrunk_corr
 
 WL = json.loads((ROOT / "watchlist.json").read_text())
@@ -42,6 +42,17 @@ def earnings_days(t, back=40, ahead=30):
     ds = sorted({pd.Timestamp(c["date"]) for c in cal if c.get("date")})
     today = pd.Timestamp(now).tz_convert(ET).tz_localize(None).normalize()
     return [d for d in ds if d < today], next((d for d in ds if d >= today), None)
+
+def yahoo_earnings(t, limit=16):
+    """Past and upcoming earnings announcement dates from Yahoo (about four years), as calendar dates in New York time.
+    Used for the calendar features; Finnhub's free calendar only reaches a few weeks back."""
+    try:
+        import yfinance as yf
+        d = yf.Ticker(t).get_earnings_dates(limit=limit)
+        idx = d.index.tz_convert(ET) if getattr(d.index, "tz", None) is not None else d.index
+        return [pd.Timestamp(x.date()) for x in idx]
+    except Exception:
+        return []
 
 def finnhub(t, days=25):
     key = os.environ.get("FINNHUB_API_KEY")
@@ -106,6 +117,7 @@ for w in WL["stocks"]:
     except Exception:
         cap = np.nan
     ev = event_features(f, i0, cls, hl, np.log1p(cap) if np.isfinite(cap) else np.nan, fred_row(f.index[i0], fred_csv))
+    ev.update(calendar_features(f, i0, past_earn + yahoo_earnings(t) + ([next_earn] if next_earn is not None else [])))
     k = len(f) - 1 - i0
     sr = None
     if 1 <= k <= 15:

@@ -10,11 +10,16 @@ import numpy as np, pandas as pd
 import pyarrow.parquet as pq
 from scipy.stats import spearmanr
 from config import PROC, RESULTS, find_file
-from live_engine import event_features
+from live_engine import event_features, calendar_features
 
 ev = pd.read_parquet(PROC / "events.parquet")
 ex = pd.read_parquet(PROC / "extra_features.parquet")
 ev = ev.merge(ex, on=["permno", "day0"], how="left")
+cf = PROC / "calendar_features.parquet"
+CAL = ["days_to_exp_earn", "days_since_earn", "exp_earn_in_win", "earn_react_hist"]
+if cf.exists():
+    c = pd.read_parquet(cf).drop_duplicates(["permno", "day0"])[["permno", "day0"] + CAL]; c["day0"] = pd.to_datetime(c.day0)
+    ev = ev.merge(c, on=["permno", "day0"], how="left")
 import os
 ev = ev[(ev.day0.dt.year >= 2012) & ev.drift_1_20.notna()].sample(150 if os.environ.get("PARITY_TEST") == "1" else 1500, random_state=0)
 perm = [int(p) for p in ev.permno.unique()]
@@ -30,6 +35,11 @@ frames = {p: g.set_index("date") for p, g in F.groupby("permno")}
 COMPARE = ["car_0_1", "ar_day0_sd", "abn_volume_0_1", "beta", "idio_vol_pre", "vol_pre", "mom_20", "mom_60", "mom_250",
            "dist_52w_high", "amihud", "log_dollar_vol", "mkt_day0", "mkt_pre5", "mkt_vol20", "yz_vol_5", "yz_vol_20", "yz_vol_60",
            "yz_term", "range_shock_01"]
+RDQ = {}
+if cf.exists():
+    rq = pd.read_csv(find_file("comp_rdq"), usecols=["gvkey", "rdq"]).dropna()
+    for g, d in rq.groupby("gvkey"): RDQ[int(g)] = list(pd.to_datetime(d.rdq))
+    COMPARE = COMPARE + CAL
 rows = []
 for _, e in ev.iterrows():
     f = frames.get(e.permno)
@@ -38,6 +48,7 @@ for _, e in ev.iterrows():
     if i0 >= len(f) - 1 or f.index[i0] != e.day0: continue
     try:
         x = event_features(f, i0)
+        if cf.exists(): x.update(calendar_features(f, i0, RDQ.get(int(e.gvkey) if pd.notna(e.gvkey) else -1, [])))
     except Exception:
         continue
     rows.append({**{f"live_{c}": x.get(c) for c in COMPARE}, **{f"train_{c}": e.get(c) for c in COMPARE}})

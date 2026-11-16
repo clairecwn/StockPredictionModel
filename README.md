@@ -31,16 +31,16 @@ Every number is tested out of sample on years the models never saw during traini
 
 ## Results at a glance
 
-All figures are out of sample. Test years run from 2006 to 2025 under purged walk-forward validation, which is described in the [Validation](#validation) section. A rank correlation of 0 means no skill and 1 means a perfect ordering of outcomes.
+All figures are out of sample and come from the models used on the live board, which include the earnings-calendar features described under [Detailed results](#detailed-results). Test years run from 2006 to 2025 under purged walk-forward validation, which is described in the [Validation](#validation) section. A rank correlation of 0 means no skill and 1 means a perfect ordering of outcomes.
 
 | What is predicted | Out-of-sample skill | Verdict |
 |---|---|---|
-| Volatility over days 2 to 20, relative to normal | rank correlation 0.48 (shuffled-label placebo 0.00) | Strong |
-| Trading volume over days 2 to 20, relative to normal | rank correlation 0.59 | Strong |
-| Deepest abnormal drop over days 2 to 20 | rank correlation 0.20; AUC 0.67 for the worst 20% (naive baseline 0.61) | Useful |
+| Volatility over days 2 to 20, relative to normal | rank correlation 0.49 (shuffled-label placebo 0.00) | Strong |
+| Trading volume over days 2 to 20, relative to normal | rank correlation 0.60 | Strong |
+| Deepest abnormal drop over days 2 to 20 | rank correlation 0.20; AUC 0.68 for the worst 20% (naive baseline 0.61) | Useful |
 | Downside bound ("at most a 10% chance of falling below this") | breached 9.4% of the time in 2021 to 2025 | Calibrated |
 | Buy-or-wait rule | entries 0.08 percentage points closer to the 20-day low than buying on day 1 (Holm-adjusted p = 0.001) | Small but significant |
-| Position sizing tiers | losses beyond the stated limit in 2.8%, 2.5% and 1.4% of trades, against promises of 5%, 10% and 10% | Promises kept |
+| Position sizing tiers | losses beyond the stated limit in 2.7%, 2.5% and 1.4% of trades, against promises of 5%, 10% and 10% | Promises kept |
 | Direction of the 20-day abnormal return | rank correlation 0.03, right sign 51% of the time | Not significant |
 | Whether a new low will hold | AUC 0.57, equal to a baseline that only counts days since the event | No added skill |
 
@@ -312,9 +312,9 @@ Financial data makes overfitting easy, so the evaluation is deliberately strict.
 
 | Target | Ridge (live features) | LightGBM (live features) | Stacked ensemble (all features) | Placebo |
 |---|---|---|---|---|
-| Volatility ratio, days 2 to 20 | 0.41 | 0.47 | 0.48 | -0.01 |
-| Volume ratio, days 2 to 20 | 0.42 | 0.57 | 0.59 | 0.01 |
-| Trough, days 2 to 20 | 0.15 | 0.19 | 0.20 | 0.08 |
+| Volatility ratio, days 2 to 20 | 0.45 | 0.49 | 0.48 | -0.01 |
+| Volume ratio, days 2 to 20 | 0.45 | 0.60 | 0.59 | 0.01 |
+| Trough, days 2 to 20 | 0.16 | 0.20 | 0.20 | 0.08 |
 | Drift, days 2 to 20 | 0.02 | 0.03 | 0.03 | 0.00 |
 
 The values are Spearman rank correlations, computed out of sample. The first two columns come from the models used on the live board, and the ensemble column from the full research models. The 80% prediction intervals contain the realised outcome 80% of the time for every target, and they are narrower for large firms than for small ones.
@@ -335,21 +335,21 @@ Post-earnings announcement drift (Bernard and Thomas, 1989) does not appear in t
 | Expected-value rule | 4.74% | 0.001 |
 | Optimal stopping (fitted Q-iteration) | 4.74% | 0.09 |
 
-The live board uses the expected-value rule retrained on live features, which keeps a smaller but still significant edge (4.78%, Holm-adjusted p = 0.03).
+The live board uses the expected-value rule retrained on live features, which keeps a significant edge (4.76%, Holm-adjusted p below 0.001).
 
 ### Position sizing ($200 account, 2016 to 2025)
 
 | Tier | Average stake | Promise | Realised breach rate | Worst 1% outcome |
 |---|---|---|---|---|
-| Safest | \$`20.86 | at most 5% chance of losing more than \`$4 | 2.8% | \$-5.56 |
-| Recommended | \$`39.44 | at most 10% chance of losing more than \`$8 | 2.5% | \$-10.89 |
-| Bold | \$`63.67 | at most 10% chance of losing more than \`$16 | 1.4% | \$-17.85 |
+| Safest | \$20.79 | at most 5% chance of losing more than \$4 | 2.7% | \$-5.56 |
+| Recommended | \$39.32 | at most 10% chance of losing more than \$8 | 2.5% | \$-10.93 |
+| Bold | \$63.52 | at most 10% chance of losing more than \$16 | 1.4% | \$-18.16 |
 
-With a single correction for all stocks, the calmest fifth was over-protected and the most volatile fifth broke the 10% promise (12.2%). Calibrating each volatility bucket separately brings that down to 10.9%. Part of the remaining gap comes from 2025 being a riskier year than 2024, when the offsets were set, which affected every bucket.
+With a single correction for all stocks, the calmest fifth was over-protected and the most volatile fifth broke the 10% promise (11.8%). Calibrating each volatility bucket separately brings that down to 11.4%, and to 6.3% against the 5% promise. Part of the remaining gap comes from 2025 being a riskier year than 2024, when the corrections were set, which affected every bucket.
 
 ![Bound by volatility](docs/figures/05_bound_by_volatility.png)
 
-When three stocks are bought on the same day, scaling the basket with the stressed correlation keeps the breach rate at 6.7% against a promise of 10%. Sizing each stock separately and adding the results breaches 17.4% of the time.
+When three stocks are bought on the same day, scaling the basket with the stressed correlation keeps the breach rate at 6.3% against a promise of 10%. Sizing each stock separately and adding the results breaches 16.8% of the time.
 
 ### Monte Carlo simulation of an account
 
@@ -365,17 +365,30 @@ Here $R_k$ is the trade's 19-day total return and $L_k$ is its worst point while
 
 | Strategy | Median end value | 90% range of end value | Chance of ending down 10% or more | Median largest fall | 95th percentile largest fall |
 |---|---|---|---|---|---|
-| Safest | \$`202.06 | \`$190.66 to \$213.10 | 0.6% | 2.5% | 6.6% |
-| Recommended | \$`203.88 | \`$183.24 to \$226.35 | 3.1% | 4.7% | 12.2% |
-| Bold | \$`206.46 | \`$172.64 to \$244.48 | 9.5% | 7.6% | 19.4% |
-| Fixed 10% stake | \$`202.62 | \`$191.76 to \$215.55 | 0.2% | 2.6% | 7.2% |
-| All in (100%) | \$`219.17 | \`$121.67 to \$390.55 | 27.3% | 23.9% | 56.8% |
+| Safest | \$201.78 | \$190.49 to \$213.03 | 0.6% | 2.5% | 6.5% |
+| Recommended | \$203.97 | \$183.27 to \$226.54 | 3.2% | 4.7% | 12.1% |
+| Bold | \$206.29 | \$172.66 to \$244.48 | 9.7% | 7.6% | 19.6% |
+| Fixed 10% stake | \$202.62 | \$191.76 to \$215.55 | 0.2% | 2.6% | 7.2% |
+| All in (100%) | \$219.17 | \$121.67 to \$390.55 | 27.3% | 23.9% | 56.8% |
 
 The tiers behave as designed. Moving from Safest to Bold raises the median result, but it also widens the range and deepens the worst falls. Putting the whole account into every trade has the highest median, because stocks rose on average over 2016 to 2025, but it also loses 10% or more in about one simulated year in four, with a typical fall of nearly a quarter of the account.
 
 The simulation also shows a limit of the model. The Safest tier does no better than simply staking a fixed 10% on every trade, because the expected-return signal is too weak to pick better trades. The value of the sizing rules lies in keeping each tier's losses inside a stated limit, not in raising returns.
 
 ![Monte Carlo](docs/figures/06_monte_carlo.png)
+
+### Experiment: the earnings calendar
+
+The first version of the risk models did not know when a company would next report earnings. A report that falls inside the 20-day holding window brings a scheduled jump in volatility and trading, so this information should matter. Four groups of features were tested, each added to the existing model and scored month by month on the same walk-forward test years:
+
+| Feature group | What it measures | Kept |
+|---|---|---|
+| Earnings calendar | whether the next report is expected inside the window, estimated only from past report dates | yes |
+| Earnings sensitivity | the stock's average reaction on its previous eight earnings days | yes |
+| Firm memory | how the same stock behaved after its previous events | research models only |
+| Analyst revisions | the change in the consensus earnings forecast over one and three months | no |
+
+A group was kept only if it beat the existing model after a Holm correction across all 25 tests and the gain also held from 2021 on. In the live models, the volatility forecast improved from a rank correlation of 0.47 to 0.49, volume from 0.57 to 0.60 and the deepest drop from 0.19 to 0.20. The volume gain held in 95% of test months. None of the groups improved the direction forecast, which supports the finding that public news is priced quickly.
 
 ### Why the headline numbers are modest
 
@@ -392,19 +405,19 @@ This project avoids all five, so its accuracy for direction sits close to 50%, w
 ## Live board
 
 <!-- LIVE-BOARD:START -->
-_Updated 2026-11-16 12:27 UTC. Research only, not financial advice._
+_Updated 2026-11-16 14:29 UTC. Research only, not financial advice._
 
 | Stock | Price | Event (day 0) | Day | Signal | Expected further dip | 1-in-10 worst point (20 days) | Risk vs normal | Recommended share if buying |
 |---|---|---|---|---|---|---|---|---|
-| NVDA | 162.85 | price/volume shock, no matched news (2026-11-12) | 1 | BUY ⚠️ | 5.3% | -14.5% | 0.97x | 15% |
-| TSLA | 390.22 | price/volume shock, no matched news (2026-11-04) | 7 | WAIT ⚠️ | 4.5% | -13.4% | 0.91x | 25% |
+| NVDA | 162.85 | price/volume shock, no matched news (2026-11-12) | 1 | WAIT | 5.4% | -14.9% | 1.00x | 16% |
+| TSLA | 390.22 | price/volume shock, no matched news (2026-11-04) | 7 | WAIT ⚠️ | 4.6% | -12.0% | 0.90x | 25% |
 | META | 641.69 | quiet: no event in the last 15 trading days | | | | | | |
-| BABA | 94.38 | price/volume shock, no matched news (2026-11-05) | 6 | BUY ⚠️ | 4.5% | -16.5% | 1.09x | 8% |
-| BA | 171.50 | earnings guidance (2026-10-27) | 13 | WAIT | 2.3% | -10.4% | 0.95x | 25% |
-| INTC | nan | no price data | | | | | | |
-| AAPL | 356.27 | earnings guidance (2026-11-02) | 9 | WAIT | 2.4% | -5.8% | 1.03x | 11% |
-| GRAB | 3.24 | price/volume shock, no matched news (2026-11-05) | 6 | WAIT ⚠️ | 4.5% | -18.7% | 0.88x | 6% |
-| SE | 75.36 | earnings guidance (2026-11-10) | 3 | WAIT ⚠️ | 5.1% | -14.5% | 1.07x | 17% |
+| BABA | 94.38 | price/volume shock, no matched news (2026-11-05) | 6 | BUY | 4.6% | -18.1% | 1.11x | 4% |
+| BA | 171.50 | earnings guidance (2026-10-27) | 13 | WAIT | 2.3% | -9.6% | 0.94x | 23% |
+| INTC | 59.66 | earnings guidance (2026-10-29) | 11 | BUY ⚠️ | 5.9% | -21.7% | 0.95x | 18% |
+| AAPL | 356.27 | earnings guidance (2026-11-02) | 9 | WAIT | 2.4% | -5.8% | 0.97x | 15% |
+| GRAB | 3.24 | price/volume shock, no matched news (2026-11-05) | 6 | WAIT ⚠️ | 4.1% | -14.9% | 0.85x | 5% |
+| SE | 75.36 | earnings guidance (2026-11-10) | 3 | WAIT ⚠️ | 5.4% | -13.6% | 1.06x | 18% |
 <!-- LIVE-BOARD:END -->
 
 The board runs on GitHub Actions twice per trading day, once after the US close and once in the morning to refresh headlines. Each run follows six steps:
@@ -473,7 +486,7 @@ A full run takes about 6 to 8 hours on a laptop. Most of that time is spent in t
 - **The news history ends in 2023.** Text features are therefore used in research mode only, and the live models rely on price, volume and regime data.
 - **Live data differs slightly from research data.** Live abnormal returns use a market model with SPY rather than six factors with the CRSP index. The parity check measures this gap, which is small (rank correlation 0.98 for the reaction).
 - **Coverage.** Results apply to US stocks above \$5 and outside the smallest 20% of firms. They also assume market conditions similar to those from 2001 to 2025.
-- **Calibration drifts.** Downside bounds were checked on 2024 and 2025, when risk was higher than usual, and the most volatile fifth of stocks still breached slightly above its promise (10.9% against 10%). The forward test will show whether this persists.
+- **Calibration drifts.** Downside bounds were checked on 2025 using corrections set on 2024, and the most volatile fifth of stocks still breached slightly above its promise (11.4% against 10%). The forward test will show whether this persists.
 
 ## References
 

@@ -96,6 +96,43 @@ def event_features(f, i0, cls="other", headline="", log_mcap=np.nan, regime=None
     x["_ar"], x["_sd_day"] = ar, max(sd, 0.003)
     return x
 
+# ---------------------------------------------------------------- calendar features (same rules as s02e_calendar_features)
+def calendar_features(f, i0, earn_dates):
+    """Earnings-calendar and earnings-sensitivity features for an event whose day 0 is row i0 of frame f.
+    earn_dates: announcement dates (past and upcoming). Only dates on or before day 0 are used, so the result is what
+    an investor could know that day; the expected next report follows the training rule (four quarters back + 364 days,
+    else last report + 91 days)."""
+    d0 = pd.Timestamp(f.index[i0]).normalize()
+    ds = sorted({pd.Timestamp(d).normalize() for d in earn_dates if pd.notna(d)})
+    past = [d for d in ds if d <= d0]
+    out = {"days_to_exp_earn": np.nan, "days_since_earn": np.nan, "exp_earn_in_win": np.nan, "earn_react_hist": np.nan}
+    if not past:
+        return out
+    prev = past[-1]
+    exp = None
+    if len(past) >= 4:
+        e4 = past[-4] + pd.Timedelta(days=364)
+        if e4 > d0 and 45 < (e4 - prev).days < 150:
+            exp = e4
+    exp = exp or prev + pd.Timedelta(days=91)
+    if exp <= d0: exp = d0 + pd.Timedelta(days=1)
+    dt = (exp - d0).days
+    out.update(days_to_exp_earn=float(np.clip(dt, 0, 120)), days_since_earn=float(np.clip((d0 - prev).days, 0, 120)),
+               exp_earn_in_win=float(2 <= dt <= 29))
+    # mean |reaction| over the previous 8 earnings days (market-model abnormal return on days 0 and 1)
+    r, m = f.ret.values, f.mkt.values; idx = f.index.normalize(); reacts = []
+    for d in [d for d in past if d < d0][-8:]:
+        j = int(idx.searchsorted(d))
+        if j < 250 or j + 1 >= len(f): continue
+        lo, hi = j + EST_WINDOW[0], j + EST_WINDOW[1]
+        rr, mm = r[lo:hi], m[lo:hi]; ok = np.isfinite(rr) & np.isfinite(mm)
+        if ok.sum() < 120: continue
+        b = np.polyfit(mm[ok], rr[ok], 1)[0]
+        reacts.append(abs((r[j] - b * m[j]) + (r[j + 1] - b * m[j + 1])))
+    if len(reacts) >= 2:
+        out["earn_react_hist"] = float(np.mean(reacts))
+    return out
+
 # ---------------------------------------------------------------- daily decision-day features (same as s05 put() block)
 def daily_features(f, i0, k, ev, sr=None, vix_now=None, vix0=None):
     """Features at the close of decision day k (1..15) after day 0 at row i0. sr = FINRA short-sale ratio series (optional)."""

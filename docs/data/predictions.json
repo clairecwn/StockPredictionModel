@@ -1,5 +1,5 @@
 {
- "generated_utc": "2026-11-16T12:27+00:00",
+ "generated_utc": "2026-11-16T14:29+00:00",
  "tickers": [
   "NVDA",
   "TSLA",
@@ -14,117 +14,118 @@
  "corr": [
   [
    1.0,
-   0.387,
-   0.25,
-   0.271,
-   0.178,
-   0.0,
-   0.053,
-   0.135,
-   0.166
+   0.371,
+   0.24,
+   0.26,
+   0.171,
+   0.366,
+   0.051,
+   0.13,
+   0.159
   ],
   [
-   0.387,
+   0.371,
    1.0,
-   0.298,
-   0.153,
-   0.177,
-   0.0,
-   0.129,
-   0.133,
-   0.168
+   0.286,
+   0.147,
+   0.17,
+   0.32,
+   0.124,
+   0.128,
+   0.161
   ],
   [
-   0.25,
-   0.298,
+   0.24,
+   0.286,
    1.0,
-   0.178,
-   0.157,
-   0.0,
-   0.126,
-   0.242,
-   0.263
-  ],
-  [
-   0.271,
-   0.153,
-   0.178,
-   1.0,
+   0.17,
    0.151,
-   0.0,
-   0.133,
-   0.27,
-   0.234
+   0.149,
+   0.12,
+   0.232,
+   0.252
   ],
   [
-   0.178,
-   0.177,
-   0.157,
+   0.26,
+   0.147,
+   0.17,
+   1.0,
+   0.144,
+   0.101,
+   0.127,
+   0.259,
+   0.224
+  ],
+  [
+   0.171,
+   0.17,
    0.151,
+   0.144,
    1.0,
-   0.0,
-   0.165,
-   0.239,
-   0.217
+   0.161,
+   0.159,
+   0.23,
+   0.208
   ],
   [
-   0.0,
-   0.0,
-   0.0,
-   0.0,
-   0.0,
+   0.366,
+   0.32,
+   0.149,
+   0.101,
+   0.161,
    1.0,
-   0.0,
-   0.0,
-   0.0
+   0.048,
+   0.007,
+   0.067
   ],
   [
-   0.053,
-   0.129,
-   0.126,
-   0.133,
-   0.165,
-   0.0,
-   1.0,
+   0.051,
+   0.124,
+   0.12,
    0.127,
-   0.146
-  ],
-  [
-   0.135,
-   0.133,
-   0.242,
-   0.27,
-   0.239,
-   0.0,
-   0.127,
+   0.159,
+   0.048,
    1.0,
-   0.404
+   0.122,
+   0.14
   ],
   [
-   0.166,
-   0.168,
-   0.263,
-   0.234,
-   0.217,
-   0.0,
-   0.146,
-   0.404,
+   0.13,
+   0.128,
+   0.232,
+   0.259,
+   0.23,
+   0.007,
+   0.122,
+   1.0,
+   0.387
+  ],
+  [
+   0.159,
+   0.161,
+   0.252,
+   0.224,
+   0.208,
+   0.067,
+   0.14,
+   0.387,
    1.0
   ]
  ],
  "disclaimer": "Research project. Directional guidance, not financial advice. Past patterns can fail.",
  "skill": {
   "How these were measured": "Live-feature models, purged walk-forward, test years 2006-2026 never used for fitting or tuning. Rank correlation: 0 = no skill, 1 = perfect ordering.",
-  "Volatility vs normal": "rank correlation 0.47 with what happened (shuffled-label placebo: 0.00). Reliable.",
-  "Trading volume vs normal": "rank correlation 0.57 (placebo 0.01). Reliable.",
-  "Expected further dip": "rank correlation 0.14 after removing the effects of volatility and days left. Useful but rough.",
-  "BUY / WAIT signal": "bought on average 0.05 percentage points closer to the 20-day low than buying on day 1 (2016-2026, significant after correcting for 11 strategies tested, p = 0.03). Small edge.",
+  "Volatility vs normal": "rank correlation 0.49 with what happened (shuffled-label placebo: 0.00). Reliable.",
+  "Trading volume vs normal": "rank correlation 0.60 (placebo 0.01). Reliable.",
+  "Expected further dip": "rank correlation 0.15 after removing the effects of volatility and days left. Useful but rough.",
+  "BUY / WAIT signal": "bought on average 0.07 percentage points closer to the 20-day low than buying on day 1 (2016-2025, significant after correcting for 11 strategies tested, p below 0.001). Small but consistent edge.",
   "Chance a new low holds": "AUC 0.57, the same as a baseline that only counts days since the event (0.57). Mostly reflects timing, not insight.",
   "20-day direction": "rank correlation 0.03, right sign 51% of the time, not significant, close to zero since 2021. Shown as a weak lean only and never used for sizing.",
-  "Worst-point bound and sizing": "losses beyond each tier's limit happened in 2.8% / 2.5% / 1.4% of trades (promise: at most 5% / 10% / 10%). 3-stock split: 6.7% (promise at most 10%).",
+  "Worst-point bound and sizing": "losses beyond each tier's limit happened in 2.7% / 2.5% / 1.4% of trades (promise: at most 5% / 10% / 10%). 3-stock split: 6.3% (promise at most 10%).",
   "80% ranges": "contained the real outcome 80% of the time.",
   "Not covered": "events with no matched news (labelled on the card), stocks under $5 or in the smallest 20% of firms, and any market regime unlike 2001-2025.",
-  "Big-drop warning (shock-sized events, 2016-2026)": "AUC 0.64 for spotting the worst 20% of drops (0.50 = coin flip)"
+  "Earnings calendar": "knowing whether an earnings report falls inside the next four weeks raised the volatility and volume forecasts, and the gain held in every recent year.",
+  "Big-drop warning (shock-sized events, 2016-2026)": "AUC 0.65 for spotting the worst 20% of drops (0.50 = coin flip)"
  },
  "stocks": [
   {
@@ -230,6 +231,26 @@
    "next_earnings": "2026-11-17",
    "headlines": [
     {
+     "date": "2026-11-16 08:51",
+     "headline": "Musk, Nvidia workers call for Huang return at Nvidia in petition",
+     "url": "https://finnhub.io/api/news?id=b43601b5cb376d14052ad4ed6e9fbf06ad54d275ac0083375b380e8d5dfad0c3"
+    },
+    {
+     "date": "2026-11-16 08:50",
+     "headline": "If Staying in Nvidia Stock Scares You, You Might Want To Consider This ETF",
+     "url": "https://finnhub.io/api/news?id=e0298be493b551c7f42862f3fa3d6a3192a03692e4c5bcfdb12b87bfad20f1bc"
+    },
+    {
+     "date": "2026-11-16 08:21",
+     "headline": "Nvidia Stock Is Down 32%. Is It a No-Brainer Buy at $163 or a Value Trap?",
+     "url": "https://finnhub.io/api/news?id=ee8b14ed3af607d60e202ca6632e961e7f83cac6d271e8c09000e97d2f772793"
+    },
+    {
+     "date": "2026-11-16 08:17",
+     "headline": "Tech investor: Here's how Nvidia founder Jensen Huang can rebuild his reputation",
+     "url": "https://finnhub.io/api/news?id=8aa52d226ac4da7d7bec67513b160dbdc7c0920e7d0b02b95eb08c6f379a5387"
+    },
+    {
      "date": "2026-11-16 06:34",
      "headline": "Huge News For Nvidia Stock Fans",
      "url": "https://finnhub.io/api/news?id=b7a436f53aafd516f418b8419570fe3c8028d3e698eb39438edc918da55ebccc"
@@ -238,26 +259,6 @@
      "date": "2026-11-16 06:33",
      "headline": "KBW names Bitdeer most exposed to Nvidia fall out",
      "url": "https://finnhub.io/api/news?id=64d9bea47e96be7b34e5a356ea206c0caac099be8294c47bf48a07bf53d8e991"
-    },
-    {
-     "date": "2026-11-16 04:40",
-     "headline": "Nvidia Earnings Could Set The Tone For Bitcoin, MSTR: Here\u2019s What Retail Traders Are Watching",
-     "url": "https://finnhub.io/api/news?id=485f47181853c908009a3905c3da0898664e62194cf9a0109180c386bcbb50cb"
-    },
-    {
-     "date": "2026-11-16 04:32",
-     "headline": "Nvidia results ahead this week; Fed\u2019s Warsh to speak - what\u2019s moving markets",
-     "url": "https://finnhub.io/api/news?id=063c5c922f1963224fe3daa6c21b06e0071843e625953685d415fafc61261264"
-    },
-    {
-     "date": "2026-11-16 04:23",
-     "headline": "Market Chatter: Nvidia, Amazon, Microsoft, OpenAI and Anthropic To Be Named AI National Champs By White House",
-     "url": "https://finnhub.io/api/news?id=d7a172a740533d18c879bebb06501bd148eb21e68d1232ba94e650c494eac3c5"
-    },
-    {
-     "date": "2026-11-16 04:11",
-     "headline": "Nvidia Stock Shock Has Investors Looking At TSMC And AI Chip Tooling",
-     "url": "https://finnhub.io/api/news?id=b4d6a3e33652baf6c516c15d16f830f10447e3e9dc9b973c1bd6dda4701c56f4"
     }
    ],
    "status": "event",
@@ -268,58 +269,58 @@
    "decision_day": 1,
    "risk": {
     "drift_1_20": {
-     "pred": 0.00131,
-     "lo80": -0.11727,
-     "hi80": 0.10193
+     "pred": 0.00473,
+     "lo80": -0.11002,
+     "hi80": 0.1117
     },
     "trough_2_20": {
-     "pred": -0.00884,
-     "lo80": -0.09473,
-     "hi80": 0.0504
+     "pred": -0.00641,
+     "lo80": -0.08344,
+     "hi80": 0.05433
     },
     "vol_ratio_2_20": {
-     "pred": 0.96733,
-     "lo80": 0.65267,
-     "hi80": 1.54706
+     "pred": 0.99624,
+     "lo80": 0.64996,
+     "hi80": 1.52797
     },
     "abn_volume_2_20": {
-     "pred": 1.52153,
-     "lo80": 0.98724,
-     "hi80": 2.06782
+     "pred": 1.66318,
+     "lo80": 0.97407,
+     "hi80": 2.38658
     }
    },
    "entry": {
-    "signal": "BUY",
-    "expected_next5_sd": 0.00258,
-    "expected_further_dip_pct": 5.34567,
+    "signal": "WAIT",
+    "expected_next5_sd": -0.01242,
+    "expected_further_dip_pct": 5.36589,
     "at_new_low": true,
-    "p_low_holds": 0.18458
+    "p_low_holds": 0.20173
    },
    "sizing": {
     "tiers": {
      "safest": {
-      "weight": 0.07454,
-      "bad_case_pct": -18.5509,
+      "weight": 0.0819,
+      "bad_case_pct": -21.74837,
       "loss_budget_pct": 2.0,
       "chance": 0.05
      },
      "recommended": {
-      "weight": 0.14907,
-      "bad_case_pct": -14.48808,
+      "weight": 0.16381,
+      "bad_case_pct": -14.91047,
       "loss_budget_pct": 4.0,
       "chance": 0.1
      },
      "bold": {
-      "weight": 0.22361,
-      "bad_case_pct": -14.48808,
+      "weight": 0.24571,
+      "bad_case_pct": -14.91047,
       "loss_budget_pct": 8.0,
       "chance": 0.1
      }
     },
-    "mu_pct": 0.88436,
-    "sigma_pct": 17.22265
+    "mu_pct": 1.00975,
+    "sigma_pct": 17.55588
    },
-   "warning_big_drop": true
+   "warning_big_drop": false
   },
   {
    "ticker": "TSLA",
@@ -424,6 +425,11 @@
    "next_earnings": null,
    "headlines": [
     {
+     "date": "2026-11-16 08:55",
+     "headline": "Tesla Sells Cybercabs To The Public. It Might Be Because Of A Bet With A YouTuber.",
+     "url": "https://finnhub.io/api/news?id=de07be8533cf6b4a0f512e470fbaa98bb3d01a27e8087b3ce4f679aedeef8fe7"
+    },
+    {
      "date": "2026-11-16 06:01",
      "headline": "ETFs Are Buying Tesla (TSLA) on Nov. 12",
      "url": "https://finnhub.io/api/news?id=f4fe7c086ee581be88f824b81402aa2ce97109cf01a98cb87bb2de0bd94567f6"
@@ -448,59 +454,59 @@
    "event_class": "other",
    "event_headline": "",
    "day0": "2026-11-04",
-   "car_0_1_pct": -8.16911,
+   "car_0_1_pct": -8.1691,
    "decision_day": 7,
    "risk": {
     "drift_1_20": {
-     "pred": 0.00057,
-     "lo80": -0.10808,
-     "hi80": 0.12028
+     "pred": -0.00542,
+     "lo80": -0.10541,
+     "hi80": 0.09983
     },
     "trough_2_20": {
-     "pred": -0.01435,
-     "lo80": -0.08926,
-     "hi80": 0.04347
+     "pred": -0.01256,
+     "lo80": -0.07636,
+     "hi80": 0.04701
     },
     "vol_ratio_2_20": {
-     "pred": 0.91115,
-     "lo80": 0.68432,
-     "hi80": 1.42541
+     "pred": 0.89767,
+     "lo80": 0.67456,
+     "hi80": 1.37985
     },
     "abn_volume_2_20": {
-     "pred": 0.83031,
-     "lo80": 0.55905,
-     "hi80": 1.10098
+     "pred": 0.80479,
+     "lo80": 0.58634,
+     "hi80": 1.09533
     }
    },
    "entry": {
     "signal": "WAIT",
-    "expected_next5_sd": -0.04221,
-    "expected_further_dip_pct": 4.46744,
+    "expected_next5_sd": -0.0531,
+    "expected_further_dip_pct": 4.59037,
     "at_new_low": false
    },
    "sizing": {
     "tiers": {
      "safest": {
-      "weight": 0.10911,
-      "bad_case_pct": -18.33064,
+      "weight": 0.11608,
+      "bad_case_pct": -17.23019,
       "loss_budget_pct": 2.0,
       "chance": 0.05
      },
      "recommended": {
-      "weight": 0.25,
-      "bad_case_pct": -13.42228,
+      "weight": 0.24849,
+      "bad_case_pct": -11.99142,
       "loss_budget_pct": 4.0,
       "chance": 0.1
      },
      "bold": {
-      "weight": 0.4,
-      "bad_case_pct": -13.42228,
+      "weight": 0.37274,
+      "bad_case_pct": -11.99142,
       "loss_budget_pct": 8.0,
       "chance": 0.1
      }
     },
-    "mu_pct": 0.99969,
-    "sigma_pct": 12.43558
+    "mu_pct": 0.7308,
+    "sigma_pct": 12.12626
    },
    "warning_big_drop": true
   },
@@ -606,6 +612,11 @@
    ],
    "next_earnings": null,
    "headlines": [
+    {
+     "date": "2026-11-16 08:48",
+     "headline": "Meta Plunged After Earnings in 2025 Too. Here\u2019s What Buyers Got a Year Later",
+     "url": "https://finnhub.io/api/news?id=d25520d91cac7bf0d016659b71a911781c01aca71d66e71be81eb2196ec103b0"
+    },
     {
      "date": "2026-11-16 06:01",
      "headline": "ETFs Bought $39.6 Million of Meta (META) on Thursday",
@@ -746,62 +757,62 @@
    "event_class": "other",
    "event_headline": "",
    "day0": "2026-11-05",
-   "car_0_1_pct": 8.4759,
+   "car_0_1_pct": 8.47592,
    "decision_day": 6,
    "risk": {
     "drift_1_20": {
-     "pred": -0.00385,
-     "lo80": -0.12274,
-     "hi80": 0.11665
+     "pred": -0.00671,
+     "lo80": -0.11883,
+     "hi80": 0.11783
     },
     "trough_2_20": {
-     "pred": -0.00888,
-     "lo80": -0.09552,
-     "hi80": 0.0577
+     "pred": -0.00211,
+     "lo80": -0.09622,
+     "hi80": 0.06343
     },
     "vol_ratio_2_20": {
-     "pred": 1.09439,
-     "lo80": 0.71254,
-     "hi80": 1.89384
+     "pred": 1.11066,
+     "lo80": 0.71808,
+     "hi80": 1.90511
     },
     "abn_volume_2_20": {
-     "pred": 0.86606,
-     "lo80": 0.63907,
-     "hi80": 1.20103
+     "pred": 0.92006,
+     "lo80": 0.63374,
+     "hi80": 1.33269
     }
    },
    "entry": {
     "signal": "BUY",
-    "expected_next5_sd": 0.01581,
-    "expected_further_dip_pct": 4.45007,
+    "expected_next5_sd": 0.02473,
+    "expected_further_dip_pct": 4.5585,
     "at_new_low": true,
-    "p_low_holds": 0.19506
+    "p_low_holds": 0.21921
    },
    "sizing": {
     "tiers": {
      "safest": {
-      "weight": 0.03857,
-      "bad_case_pct": -20.43566,
+      "weight": 0.02066,
+      "bad_case_pct": -23.9901,
       "loss_budget_pct": 2.0,
       "chance": 0.05
      },
      "recommended": {
-      "weight": 0.07714,
-      "bad_case_pct": -16.49155,
+      "weight": 0.04132,
+      "bad_case_pct": -18.12368,
       "loss_budget_pct": 4.0,
       "chance": 0.1
      },
      "bold": {
-      "weight": 0.11572,
-      "bad_case_pct": -16.49155,
+      "weight": 0.06198,
+      "bad_case_pct": -18.12368,
       "loss_budget_pct": 8.0,
       "chance": 0.1
      }
     },
-    "mu_pct": 0.32465,
-    "sigma_pct": 14.50592
+    "mu_pct": 0.17545,
+    "sigma_pct": 14.57077
    },
-   "warning_big_drop": true
+   "warning_big_drop": false
   },
   {
    "ticker": "BA",
@@ -906,6 +917,11 @@
    "next_earnings": null,
    "headlines": [
     {
+     "date": "2026-11-16 01:19",
+     "headline": "Reported November 15, 'Rocket from Boeing-Lockheed firm fails mid-flight, destroys payload of Amazon satellites' - Reuters",
+     "url": "https://finnhub.io/api/news?id=b34375017ea5b91fc8d2aa125cd4594a4a4d9b9384111bf35482e9f6374626dd"
+    },
+    {
      "date": "2026-11-15 21:41",
      "headline": "Elon Musk Takes Aim at Boeing, Jeff Bezos\u2019 Blue Origin After SpaceX Catches Starship With \u2018Chopsticks\u2019: \u2018I Am Genuinely Curious\u2019",
      "url": "https://finnhub.io/api/news?id=016238c29ae461859f2afc8cca4a749949c1250a9320f92f2a6fbd3ec87a09a3"
@@ -919,62 +935,250 @@
    "decision_day": 13,
    "risk": {
     "drift_1_20": {
-     "pred": -0.0026,
-     "lo80": -0.09273,
-     "hi80": 0.09379
+     "pred": -0.00585,
+     "lo80": -0.09505,
+     "hi80": 0.08765
     },
     "trough_2_20": {
-     "pred": -0.00384,
-     "lo80": -0.08054,
-     "hi80": 0.04739
+     "pred": -0.00363,
+     "lo80": -0.07717,
+     "hi80": 0.05086
     },
     "vol_ratio_2_20": {
-     "pred": 0.94542,
-     "lo80": 0.67469,
-     "hi80": 1.27505
+     "pred": 0.94319,
+     "lo80": 0.67332,
+     "hi80": 1.2724
     },
     "abn_volume_2_20": {
-     "pred": 1.32292,
-     "lo80": 0.90043,
-     "hi80": 1.62913
+     "pred": 1.43373,
+     "lo80": 0.92519,
+     "hi80": 1.77391
     }
    },
    "entry": {
     "signal": "WAIT",
-    "expected_next5_sd": -0.1078,
-    "expected_further_dip_pct": 2.34758,
+    "expected_next5_sd": -0.09948,
+    "expected_further_dip_pct": 2.32389,
     "at_new_low": false
    },
    "sizing": {
     "tiers": {
      "safest": {
-      "weight": 0.15,
-      "bad_case_pct": -13.15903,
+      "weight": 0.11279,
+      "bad_case_pct": -13.68536,
       "loss_budget_pct": 2.0,
       "chance": 0.05
      },
      "recommended": {
-      "weight": 0.25,
-      "bad_case_pct": -10.36625,
+      "weight": 0.22559,
+      "bad_case_pct": -9.62169,
       "loss_budget_pct": 4.0,
       "chance": 0.1
      },
      "bold": {
-      "weight": 0.4,
-      "bad_case_pct": -10.36625,
+      "weight": 0.33838,
+      "bad_case_pct": -9.62169,
       "loss_budget_pct": 8.0,
       "chance": 0.1
      }
     },
-    "mu_pct": 0.46941,
-    "sigma_pct": 8.78514
+    "mu_pct": 0.33951,
+    "sigma_pct": 8.67476
    },
    "warning_big_drop": false
   },
   {
    "ticker": "INTC",
    "name": "Intel",
-   "status": "no price data"
+   "price": 59.66,
+   "price_date": "2026-11-13",
+   "chg_1d_pct": -2.51634,
+   "closes": [
+    97.19,
+    97.14,
+    101.05,
+    108.8,
+    108.6,
+    121.78,
+    123.86,
+    122.6,
+    127.39,
+    123.0,
+    116.03,
+    115.93,
+    120.23,
+    120.0,
+    119.33,
+    116.19,
+    112.5,
+    113.12,
+    107.08,
+    104.7,
+    101.35,
+    102.81,
+    98.12,
+    95.37,
+    89.85,
+    92.03,
+    91.69,
+    92.96,
+    85.49,
+    86.96,
+    90.47,
+    93.74,
+    95.53,
+    92.07,
+    65.76,
+    59.97,
+    60.55,
+    58.27,
+    52.25,
+    56.28,
+    59.37,
+    58.13,
+    62.5,
+    61.2,
+    59.66
+   ],
+   "close_dates": [
+    "2026-09-14",
+    "2026-09-15",
+    "2026-09-16",
+    "2026-09-17",
+    "2026-09-18",
+    "2026-09-21",
+    "2026-09-22",
+    "2026-09-23",
+    "2026-09-24",
+    "2026-09-25",
+    "2026-09-28",
+    "2026-09-29",
+    "2026-09-30",
+    "2026-10-01",
+    "2026-10-02",
+    "2026-10-05",
+    "2026-10-06",
+    "2026-10-07",
+    "2026-10-08",
+    "2026-10-09",
+    "2026-10-12",
+    "2026-10-13",
+    "2026-10-14",
+    "2026-10-15",
+    "2026-10-16",
+    "2026-10-19",
+    "2026-10-20",
+    "2026-10-21",
+    "2026-10-22",
+    "2026-10-23",
+    "2026-10-26",
+    "2026-10-27",
+    "2026-10-28",
+    "2026-10-29",
+    "2026-10-30",
+    "2026-11-02",
+    "2026-11-03",
+    "2026-11-04",
+    "2026-11-05",
+    "2026-11-06",
+    "2026-11-09",
+    "2026-11-10",
+    "2026-11-11",
+    "2026-11-12",
+    "2026-11-13"
+   ],
+   "next_earnings": null,
+   "headlines": [
+    {
+     "date": "2026-11-16 08:41",
+     "headline": "Shareholders sue Intel after its shares plunge nearly 29%",
+     "url": "https://finnhub.io/api/news?id=bc31dd6df0c111b915242606fe14ede583c03bc5cbd4f600424e719b5115282d"
+    },
+    {
+     "date": "2026-11-16 08:07",
+     "headline": "Intel (INTC) Hit With New Investor Lawsuit Over PC Weakness Disclosures",
+     "url": "https://finnhub.io/api/news?id=654e35fbe89a760e19afdb4ec60ee6debf75e37422842eed869202c4924a4c93"
+    },
+    {
+     "date": "2026-11-16 07:54",
+     "headline": "Can Edge AI Replace Intel\u2019s Shrinking PC Business?",
+     "url": "https://finnhub.io/api/news?id=bf4f9016b9eef31c46f60cc6cf77492a268fb1a027487e25fbdadf3b0fc57542"
+    },
+    {
+     "date": "2026-11-16 07:52",
+     "headline": "Premarket movers: Nvidia, Intel fall; J&J gains",
+     "url": "https://finnhub.io/api/news?id=ad6ca7c09c343edd82fb1aa4d3e1df9d2298445741698b7ebb817237524ba4fb"
+    },
+    {
+     "date": "2026-11-16 07:11",
+     "headline": "Nvidia, Intel, Sandisk, SpaceX, Strategy, and More Stocks That Explain Today\u2019s Market",
+     "url": "https://finnhub.io/api/news?id=ed3aab76910753558a1908a2ed77537aad33a9598da42d29cc29137596215efc"
+    },
+    {
+     "date": "2026-11-16 06:45",
+     "headline": "AMD, Intel and Nvidia Fall as AI Chip Selloff Continues",
+     "url": "https://finnhub.io/api/news?id=8c25aeb2da1c5f1c974d665bc1323e2494db67fcba9b231c0ae2b8e9616ee46f"
+    }
+   ],
+   "status": "event",
+   "event_class": "earnings_guidance",
+   "event_headline": "",
+   "day0": "2026-10-29",
+   "car_0_1_pct": -25.7612,
+   "decision_day": 11,
+   "risk": {
+    "drift_1_20": {
+     "pred": 0.01392,
+     "lo80": -0.15899,
+     "hi80": 0.18843
+    },
+    "trough_2_20": {
+     "pred": -0.03781,
+     "lo80": -0.16412,
+     "hi80": 0.06602
+    },
+    "vol_ratio_2_20": {
+     "pred": 0.94671,
+     "lo80": 0.64719,
+     "hi80": 1.39201
+    },
+    "abn_volume_2_20": {
+     "pred": 1.26842,
+     "lo80": 0.90027,
+     "hi80": 1.9426
+    }
+   },
+   "entry": {
+    "signal": "BUY",
+    "expected_next5_sd": 0.04683,
+    "expected_further_dip_pct": 5.8928,
+    "at_new_low": false
+   },
+   "sizing": {
+    "tiers": {
+     "safest": {
+      "weight": 0.07195,
+      "bad_case_pct": -27.79803,
+      "loss_budget_pct": 2.0,
+      "chance": 0.05
+     },
+     "recommended": {
+      "weight": 0.18401,
+      "bad_case_pct": -21.73749,
+      "loss_budget_pct": 4.0,
+      "chance": 0.1
+     },
+     "bold": {
+      "weight": 0.36803,
+      "bad_case_pct": -21.73749,
+      "loss_budget_pct": 8.0,
+      "chance": 0.1
+     }
+    },
+    "mu_pct": 2.56151,
+    "sigma_pct": 19.16679
+   },
+   "warning_big_drop": true
   },
   {
    "ticker": "AAPL",
@@ -1117,55 +1321,55 @@
    "decision_day": 9,
    "risk": {
     "drift_1_20": {
-     "pred": -0.00447,
-     "lo80": -0.06981,
-     "hi80": 0.05953
+     "pred": -0.00286,
+     "lo80": -0.06685,
+     "hi80": 0.06457
     },
     "trough_2_20": {
-     "pred": 0.01105,
-     "lo80": -0.03859,
-     "hi80": 0.05103
+     "pred": 0.01442,
+     "lo80": -0.03359,
+     "hi80": 0.05394
     },
     "vol_ratio_2_20": {
-     "pred": 1.02557,
-     "lo80": 0.6785,
-     "hi80": 1.59431
+     "pred": 0.97192,
+     "lo80": 0.66953,
+     "hi80": 1.64755
     },
     "abn_volume_2_20": {
-     "pred": 0.87087,
-     "lo80": 0.64703,
-     "hi80": 1.03983
+     "pred": 0.86832,
+     "lo80": 0.65834,
+     "hi80": 1.11967
     }
    },
    "entry": {
     "signal": "WAIT",
-    "expected_next5_sd": -0.10395,
-    "expected_further_dip_pct": 2.43987,
+    "expected_next5_sd": -0.08952,
+    "expected_further_dip_pct": 2.40856,
     "at_new_low": false
    },
    "sizing": {
     "tiers": {
      "safest": {
-      "weight": 0.05329,
-      "bad_case_pct": -7.9743,
+      "weight": 0.07706,
+      "bad_case_pct": -8.06671,
       "loss_budget_pct": 2.0,
       "chance": 0.05
      },
      "recommended": {
-      "weight": 0.10658,
-      "bad_case_pct": -5.80226,
+      "weight": 0.15413,
+      "bad_case_pct": -5.75779,
       "loss_budget_pct": 4.0,
       "chance": 0.1
      },
      "bold": {
-      "weight": 0.15986,
-      "bad_case_pct": -5.80226,
+      "weight": 0.23119,
+      "bad_case_pct": -5.75779,
       "loss_budget_pct": 8.0,
       "chance": 0.1
      }
     },
-    "mu_pct": 0.15043,
-    "sigma_pct": 8.40092
+    "mu_pct": 0.19141,
+    "sigma_pct": 7.87999
    },
    "warning_big_drop": false
   },
@@ -1275,60 +1479,60 @@
    "event_class": "other",
    "event_headline": "",
    "day0": "2026-11-05",
-   "car_0_1_pct": 7.42512,
+   "car_0_1_pct": 7.42513,
    "decision_day": 6,
    "risk": {
     "drift_1_20": {
-     "pred": -0.00717,
-     "lo80": -0.14731,
-     "hi80": 0.12192
+     "pred": -0.00853,
+     "lo80": -0.12661,
+     "hi80": 0.1044
     },
     "trough_2_20": {
-     "pred": -0.01575,
-     "lo80": -0.10992,
-     "hi80": 0.05553
+     "pred": -0.00756,
+     "lo80": -0.10127,
+     "hi80": 0.05886
     },
     "vol_ratio_2_20": {
-     "pred": 0.88492,
-     "lo80": 0.62881,
-     "hi80": 1.59647
+     "pred": 0.85111,
+     "lo80": 0.62499,
+     "hi80": 1.48346
     },
     "abn_volume_2_20": {
-     "pred": 1.14431,
-     "lo80": 0.84916,
-     "hi80": 1.62036
+     "pred": 1.19795,
+     "lo80": 0.8975,
+     "hi80": 1.5471
     }
    },
    "entry": {
     "signal": "WAIT",
-    "expected_next5_sd": -0.04266,
-    "expected_further_dip_pct": 4.54124,
+    "expected_next5_sd": -0.03115,
+    "expected_further_dip_pct": 4.07025,
     "at_new_low": true,
-    "p_low_holds": 0.16129
+    "p_low_holds": 0.15481
    },
    "sizing": {
     "tiers": {
      "safest": {
-      "weight": 0.03058,
-      "bad_case_pct": -23.52827,
+      "weight": 0.02687,
+      "bad_case_pct": -19.62443,
       "loss_budget_pct": 2.0,
       "chance": 0.05
      },
      "recommended": {
-      "weight": 0.06117,
-      "bad_case_pct": -18.74313,
+      "weight": 0.05373,
+      "bad_case_pct": -14.93874,
       "loss_budget_pct": 4.0,
       "chance": 0.1
      },
      "bold": {
-      "weight": 0.09175,
-      "bad_case_pct": -18.74313,
+      "weight": 0.0806,
+      "bad_case_pct": -14.93874,
       "loss_budget_pct": 8.0,
       "chance": 0.1
      }
     },
-    "mu_pct": 0.36039,
-    "sigma_pct": 17.16384
+    "mu_pct": 0.28689,
+    "sigma_pct": 16.33905
    },
    "warning_big_drop": true
   },
@@ -1442,55 +1646,55 @@
    "decision_day": 3,
    "risk": {
     "drift_1_20": {
-     "pred": 0.00839,
-     "lo80": -0.13598,
-     "hi80": 0.20318
+     "pred": 0.00901,
+     "lo80": -0.13656,
+     "hi80": 0.18874
     },
     "trough_2_20": {
-     "pred": -0.0258,
-     "lo80": -0.14538,
-     "hi80": 0.06104
+     "pred": -0.02305,
+     "lo80": -0.13913,
+     "hi80": 0.06755
     },
     "vol_ratio_2_20": {
-     "pred": 1.06677,
-     "lo80": 0.72459,
-     "hi80": 1.84053
+     "pred": 1.06401,
+     "lo80": 0.69408,
+     "hi80": 1.63482
     },
     "abn_volume_2_20": {
-     "pred": 1.29533,
-     "lo80": 0.81453,
-     "hi80": 1.69708
+     "pred": 1.47368,
+     "lo80": 0.86007,
+     "hi80": 1.92665
     }
    },
    "entry": {
     "signal": "WAIT",
-    "expected_next5_sd": -0.0367,
-    "expected_further_dip_pct": 5.10952,
+    "expected_next5_sd": -0.01531,
+    "expected_further_dip_pct": 5.35906,
     "at_new_low": false
    },
    "sizing": {
     "tiers": {
      "safest": {
-      "weight": 0.08426,
-      "bad_case_pct": -19.93267,
+      "weight": 0.09182,
+      "bad_case_pct": -19.10045,
       "loss_budget_pct": 2.0,
       "chance": 0.05
      },
      "recommended": {
-      "weight": 0.16852,
-      "bad_case_pct": -14.53708,
+      "weight": 0.18363,
+      "bad_case_pct": -13.59846,
       "loss_budget_pct": 4.0,
       "chance": 0.1
      },
      "bold": {
-      "weight": 0.25278,
-      "bad_case_pct": -14.53708,
+      "weight": 0.27545,
+      "bad_case_pct": -13.59846,
       "loss_budget_pct": 8.0,
       "chance": 0.1
      }
     },
-    "mu_pct": 1.063,
-    "sigma_pct": 17.75927
+    "mu_pct": 1.12888,
+    "sigma_pct": 17.532
    },
    "warning_big_drop": true
   }
