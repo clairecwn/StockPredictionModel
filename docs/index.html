@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Event Risk Board</title>
+<style>
+  :root { --bg:#0f1115; --card:#181b22; --ink:#e8eaf0; --mute:#9aa3b2; --line:#2a2f3a; --good:#3ecf8e; --warn:#f5a524; --bad:#f2555a; --acc:#7aa2ff; }
+  * { box-sizing:border-box; }
+  body { margin:0; font:15px/1.5 -apple-system, system-ui, Segoe UI, Roboto, sans-serif; background:var(--bg); color:var(--ink); }
+  header, main { max-width:1100px; margin:0 auto; padding:20px; }
+  h1 { font-size:24px; margin:0 0 4px; } h2 { font-size:18px; margin:28px 0 10px; }
+  .mute { color:var(--mute); font-size:13px; }
+  .banner { background:#2a2110; border:1px solid #5a4318; color:#f3d9a4; padding:10px 14px; border-radius:8px; font-size:13px; margin-top:12px; }
+  .panel { background:var(--card); border:1px solid var(--line); border-radius:10px; padding:16px; }
+  .row { display:flex; gap:12px; flex-wrap:wrap; align-items:center; }
+  input[type=number] { background:#0c0e12; color:var(--ink); border:1px solid var(--line); border-radius:6px; padding:8px 10px; width:140px; font-size:16px; }
+  .pick { display:inline-flex; gap:6px; align-items:center; border:1px solid var(--line); border-radius:999px; padding:4px 10px; cursor:pointer; user-select:none; }
+  .pick.on { border-color:var(--acc); background:#1b2440; }
+  table { width:100%; border-collapse:collapse; } th, td { text-align:left; padding:8px; border-bottom:1px solid var(--line); font-size:14px; }
+  th { color:var(--mute); font-weight:600; }
+  .grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(320px,1fr)); gap:14px; }
+  .tag { display:inline-block; padding:2px 8px; border-radius:6px; font-size:12px; font-weight:700; }
+  .BUY { background:#123d2c; color:var(--good); } .WAIT { background:#3d3112; color:var(--warn); } .other { background:#262b36; color:var(--mute); }
+  .kv { display:grid; grid-template-columns:1fr auto; gap:4px 10px; font-size:14px; margin:10px 0; }
+  .kv span:nth-child(odd) { color:var(--mute); }
+  .strength { font-size:11px; color:var(--mute); }
+  a { color:var(--acc); } ul { padding-left:18px; margin:6px 0; } li { font-size:13px; margin:3px 0; }
+</style>
+</head>
+<body>
+<header>
+  <h1>Event Risk Board</h1>
+  <div class="mute">How stocks tend to behave after company news: risk, timing and position size. <span id="upd"></span></div>
+  <div class="banner">Research project, not financial advice. Signals are probabilities learned from 2001-2025 data and can be wrong.
+    The strong outputs are risk and position size; direction is a weak lean.</div>
+</header>
+<main>
+  <h2>1. How much should I put in?</h2>
+  <div class="panel">
+    <div class="row">
+      <label>Account size ($) <input id="acct" type="number" min="1" step="1" value="200"></label>
+      <span class="mute">Pick up to 3 stocks with a live event:</span>
+    </div>
+    <div id="picks" class="row" style="margin-top:10px"></div>
+    <div style="margin-top:14px; overflow-x:auto"><table id="alloc"></table></div>
+    <p class="mute" id="allocnote"></p>
+  </div>
+
+  <h2>2. Stocks</h2>
+  <div id="cards" class="grid"></div>
+
+  <h2>3. How reliable is each number?</h2>
+  <div class="panel mute" id="skill"></div>
+</main>
+<script>
+const TIERS = {safest:{label:"Safest", d:0.02, beta:0.05}, recommended:{label:"Recommended", d:0.04, beta:0.10}, bold:{label:"Bold", d:0.08, beta:0.10}};
+const STRESS = 0.4, MAX_TOTAL = 0.8;
+let DATA = null, picked = [];
+const $ = s => document.querySelector(s);
+const fmt = (x, d=1) => (x === null || x === undefined || isNaN(x)) ? "–" : Number(x).toFixed(d);
+
+function basketScale(w, q, C, d) {          // same as src/sizing_lib.py: stressed correlation, joint bad case <= d
+  const n = w.length, l = w.map((wi, i) => wi * Math.abs(q[i]));
+  let joint = 0;
+  for (let i = 0; i < n; i++) for (let j = 0; j < n; j++) {
+    const c = i === j ? 1 : C[i][j] + STRESS * (1 - C[i][j]);
+    joint += l[i] * c * l[j];
+  }
+  joint = Math.sqrt(Math.max(joint, 0));
+  let s = 1; const tot = w.reduce((a, b) => a + b, 0);
+  if (joint > d) s = d / joint;
+  if (tot * s > MAX_TOTAL) s = MAX_TOTAL / tot;
+  return {w: w.map(x => x * s), joint: joint * s};
+}
+function corrOf(a, b) {
+  const i = DATA.tickers.indexOf(a), j = DATA.tickers.indexOf(b);
+  return (i < 0 || j < 0) ? 0.5 : DATA.corr[i][j];
+}
+function renderAlloc() {
+  const acct = Math.max(Number($("#acct").value) || 0, 0);
+  const rows = picked.map(t => DATA.stocks.find(s => s.ticker === t)).filter(Boolean);
+  if (!rows.length) { $("#alloc").innerHTML = ""; $("#allocnote").textContent = "Select one to three stocks above."; return; }
+  const C = rows.map(a => rows.map(b => corrOf(a.ticker, b.ticker)));
+  let html = "<tr><th>Tier</th>" + rows.map(r => `<th>${r.ticker}</th>`).join("") + "<th>Total</th><th>Promise</th></tr>";
+  for (const [k, T] of Object.entries(TIERS)) {
+    const w = rows.map(r => r.sizing?.tiers?.[k]?.weight ?? 0), q = rows.map(r => (r.sizing?.tiers?.[k]?.bad_case_pct ?? -10) / 100);
+    const res = rows.length > 1 ? basketScale(w, q, C, T.d) : {w: w.map(x => Math.min(x, MAX_TOTAL))};
+    const amt = res.w.map(x => x * acct), tot = amt.reduce((a, b) => a + b, 0);
+    html += `<tr><td><b>${T.label}</b></td>` + amt.map(a => `<td>$${fmt(a, 2)}</td>`).join("") +
+            `<td><b>$${fmt(tot, 2)}</b></td><td class="mute">≤${Math.round(T.beta*100)}% chance of losing more than $${fmt(acct*T.d, 2)} at the worst point in 20 trading days</td></tr>`;
+  }
+  $("#alloc").innerHTML = html;
+  $("#allocnote").textContent = "Amounts are fractional-share dollar amounts. With several stocks, sizes are scaled down together because stocks fall together in sell-offs. A $0 means the model's expected return is not positive. Cash left over stays uninvested.";
+}
+const esc = x => String(x ?? "").replace(/[&<>"']/g, c => ({"&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;"}[c]));
+const safeUrl = u => /^https?:\/\//i.test(u || "") ? esc(u) : "#";
+function card(s) {
+  if (s.status !== "event") return `<div class="panel"><b>${s.ticker}</b> <span class="mute">${s.name || ""}</span><div class="kv"><span>Price</span><span>${fmt(s.price, 2)}</span>${s.next_earnings ? `<span>Next earnings</span><span>${s.next_earnings}</span>` : ""}</div><div class="mute">${s.status || ""}</div></div>`;
+  const e = s.entry || {}, r = s.risk || {};
+  const sig = e.signal || "–", cls = (sig === "BUY" || sig === "WAIT") ? sig : "other";
+  const vr = r.vol_ratio_2_20, d20 = r.drift_1_20, bad = s.sizing?.tiers?.recommended?.bad_case_pct;
+  const evlabel = s.event_class === "other" ? "Price/volume shock with no matched news (a type the model never trained on, so treat with extra caution)" : s.event_class.replaceAll("_", " ") + " event";
+  const lean = d20 ? (d20.pred > 0.01 ? "slightly positive" : d20.pred < -0.01 ? "slightly negative" : "neutral") : "–";
+  return `<div class="panel">
+    <div class="row" style="justify-content:space-between"><div><b>${s.ticker}</b> <span class="mute">${s.name || ""}</span></div><span class="tag ${cls}">${sig}</span></div>
+    <div class="mute" style="margin-top:4px">${evlabel} on ${s.day0} (day ${s.decision_day}). Day 0-1 move ${fmt(s.car_0_1_pct)}% vs market.${s.event_headline ? `<br>“${esc(s.event_headline)}”` : ""}</div>
+    ${s.warning_big_drop ? '<div class="banner" style="margin-top:8px">⚠️ In the riskiest 20% of comparable past shocks for further downside.</div>' : ""}
+    <div class="kv">
+      <span>Price (${s.price_date})</span><span>${fmt(s.price, 2)}</span>
+      <span>Expected further dip from here</span><span>${fmt(e.expected_further_dip_pct)}%</span>
+      ${e.at_new_low ? `<span>At a new low: chance it holds</span><span>${fmt(100*(e.p_low_holds ?? NaN), 0)}%</span>` : ""}
+      <span>Worst point while holding 20 days (1-in-10 chance of worse)</span><span>${bad != null ? fmt(bad) + "%" : "–"}</span>
+      ${s.next_earnings ? `<span>Next earnings</span><span>${s.next_earnings}</span>` : ""}
+      <span>Volatility vs normal</span><span>${vr ? fmt(vr.pred, 2) + "x" : "–"}</span>
+      <span>20-day direction</span><span>${lean} <span class="strength">(weak)</span></span>
+    </div>
+    <div class="mute">Recent headlines</div>
+    <ul>${(s.headlines || []).slice(0, 4).map(h => `<li><a href="${safeUrl(h.url)}" target="_blank" rel="noopener noreferrer">${esc(h.headline)}</a> <span class="mute">${esc(h.date).slice(0,10)}</span></li>`).join("")}</ul>
+  </div>`;
+}
+function render() {
+  $("#upd").textContent = "Updated " + DATA.generated_utc.replace("T", " ") + " UTC.";
+  const live = DATA.stocks.filter(s => s.status === "event");
+  $("#picks").innerHTML = live.map(s => `<span class="pick ${picked.includes(s.ticker) ? "on" : ""}" data-t="${s.ticker}">${s.ticker}</span>`).join("") || '<span class="mute">No stock on the watchlist has a recent event right now.</span>';
+  document.querySelectorAll(".pick").forEach(el => el.onclick = () => {
+    const t = el.dataset.t;
+    picked = picked.includes(t) ? picked.filter(x => x !== t) : (picked.length < 3 ? [...picked, t] : picked);
+    render();
+  });
+  $("#cards").innerHTML = DATA.stocks.map(card).join("");
+  renderAlloc();
+  const sk = DATA.skill || {};
+  $("#skill").innerHTML = (Object.keys(sk).length ? "<b>Backtest (out of sample, 2006-2026)</b><ul>" + Object.entries(sk).map(([k, v]) => `<li><b>${esc(k)}</b>: ${esc(v)}</li>`).join("") + "</ul>"
+    : "Out-of-sample results are in the repository's results folder.") + '<div id="fwd"></div>';
+  fetch("data/forward_scores.json?" + Date.now()).then(r => r.json()).then(f => {
+    const pct = x => x == null ? "–" : fmt(100 * x, 0) + "%";
+    let h = `<b>Live track record (predictions logged before the outcome existed)</b><ul><li>${f.n_logged || 0} predictions logged, ${f.n_scored || 0} with a known 20-day outcome${f.too_early ? " (too early to judge)" : ""}</li>`;
+    if (f.worst_point) h += `<li>Worst-point bound breached: ${pct(f.worst_point.breach_rate)} of ${f.worst_point.n} (promise: about 10% or less)</li>`;
+    if (f.signal) h += "<li>Next-5-day return: " + Object.entries(f.signal).map(([k, v]) => `${k} ${fmt(v.mean_ret5_pct)}% (n=${v.n})`).join(", ") + "</li>";
+    if (f.warning) h += "<li>Average worst point: " + Object.entries(f.warning).map(([k, v]) => `${k.replace("_", " ")} ${fmt(v.mean_worst_pct)}% (n=${v.n})`).join(", ") + "</li>";
+    $("#fwd").innerHTML = h + `</ul><div class="mute">${esc(f.note || "")}</div>`;
+  }).catch(() => { $("#fwd").innerHTML = '<div class="mute">Live track record starts once the first predictions are 20 trading days old.</div>'; });
+}
+$("#acct").oninput = renderAlloc;
+fetch("data/predictions.json?" + Date.now()).then(r => r.json()).then(d => { DATA = d; picked = d.stocks.filter(s => s.status === "event").slice(0, 3).map(s => s.ticker); render(); })
+  .catch(() => { $("#cards").innerHTML = '<div class="panel">Could not load predictions.</div>'; });
+</script>
+</body>
+</html>

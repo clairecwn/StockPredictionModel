@@ -1,0 +1,8 @@
+{
+  "note": "Stocks on the live board. aliases = other names a headline may use (matched case-sensitive, whole word). To pin an event manually add event_date (YYYY-MM-DD), event_class and event_headline.",
+  "stocks": [
+    {"ticker": "NVDA", "name": "Nvidia", "aliases": ["NVIDIA"]}, {"ticker": "TSLA", "name": "Tesla"}, {"ticker": "META", "name": "Meta Platforms", "aliases": ["Meta", "Facebook", "Instagram"]},
+    {"ticker": "BABA", "name": "Alibaba", "aliases": ["Alibaba Group"]}, {"ticker": "BA", "name": "Boeing", "aliases": []}, {"ticker": "INTC", "name": "Intel"},
+    {"ticker": "AAPL", "name": "Apple"}, {"ticker": "GRAB", "name": "Grab Holdings", "aliases": ["Grab's", "Grab shares", "Grab stock", "Grab reports", "Grab posts"]}, {"ticker": "SE", "name": "Sea Ltd", "aliases": ["Sea Limited", "Shopee", "Garena"]}
+  ]
+}

@@ -1,0 +1,15 @@
+pandas>=2.0
+numpy
+pyarrow
+scipy
+scikit-learn
+lightgbm
+joblib
+requests
+yfinance
+matplotlib
+
+# optional, for local FinBERT scoring in s03b_sentiment.py
+# torch
+# transformers
+# pysentiment2   (word-list fallback)
