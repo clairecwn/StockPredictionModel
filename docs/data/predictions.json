@@ -1,5 +1,5 @@
 {
- "generated_utc": "2026-11-16T14:29+00:00",
+ "generated_utc": "2026-11-16T15:08+00:00",
  "tickers": [
   "NVDA",
   "TSLA",
@@ -125,6 +125,7 @@
   "80% ranges": "contained the real outcome 80% of the time.",
   "Not covered": "events with no matched news (labelled on the card), stocks under $5 or in the smallest 20% of firms, and any market regime unlike 2001-2025.",
   "Earnings calendar": "knowing whether an earnings report falls inside the next four weeks raised the volatility and volume forecasts, and the gain held in every recent year.",
+  "Earnings preview": "the expected size of the move after an upcoming report ranks reports better than the stock's own usual move (rank correlation 0.37 against 0.35, significant in monthly tests), and its 1-in-10 upper bound was exceeded in 10.2% of reports from 2016 to 2025. Direction is not forecast.",
   "Big-drop warning (shock-sized events, 2016-2026)": "AUC 0.65 for spotting the worst 20% of drops (0.50 = coin flip)"
  },
  "stocks": [
@@ -291,10 +292,10 @@
    },
    "entry": {
     "signal": "WAIT",
-    "expected_next5_sd": -0.01242,
-    "expected_further_dip_pct": 5.36589,
+    "expected_next5_sd": -0.0095,
+    "expected_further_dip_pct": 5.354,
     "at_new_low": true,
-    "p_low_holds": 0.20173
+    "p_low_holds": 0.20129
    },
    "sizing": {
     "tiers": {
@@ -440,6 +441,11 @@
      "url": "https://finnhub.io/api/news?id=707bf57b9f6fe03f3f1a7e818f16a4f039225c5b27dba255411cbaae832906c2"
     },
     {
+     "date": "2026-11-16 04:03",
+     "headline": "Tesla-SpaceX Merger Is 'Almost Inconceivable' to Avoid, Says Elon Musk Biographer \u2014 'You'll Know More' on Dec. 3",
+     "url": "https://finnhub.io/api/news?id=a9bb72377133acf67559c35b1de0645c1d5f81933299f1c446a60fb63ae448ea"
+    },
+    {
      "date": "2026-11-16 03:31",
      "headline": "TSLA, SPCX Diverge Overnight As Retail Traders Split On Merger Winner \u2014 Could SpaceX Get Tesla\u2019s S&P 500 Seat?",
      "url": "https://finnhub.io/api/news?id=ad9fec0fda604a72bd206a235a078844601da8fe6393e4215ecc55461679d391"
@@ -454,12 +460,12 @@
    "event_class": "other",
    "event_headline": "",
    "day0": "2026-11-04",
-   "car_0_1_pct": -8.1691,
+   "car_0_1_pct": -8.16911,
    "decision_day": 7,
    "risk": {
     "drift_1_20": {
      "pred": -0.00542,
-     "lo80": -0.10541,
+     "lo80": -0.10542,
      "hi80": 0.09983
     },
     "trough_2_20": {
@@ -480,8 +486,8 @@
    },
    "entry": {
     "signal": "WAIT",
-    "expected_next5_sd": -0.0531,
-    "expected_further_dip_pct": 4.59037,
+    "expected_next5_sd": -0.05627,
+    "expected_further_dip_pct": 4.58087,
     "at_new_low": false
    },
    "sizing": {
@@ -748,6 +754,11 @@
      "url": "https://finnhub.io/api/news?id=8d5baa60b7fc3b5ae173f4c0c784d7045cb0853da334ad2bf3a7bdf00ade8a98"
     },
     {
+     "date": "2026-11-15 22:48",
+     "headline": "Alibaba's T-Head IPO Plans Hit A Tougher Market As Chip Valuations Cool",
+     "url": "https://finnhub.io/api/news?id=bf2e368f6779f9d22c191bd6aa5a00b2c3a149d5194d6918c23f9617c3181505"
+    },
+    {
      "date": "2026-11-15 21:00",
      "headline": "Alibaba Unveils New Flagship AI Model in Riposte to US Rivals",
      "url": "https://finnhub.io/api/news?id=d82a34cff2cf8e85fd9e7d95ec1d18ca6c280a6b10a4dc389a8047dcd297e9db"
@@ -757,7 +768,7 @@
    "event_class": "other",
    "event_headline": "",
    "day0": "2026-11-05",
-   "car_0_1_pct": 8.47592,
+   "car_0_1_pct": 8.47591,
    "decision_day": 6,
    "risk": {
     "drift_1_20": {
@@ -783,10 +794,10 @@
    },
    "entry": {
     "signal": "BUY",
-    "expected_next5_sd": 0.02473,
-    "expected_further_dip_pct": 4.5585,
+    "expected_next5_sd": 0.03483,
+    "expected_further_dip_pct": 4.54801,
     "at_new_low": true,
-    "p_low_holds": 0.21921
+    "p_low_holds": 0.21808
    },
    "sizing": {
     "tiers": {
@@ -809,7 +820,7 @@
       "chance": 0.1
      }
     },
-    "mu_pct": 0.17545,
+    "mu_pct": 0.17544,
     "sigma_pct": 14.57077
    },
    "warning_big_drop": false
@@ -957,8 +968,8 @@
    },
    "entry": {
     "signal": "WAIT",
-    "expected_next5_sd": -0.09948,
-    "expected_further_dip_pct": 2.32389,
+    "expected_next5_sd": -0.09776,
+    "expected_further_dip_pct": 2.32959,
     "at_new_low": false
    },
    "sizing": {
@@ -1150,8 +1161,8 @@
    },
    "entry": {
     "signal": "BUY",
-    "expected_next5_sd": 0.04683,
-    "expected_further_dip_pct": 5.8928,
+    "expected_next5_sd": 0.04855,
+    "expected_further_dip_pct": 5.88991,
     "at_new_low": false
    },
    "sizing": {
@@ -1508,7 +1519,7 @@
     "expected_next5_sd": -0.03115,
     "expected_further_dip_pct": 4.07025,
     "at_new_low": true,
-    "p_low_holds": 0.15481
+    "p_low_holds": 0.15445
    },
    "sizing": {
     "tiers": {
@@ -1668,7 +1679,7 @@
    },
    "entry": {
     "signal": "WAIT",
-    "expected_next5_sd": -0.01531,
+    "expected_next5_sd": -0.01013,
     "expected_further_dip_pct": 5.35906,
     "at_new_low": false
    },

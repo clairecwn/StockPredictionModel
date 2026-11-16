@@ -390,6 +390,23 @@ The first version of the risk models did not know when a company would next repo
 
 A group was kept only if it beat the existing model after a Holm correction across all 25 tests and the gain also held from 2021 on. In the live models, the volatility forecast improved from a rank correlation of 0.47 to 0.49, volume from 0.57 to 0.60 and the deepest drop from 0.19 to 0.20. The volume gain held in 95% of test months. None of the groups improved the direction forecast, which supports the finding that public news is priced quickly.
 
+### Experiment: meta-labeling the Buy/Wait call
+
+The Buy/Wait call is right only about 51% of the time, so a second model was trained to recognise when a call is more likely to be right (López de Prado, 2018). It learned only from the call's out-of-sample history in earlier years and had to beat a simple alternative: trusting a call more when its forecast sits further from the cut-off. On 2016 to 2025 it did not. Its ability to separate right from wrong calls matched the simple alternative (AUC 0.509 against 0.509), and the hit rate rose only from 50.0% in its least-trusted fifth of calls to 51.8% in its most-trusted fifth. Neither decision rule built on it improved entries after the Holm correction. The timing signal is small and evenly spread, with no pocket of situations where it becomes reliable, so the board keeps the plain rule.
+
+### Experiment: earnings preview
+
+A quiet stock with an earnings report coming up had nothing on the board, even though the report is the most predictable source of risk it faces. A second set of models was therefore trained on the 146,709 past earnings reports, using only information known at the close before each report, to forecast the size of the two-day reaction and the deepest fall over the following four weeks. To pass, a forecast had to beat two rules of thumb month by month on 2016 to 2025: the stock's own average move over its last eight reports, and its pre-report volatility.
+
+| Forecast (live features) | Model | Own usual move | Pre-report volatility | Result |
+|---|---|---|---|---|
+| Size of the two-day move | 0.369 | 0.355 (t = 6.8) | 0.264 (t = 11.2) | Passed, shown on the board |
+| Deepest fall over four weeks | 0.180 | 0.134 (t = 5.7) | 0.174 (t = 1.2) | Failed, not shown |
+
+The predicted move sizes are well calibrated: in each fifth of reports ranked by the forecast, the average predicted move is within 0.2 percentage points of the realised one. The model also picks out reports that move at least twice the stock's usual amount (AUC 0.66). An upper bound that the move should exceed only 1 time in 10 is recalibrated on the latest 12 months, and on 2016 to 2025 it was exceeded in 10.2% of reports. The direction of an earnings reaction was not forecast, because nothing in this project has shown that direction is predictable.
+
+The first research run of this experiment reported a much higher score, which turned out to come from a leak: several news features were built from headlines on the report day and the day after. Once those were removed, the research features still improved the move forecast from 0.369 to 0.394, mostly through analyst forecast disagreement, short interest and how closely the stock moves with its peers. These are not available from free live data, so the board uses the live version.
+
 ### Why the headline numbers are modest
 
 Published stock models often report directional accuracy of 90% or more. In almost every case, figures like this come from one of five problems:
@@ -405,14 +422,14 @@ This project avoids all five, so its accuracy for direction sits close to 50%, w
 ## Live board
 
 <!-- LIVE-BOARD:START -->
-_Updated 2026-11-16 14:29 UTC. Research only, not financial advice._
+_Updated 2026-11-16 15:08 UTC. Research only, not financial advice._
 
 | Stock | Price | Event (day 0) | Day | Signal | Expected further dip | 1-in-10 worst point (20 days) | Risk vs normal | Recommended share if buying |
 |---|---|---|---|---|---|---|---|---|
 | NVDA | 162.85 | price/volume shock, no matched news (2026-11-12) | 1 | WAIT | 5.4% | -14.9% | 1.00x | 16% |
 | TSLA | 390.22 | price/volume shock, no matched news (2026-11-04) | 7 | WAIT ⚠️ | 4.6% | -12.0% | 0.90x | 25% |
 | META | 641.69 | quiet: no event in the last 15 trading days | | | | | | |
-| BABA | 94.38 | price/volume shock, no matched news (2026-11-05) | 6 | BUY | 4.6% | -18.1% | 1.11x | 4% |
+| BABA | 94.38 | price/volume shock, no matched news (2026-11-05) | 6 | BUY | 4.5% | -18.1% | 1.11x | 4% |
 | BA | 171.50 | earnings guidance (2026-10-27) | 13 | WAIT | 2.3% | -9.6% | 0.94x | 23% |
 | INTC | 59.66 | earnings guidance (2026-10-29) | 11 | BUY ⚠️ | 5.9% | -21.7% | 0.95x | 18% |
 | AAPL | 356.27 | earnings guidance (2026-11-02) | 9 | WAIT | 2.4% | -5.8% | 0.97x | 15% |

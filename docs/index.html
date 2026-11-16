@@ -206,6 +206,8 @@ footer { max-width:1160px; margin:0 auto; padding:0 20px 40px; color:var(--mute)
     <li><b>Safest, Balanced and Bold</b> are three position sizes. Each one limits the chance of losing more than 2%, 4% or 8% of your budget.</li>
     <li><b>High drop risk</b> means the stock is in the riskiest fifth of comparable past events.</li>
   </ul>
+  <h3>Earnings previews</h3>
+  <p>When a quiet stock has an earnings report within three weeks, Settle shows how big the reaction is likely to be, learned from 147,000 past reports. It cannot say which way the stock will move.</p>
   <h3>Combining stocks</h3>
   <p>Add up to three stocks to a plan. Their sizes shrink together, because stocks tend to fall at the same time in a sell-off.</p>
   <h3>How much to trust it</h3>
@@ -260,8 +262,9 @@ function renderList() {
   const order = [...DATA.stocks].sort((a, b) => live(b) - live(a));
   $("#list").innerHTML = `<div class="list-head"><b>Watchlist</b><span>Pick a stock to see the details.</span></div>` + order.map(s => {
     const g = live(s) ? sig(s) : null;
-    const pill = g ? `<span class="pill ${g}">${g === "BUY" ? "Buy" : "Wait"}</span>` : `<span class="pill none">${live(s) ? "Closed" : "Quiet"}</span>`;
-    const sub = live(s) ? `Day ${s.decision_day} after ${s.event_class === "earnings_guidance" ? "earnings" : s.event_class === "other" ? "a big move" : "news"}` : "No recent news";
+    const pill = g ? `<span class="pill ${g}">${g === "BUY" ? "Buy" : "Wait"}</span>` : `<span class="pill none">${live(s) ? "Closed" : s.preview ? "Preview" : "Quiet"}</span>`;
+    const sub = live(s) ? `Day ${s.decision_day} after ${s.event_class === "earnings_guidance" ? "earnings" : s.event_class === "other" ? "a big move" : "news"}`
+              : s.preview ? `Earnings on ${day(s.preview.report_date)}` : "No recent news";
     return `<button class="row ${live(s) ? "" : "quiet"}" aria-selected="${s.ticker === sel}" data-t="${esc(s.ticker)}"><span><span class="t">${esc(s.ticker)}</span><br><span class="s">${sub}</span></span>${pill}</button>`;
   }).join("");
   document.querySelectorAll(".row").forEach(b => b.onclick = () => { sel = b.dataset.t; store.set("sel", sel); renderAll(); });
@@ -289,12 +292,12 @@ function chart(s) {
     ${xe != null ? `<line x1="${xe}" x2="${xe}" y1="${padT}" y2="${H - padB}" stroke="${col("--mute")}" stroke-width="1" stroke-dasharray="3 4"/>
       <text x="${xe > W * 0.55 ? xe - 6 : xe + 6}" text-anchor="${xe > W * 0.55 ? "end" : "start"}" y="${padT + 12}" font-size="13" fill="${col("--mute")}" font-family="Public Sans, sans-serif">News day</text>` : ""}
     <circle cx="${xEnd}" cy="${y(px)}" r="4.5" fill="${col("--chart")}"/>
-    <rect x="${xEnd + 4}" y="${padT}" width="${xF - xEnd - 4}" height="${H - padT - padB}" fill="${col("--line")}" opacity=".35" rx="6"/>
-    <text x="${(xEnd + xF) / 2}" y="${H - 8}" text-anchor="middle" font-size="13" fill="${col("--mute")}" font-family="Public Sans, sans-serif">${narrow ? "Ahead" : "Next 4 weeks"}</text>
+    ${lowLvl != null || badLvl != null ? `<rect x="${xEnd + 4}" y="${padT}" width="${xF - xEnd - 4}" height="${H - padT - padB}" fill="${col("--line")}" opacity=".35" rx="6"/>
+    <text x="${(xEnd + xF) / 2}" y="${H - 8}" text-anchor="middle" font-size="13" fill="${col("--mute")}" font-family="Public Sans, sans-serif">${narrow ? "Ahead" : "Next 4 weeks"}</text>` : ""}
     <text x="${padL}" y="${H - 8}" font-size="13" fill="${col("--mute")}" font-family="Public Sans, sans-serif">${day(dts[0])}</text>
     ${lvl(lowLvl, col("--wait"), "6 4")}${lvl(badLvl, col("--risk"), "2 4")}
   </svg>
-  <div class="legend"><span><i style="border-color:var(--wait);border-top-style:dashed"></i>Expected low, about ${fmt(dip)}% below today</span>
+  <div class="legend">${dip != null ? `<span><i style="border-color:var(--wait);border-top-style:dashed"></i>Expected low, about ${fmt(dip)}% below today</span>` : ""}
     ${bad != null ? `<span><i style="border-color:var(--risk);border-top-style:dotted"></i>Bad case, ${fmt(-bad)}% below today (1 in 10 chance of worse)</span>` : ""}</div></div>`;
 }
 
@@ -305,6 +308,21 @@ function renderDetail() {
   const head = `<div class="d-head"><h1>${esc(s.ticker)}</h1><span class="name">${esc(s.name || "")}</span>
     <div class="px"><b>${fmt(s.price, 2)}</b>${chg == null ? "" : `<span class="${chg >= 0 ? "up" : "down"}">${chg >= 0 ? "Up" : "Down"} ${fmt(Math.abs(chg), 2)}% on ${day(s.price_date)}</span>`}</div></div>`;
   if (!live(s)) {
+    const pv = s.preview;
+    if (pv) {
+      const usual = pv.usual_move_pct != null ? ` Over its last eight reports it moved about ${fmt(pv.usual_move_pct)}% on average, so this one is expected to be ${pv.typical_move_pct > pv.usual_move_pct * 1.15 ? "bigger than usual" : pv.typical_move_pct < pv.usual_move_pct * 0.85 ? "smaller than usual" : "about as big as usual"}.` : "";
+      el.innerHTML = head + `
+        <div class="verdict none"><span class="tag">Earnings ${day(pv.report_date)}</span>
+          <p>${esc(s.ticker)} reports earnings on ${day(pv.report_date)}. In the two days after the report, the stock is expected to move about <strong>${fmt(pv.typical_move_pct)}%</strong> up or down compared with the market.${usual}</p></div>
+        <div class="facts">
+          <div class="fact"><b>Typical move</b><span>about ${fmt(pv.typical_move_pct)}%, either direction</span></div>
+          <div class="fact"><b>Large move</b><span>1 in 10 chance of more than ${fmt(pv.upper_move_pct)}%</span></div>
+          <div class="fact"><b>Direction</b><span>Not predictable before the report</span></div>
+        </div>
+        <p class="note">The direction of an earnings reaction cannot be forecast from public information, so the preview only says how big the move may be. A buy or wait call appears after the report, once the reaction is known.</p>
+        <div class="sec"><h2>Price over the last two months</h2>${chart(s)}</div>`;
+      return;
+    }
     el.innerHTML = head + `<p class="quietmsg">${esc(s.ticker)} has had no company news in the last three weeks, so there is nothing to time right now.${s.next_earnings ? ` Its next earnings report is due on ${day(s.next_earnings)}, and the board will update after it.` : ""}</p>${chart(s)}`;
     return;
   }

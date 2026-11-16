@@ -493,6 +493,21 @@ for x in (-0.3, -0.2, -0.1, 0.0, 0.1):
     v = score(first_above(PF, x))[0][early].mean()
     if v < best_fv: best_f, best_fv = x, v
 strategies[f"ENGINE: buy when expected next-{H}-day move > {best_f:+.1f} sd"] = first_above(PF, best_f)
+# out-of-sample calls saved for the meta-labeling experiment (x02_meta_labeling.py); results/ is git-ignored
+if not TEST:
+    _keep = [c for c in ("k", "fwd_z", "cum_k_z", "above_low_z", "days_since_low", "vol_rel_k", "vol_decay_k", "range_k_z",
+                         "path_vol_ratio", "clv_k", "gap_k", "vix_k", "ar_last3_z") if c in P]
+    _stat = [c for c in ("car_0_1", "ar_day0_sd", "abn_volume_0_1", "idio_vol_pre", "log_mcap", "mom_60", "dist_52w_high",
+                         "exp_earn_in_win", "days_to_exp_earn", "earn_react_hist") if c in E]
+    MO = P[_keep].astype("float32").copy()
+    MO["p_fwd"], MO["p_wait"], MO["p_dip"] = p_fwd.astype("float32"), p_wait.astype("float32"), p_dip.astype("float32")
+    MO["ev"] = np.repeat(np.arange(NE), KMAX).astype("int32")
+    for c in _stat: MO[c] = np.repeat(E[c].values.astype("float32"), KMAX)
+    MO["cls"] = np.repeat(E.cls.astype("category").cat.codes.values.astype("int16"), KMAX)
+    MO.to_parquet(RESULTS / "entry_oos_rows.parquet")
+    np.savez_compressed(RESULTS / "entry_oos_events.npz", cum=cum[:, :20].astype("float32"), trough=trough.astype("float32"),
+                        year=year, day0=day0.astype("datetime64[D]"), evok=evok, best_f=best_f, KMAX=KMAX)
+    say(f"saved out-of-sample calls for meta-labeling -> {RESULTS / 'entry_oos_rows.parquet'}")
 # ---------------------------------------------------------------- MDP: optimal stopping by fitted Q-iteration
 # The buy/wait choice is a finite-horizon Markov decision problem (SC3000 Lectures 3-6; Ernst, Geurts & Wehenkel 2005).
 # State x_k = everything known at the close of day k (the same features as above). Actions: BUY now (cost 0 relative to

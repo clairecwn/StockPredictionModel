@@ -268,3 +268,30 @@ def predict_all(f, i0, ev, sr=None, vix_now=None, vix0=None):
         if thr is not None and "trough_2_20" in risk:
             out["warning_big_drop"] = bool(risk["trough_2_20"]["pred"] <= thr)
     return out
+
+
+# ---------------------------------------------------------------- earnings preview (experiment 3, x03_earnings_preview.py)
+def earnings_preview(f, report_date, earn_dates, regime=None, log_mcap=np.nan):
+    """Expected size of the two-day reaction to an upcoming report, from features known at the latest close.
+    A placeholder row dated on the report day is appended so the event-feature code sees 'day 0' after today's close;
+    every feature it uses ends on the previous row, so nothing about the report itself is used."""
+    pv = _load("earnings_preview.joblib")
+    if pv is None or "move" not in pv:
+        return None
+    g = f.copy()
+    d0 = pd.Timestamp(report_date).normalize()
+    if d0 <= g.index[-1]:
+        return None
+    g.loc[d0] = {"o": np.nan, "h": np.nan, "l": np.nan, "c": g.c.iloc[-1], "vol": np.nan, "ret": 0.0, "mkt": 0.0}
+    i0 = len(g) - 1
+    x = event_features(g, i0, "earnings_guidance", "", log_mcap, regime)
+    x.update(calendar_features(g, i0, earn_dates))
+    X = pd.DataFrame([{c: x.get(c, np.nan) for c in pv["feats"]}]).astype(float)
+    move = float(np.exp(pv["move"].predict(X)[0]) * pv["smear"] - 0.002)
+    upper = float(np.exp(pv["q90"].predict(X)[0] + pv["q90_offset"]) - 0.002)
+    out = {"report_date": str(d0.date()), "typical_move_pct": 100 * move, "upper_move_pct": 100 * max(upper, move),
+           "usual_move_pct": 100 * x["earn_react_hist"] if np.isfinite(x.get("earn_react_hist", np.nan)) else None}
+    if "dd" in pv:
+        sd = max(x["idio_vol_pre"] / np.sqrt(252), 0.003)
+        out["drawdown_pct"] = float(100 * pv["dd"].predict(X)[0] * sd * np.sqrt(21))
+    return out

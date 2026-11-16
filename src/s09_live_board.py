@@ -11,7 +11,7 @@ from datetime import datetime, timezone
 import numpy as np, pandas as pd, requests
 os.environ.setdefault("LIVE_FEATS", "1")
 from config import ROOT, PUBLIC, MODELS
-from live_engine import yahoo_frames, fred_row, detect_event, event_features, calendar_features, predict_all
+from live_engine import yahoo_frames, fred_row, detect_event, event_features, calendar_features, earnings_preview, predict_all
 from sizing_lib import shrunk_corr
 
 WL = json.loads((ROOT / "watchlist.json").read_text())
@@ -109,7 +109,18 @@ for w in WL["stocks"]:
     if found is None:
         found = detect_event(f, news, past_earn)
     if found is None:
-        item["status"] = "quiet: no event in the last 15 trading days"; board.append(item); continue
+        item["status"] = "quiet: no event in the last 15 trading days"
+        if next_earn is not None and 0 < (next_earn - pd.Timestamp(f.index[-1]).normalize()).days <= 21:
+            try:
+                cap = float(__import__("yfinance").Ticker(t).fast_info["market_cap"]) / 1e3
+            except Exception:
+                cap = np.nan
+            try:
+                item["preview"] = earnings_preview(f, next_earn, past_earn + yahoo_earnings(t), fred_row(f.index[-1], fred_csv),
+                                                   np.log1p(cap) if np.isfinite(cap) else np.nan)
+            except Exception as e:
+                print(f"preview failed for {t}: {e}")
+        board.append(item); continue
     i0, cls, hl = found
     try:
         import yfinance as yf
