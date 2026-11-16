@@ -1,5 +1,5 @@
 {
- "generated_utc": "2026-11-16T18:30+00:00",
+ "generated_utc": "2026-11-16T23:49+00:00",
  "tickers": [
   "NVDA",
   "TSLA",
@@ -14,101 +14,101 @@
  "corr": [
   [
    1.0,
-   0.371,
-   0.24,
-   0.26,
-   0.171,
-   0.366,
-   0.051,
+   0.378,
+   0.244,
+   0.271,
+   0.178,
+   0.373,
+   0.052,
+   0.131,
+   0.171
+  ],
+  [
+   0.378,
+   1.0,
+   0.29,
+   0.151,
+   0.176,
+   0.325,
+   0.129,
    0.13,
-   0.159
+   0.165
   ],
   [
-   0.371,
+   0.244,
+   0.29,
    1.0,
-   0.286,
-   0.147,
-   0.17,
-   0.32,
-   0.124,
-   0.128,
-   0.161
+   0.177,
+   0.155,
+   0.153,
+   0.121,
+   0.233,
+   0.26
   ],
   [
-   0.24,
-   0.286,
-   1.0,
-   0.17,
+   0.271,
    0.151,
-   0.149,
-   0.12,
-   0.232,
-   0.252
+   0.177,
+   1.0,
+   0.155,
+   0.11,
+   0.136,
+   0.263,
+   0.228
   ],
   [
-   0.26,
-   0.147,
-   0.17,
+   0.178,
+   0.176,
+   0.155,
+   0.155,
    1.0,
-   0.144,
-   0.101,
-   0.127,
-   0.259,
-   0.224
-  ],
-  [
-   0.171,
-   0.17,
-   0.151,
-   0.144,
-   1.0,
+   0.168,
    0.161,
-   0.159,
    0.23,
-   0.208
+   0.219
   ],
   [
-   0.366,
-   0.32,
-   0.149,
-   0.101,
-   0.161,
+   0.373,
+   0.325,
+   0.153,
+   0.11,
+   0.168,
    1.0,
-   0.048,
-   0.007,
-   0.067
+   0.05,
+   0.008,
+   0.076
   ],
   [
-   0.051,
-   0.124,
-   0.12,
-   0.127,
-   0.159,
-   0.048,
+   0.052,
+   0.129,
+   0.121,
+   0.136,
+   0.161,
+   0.05,
    1.0,
    0.122,
-   0.14
+   0.15
   ],
   [
+   0.131,
    0.13,
-   0.128,
-   0.232,
-   0.259,
+   0.233,
+   0.263,
    0.23,
-   0.007,
+   0.008,
    0.122,
    1.0,
-   0.387
+   0.393
   ],
   [
-   0.159,
-   0.161,
-   0.252,
-   0.224,
-   0.208,
-   0.067,
-   0.14,
-   0.387,
+   0.171,
+   0.165,
+   0.26,
+   0.228,
+   0.219,
+   0.076,
+   0.15,
+   0.393,
    1.0
   ]
  ],
@@ -132,11 +132,10 @@
   {
    "ticker": "NVDA",
    "name": "Nvidia",
-   "price": 162.85001,
-   "price_date": "2026-11-13",
-   "chg_1d_pct": -2.00975,
+   "price": 156.14,
+   "price_date": "2026-11-16",
+   "chg_1d_pct": -4.12036,
    "closes": [
-    210.96,
     212.17,
     213.9,
     219.34,
@@ -180,10 +179,10 @@
     168.89,
     173.73,
     166.19,
-    162.85
+    162.85,
+    156.14
    ],
    "close_dates": [
-    "2026-09-14",
     "2026-09-15",
     "2026-09-16",
     "2026-09-17",
@@ -227,110 +226,103 @@
     "2026-11-10",
     "2026-11-11",
     "2026-11-12",
-    "2026-11-13"
+    "2026-11-13",
+    "2026-11-16"
    ],
    "next_earnings": "2026-11-17",
    "headlines": [
     {
-     "date": "2026-11-16 12:54",
-     "headline": "Wall Street slides as Nvidia casts shadow over tech stocks",
-     "url": "https://finnhub.io/api/news?id=7af7fe24c64e08bb528724ac3f6427dc3f7da2d37aea2a84eccd99a2147abc9f"
+     "date": "2026-11-16 16:54",
+     "headline": "Nvidia Earnings Preview: Can Data Center Growth Sustain Its Profit Boom?",
+     "url": "https://finnhub.io/api/news?id=2edf526c53fffb489b4fd932383622e04c631b5767a07e7b220bcac87dfa74ad"
     },
     {
-     "date": "2026-11-16 12:51",
-     "headline": "Prediction: Nvidia Stock Will Beat the Market Over the Next 10 Years",
-     "url": "https://finnhub.io/api/news?id=6768914b85916447c838453ececc5d1dc95af699b865fb3e5df014f9578c7365"
+     "date": "2026-11-16 16:30",
+     "headline": "Microsoft (MSFT) Is One of NVIDIA\u2019s Biggest Customers, and a Growing Rival",
+     "url": "https://finnhub.io/api/news?id=ecc47e00860152fcc0487cce1a5392a80ae72118d6606f87f45d372012eb2e4e"
     },
     {
-     "date": "2026-11-16 12:45",
-     "headline": "At $162, Nvidia\u2019s Going to Get Institutional Support From Those Who Missed Out Earlier, So I\u2019m Buying",
-     "url": "https://finnhub.io/api/news?id=2c66def52436ff3dddef335a1692e502b29a62cd4bc8053fdfd3d65c55db9ac1"
+     "date": "2026-11-16 16:26",
+     "headline": "Nvidia, Sandisk, SpaceX, L3Harris, Strategy, Summit Therapeutics, and More Stocks That Explain Today\u2019s Market",
+     "url": "https://finnhub.io/api/news?id=4208985657cb705da4ef81c6a19931b2275f5fd475ab7b73ca24a1c8a2cedcc7"
     },
     {
-     "date": "2026-11-16 12:36",
-     "headline": "Nvidia braces for first earnings without Jensen Huang",
-     "url": "https://finnhub.io/api/news?id=3e4f014e32f2cd7c9a85a4d522e0fd98ef09e0d00b2b72866fc8b1fa1b193047"
+     "date": "2026-11-16 16:25",
+     "headline": "Nvidia Probe Focus Shifts To China Chip Smuggling",
+     "url": "https://finnhub.io/api/news?id=bab3cf1bda0fd5ea01de95b24a6b5dfb523871a3d549938d0cf64ca824a0b1de"
     },
     {
-     "date": "2026-11-16 10:45",
-     "headline": "The Jensen Huang Lawsuit Puts Nvidia's Insurance Coverage in Focus",
-     "url": "https://finnhub.io/api/news?id=59f77b61cb2f17f0aa67bc6dc857794ea0666eb70092e746cdb534d13ac693f5"
+     "date": "2026-11-16 16:18",
+     "headline": "Nvidia to report Q3 earnings amid Huang scandal",
+     "url": "https://finnhub.io/api/news?id=43989656e01d804ffc6b05b9d95b113b2f062b2646a38565925131c5db7efe58"
     },
     {
-     "date": "2026-11-16 10:34",
-     "headline": "Nvidia's Q3 results will be no ordinary earnings day. Here's what investors need to see.",
-     "url": "https://finnhub.io/api/news?id=16c0ab82d42963ed2478f79f2f4c460cce13c5c03b713f1e316f216560cb35dd"
+     "date": "2026-11-16 16:13",
+     "headline": "How the Nvidia scandal threatens financial services\u2019 AI boom",
+     "url": "https://finnhub.io/api/news?id=28500c32f956cafbdf5a44735a12d51a4a18be60e868d181b73ce5a5154eca6a"
     }
    ],
    "status": "event",
-   "event_class": "other",
-   "event_headline": "",
-   "day0": "2026-11-12",
-   "car_0_1_pct": -5.01826,
-   "decision_day": 1,
+   "event_class": "earnings_guidance",
+   "event_headline": "Nvidia Earnings Preview: Can Data Center Growth Sustain Its Profit Boom?",
+   "day0": "2026-11-16",
+   "car_0_1_pct": -0.58022,
+   "decision_day": 0,
    "risk": {
     "drift_1_20": {
-     "pred": 0.00604,
-     "lo80": -0.10876,
-     "hi80": 0.11176
+     "pred": 0.00213,
+     "lo80": -0.10549,
+     "hi80": 0.10079
     },
     "trough_2_20": {
-     "pred": -0.00669,
-     "lo80": -0.09049,
-     "hi80": 0.05536
+     "pred": -0.00196,
+     "lo80": -0.08419,
+     "hi80": 0.05523
     },
     "vol_ratio_2_20": {
-     "pred": 1.06803,
-     "lo80": 0.63532,
-     "hi80": 1.65622
+     "pred": 0.89583,
+     "lo80": 0.57658,
+     "hi80": 1.43861
     },
     "abn_volume_2_20": {
-     "pred": 1.54042,
-     "lo80": 1.00692,
-     "hi80": 2.22522
+     "pred": 1.34477,
+     "lo80": 0.96113,
+     "hi80": 1.87232
     }
-   },
-   "entry": {
-    "signal": "BUY",
-    "expected_next5_sd": 0.03864,
-    "expected_further_dip_pct": 5.3977,
-    "at_new_low": true,
-    "p_low_holds": 0.20442
    },
    "sizing": {
     "tiers": {
      "safest": {
-      "weight": 0.07297,
-      "bad_case_pct": -20.51049,
+      "weight": 0.04436,
+      "bad_case_pct": -17.82047,
       "loss_budget_pct": 2.0,
       "chance": 0.05
      },
      "recommended": {
-      "weight": 0.14594,
-      "bad_case_pct": -13.87955,
+      "weight": 0.08871,
+      "bad_case_pct": -12.92099,
       "loss_budget_pct": 4.0,
       "chance": 0.1
      },
      "bold": {
-      "weight": 0.21891,
-      "bad_case_pct": -13.87955,
+      "weight": 0.13307,
+      "bad_case_pct": -12.92099,
       "loss_budget_pct": 8.0,
       "chance": 0.1
      }
     },
-    "mu_pct": 1.04547,
-    "sigma_pct": 18.92589
+    "mu_pct": 0.91031,
+    "sigma_pct": 22.65129
    },
    "warning_big_drop": false
   },
   {
    "ticker": "TSLA",
    "name": "Tesla",
-   "price": 390.22,
-   "price_date": "2026-11-13",
-   "chg_1d_pct": -1.8191,
+   "price": 379.73999,
+   "price_date": "2026-11-16",
+   "chg_1d_pct": -2.68567,
    "closes": [
-    358.97,
     356.58,
     358.08,
     366.2,
@@ -374,10 +366,10 @@
     379.78,
     390.84,
     397.45,
-    390.22
+    390.22,
+    379.74
    ],
    "close_dates": [
-    "2026-09-14",
     "2026-09-15",
     "2026-09-16",
     "2026-09-17",
@@ -421,109 +413,103 @@
     "2026-11-10",
     "2026-11-11",
     "2026-11-12",
-    "2026-11-13"
+    "2026-11-13",
+    "2026-11-16"
    ],
    "next_earnings": null,
    "headlines": [
     {
-     "date": "2026-11-16 11:46",
-     "headline": "Tesla Targets 2029 Cybercab Production Start In Giga Berlin With $3.3B Investment: Report",
-     "url": "https://finnhub.io/api/news?id=5432de1932108c4396a472ddf5c4de9a612c0ae5dd3f416ab5fa5437e8dac768"
+     "date": "2026-11-16 16:33",
+     "headline": "Tesla's Cybertruck exit reveals an expensive gamble",
+     "url": "https://finnhub.io/api/news?id=1ea6eb5c06002ff01c9bd2805d9002b02a6c96e47432d2bc31f45b8e34c3dc30"
     },
     {
-     "date": "2026-11-16 11:13",
-     "headline": "Tesla to invest 3 bn euros to expand German factory",
-     "url": "https://finnhub.io/api/news?id=7e03010c95295b1c1fe5ea408ce8e68bf559345ff4e476ed836ba8fcee918edc"
+     "date": "2026-11-16 14:35",
+     "headline": "Tesla's Cybercab Comes With a Monthly Catch",
+     "url": "https://finnhub.io/api/news?id=c65e9235effc742175915ead1a5436326b006ff6ddb7a0961aab03c9eb4fbfac"
     },
     {
-     "date": "2026-11-16 10:39",
-     "headline": "Tesla CEO Backs Jensen Huang's Return to Nvidia",
-     "url": "https://finnhub.io/api/news?id=0a3fac836a779bedea017975cb10fdd9ac502778515623dd0b7af5497a5b8e9d"
+     "date": "2026-11-16 14:21",
+     "headline": "Tesla's Cybercab sales to the public are 'early validation' of robotaxi push, JPMorgan says",
+     "url": "https://finnhub.io/api/news?id=d7f1df388aa64de8c4094accb8277ba4afbe694b116a9fe72f42f948d3f220a1"
     },
     {
-     "date": "2026-11-16 10:09",
-     "headline": "Tesla to sell Cybercabs to 'select' customers: What to know",
-     "url": "https://finnhub.io/api/news?id=ea26d32b3fe031918afae45c6cf7a59d8235bfe1d108aef20ba515a2ccf7bf64"
+     "date": "2026-11-16 13:21",
+     "headline": "Tesla goes all-in on the Cybercab with upcoming \u20ac3B Berlin Gigafactory expansion",
+     "url": "https://finnhub.io/api/news?id=cfe84f75473fb3f7b14865b4e9c9fa5f6a0f50ea65f5530980b2c7dfa20d420b"
     },
     {
-     "date": "2026-11-16 08:55",
-     "headline": "Tesla Sells Cybercabs To The Public. It Might Be Because Of A Bet With A YouTuber.",
-     "url": "https://finnhub.io/api/news?id=de07be8533cf6b4a0f512e470fbaa98bb3d01a27e8087b3ce4f679aedeef8fe7"
+     "date": "2026-11-16 13:17",
+     "headline": "Tesla Wants to Build 1 Million Cybercabs Near Berlin",
+     "url": "https://finnhub.io/api/news?id=cf0aaf1a56d0476b5f7460a0f67d3b9ad66dbe4be814db0549b52214086fb006"
     },
     {
-     "date": "2026-11-16 06:01",
-     "headline": "ETFs Are Buying Tesla (TSLA) on Nov. 12",
-     "url": "https://finnhub.io/api/news?id=f4fe7c086ee581be88f824b81402aa2ce97109cf01a98cb87bb2de0bd94567f6"
+     "date": "2026-11-16 12:53",
+     "headline": "Tesla Stocks Fall 2.8% as SpaceX Merger Talk Turns to Who Buys Whom",
+     "url": "https://finnhub.io/api/news?id=f441cafd8676e5a6c116a3affce9db5f8164008b27762fe1ac2de5f9787d3bfc"
     }
    ],
    "status": "event",
-   "event_class": "other",
-   "event_headline": "",
-   "day0": "2026-11-04",
-   "car_0_1_pct": -8.16912,
-   "decision_day": 7,
+   "event_class": "ma_strategy",
+   "event_headline": "Tesla Stocks Fall 2.8% as SpaceX Merger Talk Turns to Who Buys Whom",
+   "day0": "2026-11-16",
+   "car_0_1_pct": 1.34945,
+   "decision_day": 0,
    "risk": {
     "drift_1_20": {
-     "pred": -0.00426,
-     "lo80": -0.11134,
-     "hi80": 0.10913
+     "pred": -0.00017,
+     "lo80": -0.10554,
+     "hi80": 0.09847
     },
     "trough_2_20": {
-     "pred": -0.01546,
-     "lo80": -0.08196,
-     "hi80": 0.04627
+     "pred": -0.00418,
+     "lo80": -0.06716,
+     "hi80": 0.05015
     },
     "vol_ratio_2_20": {
-     "pred": 0.92105,
-     "lo80": 0.64789,
-     "hi80": 1.42457
+     "pred": 0.72088,
+     "lo80": 0.5347,
+     "hi80": 1.13496
     },
     "abn_volume_2_20": {
-     "pred": 0.75321,
-     "lo80": 0.53317,
-     "hi80": 0.93066
+     "pred": 0.68074,
+     "lo80": 0.50781,
+     "hi80": 0.8597
     }
-   },
-   "entry": {
-    "signal": "WAIT",
-    "expected_next5_sd": -0.05926,
-    "expected_further_dip_pct": 4.53912,
-    "at_new_low": false
    },
    "sizing": {
     "tiers": {
      "safest": {
-      "weight": 0.11168,
-      "bad_case_pct": -17.90867,
+      "weight": 0.13283,
+      "bad_case_pct": -15.0574,
       "loss_budget_pct": 2.0,
       "chance": 0.05
      },
      "recommended": {
       "weight": 0.25,
-      "bad_case_pct": -11.18004,
+      "bad_case_pct": -11.8415,
       "loss_budget_pct": 4.0,
       "chance": 0.1
      },
      "bold": {
-      "weight": 0.37998,
-      "bad_case_pct": -11.18004,
+      "weight": 0.4,
+      "bad_case_pct": -11.8415,
       "loss_budget_pct": 8.0,
       "chance": 0.1
      }
     },
-    "mu_pct": 0.79308,
-    "sigma_pct": 12.51141
+    "mu_pct": 0.94782,
+    "sigma_pct": 12.03185
    },
-   "warning_big_drop": true
+   "warning_big_drop": false
   },
   {
    "ticker": "META",
    "name": "Meta Platforms",
-   "price": 641.69,
-   "price_date": "2026-11-13",
-   "chg_1d_pct": 2.89925,
+   "price": 626.40997,
+   "price_date": "2026-11-16",
+   "chg_1d_pct": -2.38122,
    "closes": [
-    665.08,
     669.71,
     672.78,
     681.77,
@@ -567,10 +553,10 @@
     641.39,
     628.77,
     623.61,
-    641.69
+    641.69,
+    626.41
    ],
    "close_dates": [
-    "2026-09-14",
     "2026-09-15",
     "2026-09-16",
     "2026-09-17",
@@ -614,7 +600,8 @@
     "2026-11-10",
     "2026-11-11",
     "2026-11-12",
-    "2026-11-13"
+    "2026-11-13",
+    "2026-11-16"
    ],
    "next_earnings": null,
    "headlines": [
@@ -634,6 +621,11 @@
      "url": "https://finnhub.io/api/news?id=19a6abce1309ed9ab61a9ba54f084f3fe41f471f6d64ed4761062a18c9099849"
     },
     {
+     "date": "2026-11-16 09:30",
+     "headline": "Meta Stock Has Fallen 3% YTD. Its Cheapest AI Model Could Change Everything.",
+     "url": "https://finnhub.io/api/news?id=0d95d0b4d2defe26d485d3c168ee991fc5f5805e718a15d92b8566018465232e"
+    },
+    {
      "date": "2026-11-16 08:48",
      "headline": "Meta Plunged After Earnings in 2025 Too. Here\u2019s What Buyers Got a Year Later",
      "url": "https://finnhub.io/api/news?id=d25520d91cac7bf0d016659b71a911781c01aca71d66e71be81eb2196ec103b0"
@@ -642,23 +634,69 @@
      "date": "2026-11-16 06:01",
      "headline": "ETFs Bought $39.6 Million of Meta (META) on Thursday",
      "url": "https://finnhub.io/api/news?id=bf5d8cd74d1062103d01acc4f4322d32c1d225c42271093d711f7d199f074715"
-    },
-    {
-     "date": "2026-11-16 05:19",
-     "headline": "Italian regulator fines Meta $887m over mobile photo consent",
-     "url": "https://finnhub.io/api/news?id=2dde471619000e9eeefbf392ac734fbcbe69a002048c2b4b19bf0462fc257a07"
     }
    ],
-   "status": "quiet: no event in the last 15 trading days"
+   "status": "event",
+   "event_class": "earnings_guidance",
+   "event_headline": "Meta Plunged After Earnings in 2025 Too. Here\u2019s What Buyers Got a Year Later",
+   "day0": "2026-11-16",
+   "car_0_1_pct": 0.35613,
+   "decision_day": 0,
+   "risk": {
+    "drift_1_20": {
+     "pred": -0.0021,
+     "lo80": -0.1046,
+     "hi80": 0.09819
+    },
+    "trough_2_20": {
+     "pred": -0.00074,
+     "lo80": -0.05935,
+     "hi80": 0.05188
+    },
+    "vol_ratio_2_20": {
+     "pred": 0.76481,
+     "lo80": 0.53116,
+     "hi80": 1.09533
+    },
+    "abn_volume_2_20": {
+     "pred": 0.88333,
+     "lo80": 0.65702,
+     "hi80": 1.13564
+    }
+   },
+   "sizing": {
+    "tiers": {
+     "safest": {
+      "weight": 0.12774,
+      "bad_case_pct": -13.58934,
+      "loss_budget_pct": 2.0,
+      "chance": 0.05
+     },
+     "recommended": {
+      "weight": 0.25,
+      "bad_case_pct": -9.90785,
+      "loss_budget_pct": 4.0,
+      "chance": 0.1
+     },
+     "bold": {
+      "weight": 0.38323,
+      "bad_case_pct": -9.90785,
+      "loss_budget_pct": 8.0,
+      "chance": 0.1
+     }
+    },
+    "mu_pct": 0.55351,
+    "sigma_pct": 10.40788
+   },
+   "warning_big_drop": false
   },
   {
    "ticker": "BABA",
    "name": "Alibaba",
-   "price": 94.38,
-   "price_date": "2026-11-13",
-   "chg_1d_pct": 0.02119,
+   "price": 90.62,
+   "price_date": "2026-11-16",
+   "chg_1d_pct": -3.98389,
    "closes": [
-    109.23,
     109.34,
     107.27,
     108.54,
@@ -702,10 +740,10 @@
     102.72,
     101.52,
     94.36,
-    94.38
+    94.38,
+    90.62
    ],
    "close_dates": [
-    "2026-09-14",
     "2026-09-15",
     "2026-09-16",
     "2026-09-17",
@@ -749,7 +787,8 @@
     "2026-11-10",
     "2026-11-11",
     "2026-11-12",
-    "2026-11-13"
+    "2026-11-13",
+    "2026-11-16"
    ],
    "next_earnings": "2026-11-19",
    "headlines": [
@@ -770,74 +809,66 @@
     }
    ],
    "status": "event",
-   "event_class": "other",
-   "event_headline": "",
-   "day0": "2026-11-05",
-   "car_0_1_pct": 8.47591,
-   "decision_day": 6,
+   "event_class": "ma_strategy",
+   "event_headline": "BABA Stock Edges Lower Overnight: Alibaba Reportedly Launches Most-Advanced AI Model That Cuts Task Costs By 60%",
+   "day0": "2026-11-16",
+   "car_0_1_pct": -1.72339,
+   "decision_day": 0,
    "risk": {
     "drift_1_20": {
-     "pred": -0.00591,
-     "lo80": -0.11369,
-     "hi80": 0.11451
+     "pred": 0.00195,
+     "lo80": -0.10136,
+     "hi80": 0.11705
     },
     "trough_2_20": {
-     "pred": -0.00332,
-     "lo80": -0.09052,
-     "hi80": 0.06109
+     "pred": -0.00829,
+     "lo80": -0.09064,
+     "hi80": 0.05577
     },
     "vol_ratio_2_20": {
-     "pred": 1.10617,
-     "lo80": 0.69679,
-     "hi80": 1.81053
+     "pred": 0.9418,
+     "lo80": 0.60295,
+     "hi80": 1.47006
     },
     "abn_volume_2_20": {
-     "pred": 0.86433,
-     "lo80": 0.624,
-     "hi80": 1.23606
+     "pred": 1.02448,
+     "lo80": 0.64807,
+     "hi80": 1.41955
     }
-   },
-   "entry": {
-    "signal": "BUY",
-    "expected_next5_sd": 0.0751,
-    "expected_further_dip_pct": 4.8325,
-    "at_new_low": true,
-    "p_low_holds": 0.2247
    },
    "sizing": {
     "tiers": {
      "safest": {
-      "weight": 0.0269,
-      "bad_case_pct": -21.85577,
+      "weight": 0.06861,
+      "bad_case_pct": -14.88784,
       "loss_budget_pct": 2.0,
       "chance": 0.05
      },
      "recommended": {
-      "weight": 0.0538,
-      "bad_case_pct": -15.6757,
+      "weight": 0.13722,
+      "bad_case_pct": -11.58851,
       "loss_budget_pct": 4.0,
       "chance": 0.1
      },
      "bold": {
-      "weight": 0.0807,
-      "bad_case_pct": -15.6757,
+      "weight": 0.20582,
+      "bad_case_pct": -11.58851,
       "loss_budget_pct": 8.0,
       "chance": 0.1
      }
     },
-    "mu_pct": 0.22914,
-    "sigma_pct": 14.59275
+    "mu_pct": 0.62407,
+    "sigma_pct": 15.08
    },
-   "warning_big_drop": false
+   "warning_big_drop": true
   },
   {
    "ticker": "BA",
    "name": "Boeing",
-   "price": 171.5,
-   "price_date": "2026-11-13",
-   "chg_1d_pct": -0.02915,
+   "price": 165.22,
+   "price_date": "2026-11-16",
+   "chg_1d_pct": -3.66181,
    "closes": [
-    210.27,
     209.69,
     201.96,
     197.0,
@@ -881,10 +912,10 @@
     173.38,
     174.54,
     171.55,
-    171.5
+    171.5,
+    165.22
    ],
    "close_dates": [
-    "2026-09-14",
     "2026-09-15",
     "2026-09-16",
     "2026-09-17",
@@ -928,10 +959,16 @@
     "2026-11-10",
     "2026-11-11",
     "2026-11-12",
-    "2026-11-13"
+    "2026-11-13",
+    "2026-11-16"
    ],
    "next_earnings": null,
    "headlines": [
+    {
+     "date": "2026-11-16 13:46",
+     "headline": "Where Could Boeing Stock Be In Five Years?",
+     "url": "https://finnhub.io/api/news?id=af22390e42c06b04a4254b84c2998d089bec57d4674086cdbaa40e9621699990"
+    },
     {
      "date": "2026-11-16 01:19",
      "headline": "Reported November 15, 'Rocket from Boeing-Lockheed firm fails mid-flight, destroys payload of Amazon satellites' - Reuters",
@@ -948,7 +985,7 @@
    "event_headline": "",
    "day0": "2026-10-27",
    "car_0_1_pct": -12.43611,
-   "decision_day": 13,
+   "decision_day": 14,
    "risk": {
     "drift_1_20": {
      "pred": -0.00348,
@@ -973,8 +1010,8 @@
    },
    "entry": {
     "signal": "WAIT",
-    "expected_next5_sd": -0.07694,
-    "expected_further_dip_pct": 2.3756,
+    "expected_next5_sd": -0.05702,
+    "expected_further_dip_pct": 2.36872,
     "at_new_low": false
    },
    "sizing": {
@@ -1006,11 +1043,10 @@
   {
    "ticker": "INTC",
    "name": "Intel",
-   "price": 59.66,
-   "price_date": "2026-11-13",
-   "chg_1d_pct": -2.51634,
+   "price": 55.47,
+   "price_date": "2026-11-16",
+   "chg_1d_pct": -7.02313,
    "closes": [
-    97.19,
     97.14,
     101.05,
     108.8,
@@ -1054,10 +1090,10 @@
     58.13,
     62.5,
     61.2,
-    59.66
+    59.66,
+    55.47
    ],
    "close_dates": [
-    "2026-09-14",
     "2026-09-15",
     "2026-09-16",
     "2026-09-17",
@@ -1101,109 +1137,103 @@
     "2026-11-10",
     "2026-11-11",
     "2026-11-12",
-    "2026-11-13"
+    "2026-11-13",
+    "2026-11-16"
    ],
    "next_earnings": null,
    "headlines": [
     {
-     "date": "2026-11-16 12:10",
-     "headline": "Intel shares fall 6% as shareholders sue over October stock plunge",
-     "url": "https://finnhub.io/api/news?id=91f25af43cf77ea977569625dc1891982232a28a5ade7a7e167f135acde431a4"
+     "date": "2026-11-16 15:03",
+     "headline": "INTW 2X Intel ETF Tumbles 13% as Intel Drops Amid Shareholder Lawsuit and AI Chip Selloff; Taiwan Semiconductor Falls 5%",
+     "url": "https://finnhub.io/api/news?id=1c62335723868c483e22a6ee74ea08e056bfd5df0228ab9486a41ff961d572c2"
     },
     {
-     "date": "2026-11-16 11:53",
-     "headline": "Intel Faces a Shareholder Suit After a 29% Stock Drop",
-     "url": "https://finnhub.io/api/news?id=e09634e8ee02bcc450394557670e1297c0d4a7ef7a9b42f72578552022d0b323"
+     "date": "2026-11-16 14:39",
+     "headline": "Intel \u201cTrades at 34x PE for Just 11%\u201d Growth, Says Dan Niles. Now Shareholders Are Suing",
+     "url": "https://finnhub.io/api/news?id=df8713115f19e55bb9ac869e5ce676103b79b643293b2f196727c69b9ec76ea4"
     },
     {
-     "date": "2026-11-16 10:55",
-     "headline": "Intel stock falls after investors file class action lawsuit against the company",
-     "url": "https://finnhub.io/api/news?id=812efd1de924e8908360fc6ffd23815f7b9a6cffee0191e7d2c50724e6bbfd55"
+     "date": "2026-11-16 14:27",
+     "headline": "Why Intel's turnaround will take years",
+     "url": "https://finnhub.io/api/news?id=4f23bf122ffb89a9b8fc52f03c0fc8d74ffffc4181bf6d390ae513b10384733e"
     },
     {
-     "date": "2026-11-16 10:45",
-     "headline": "Micron Vs. Intel: Margins Tell Investors Exactly Why One of These is a Definite No Go to End 2027",
-     "url": "https://finnhub.io/api/news?id=2be14897ae3832f5ef938ff330540992af9d07c25d7dac7ee791a032958c0396"
+     "date": "2026-11-16 13:53",
+     "headline": "Intel Stocks Drop 6.13% as Shareholder Suit Targets PC Slump Disclosures",
+     "url": "https://finnhub.io/api/news?id=dccff98112da4a08f1690b14a7335bb1f38ab188607c5bfe4cf66f525b41f307"
     },
     {
-     "date": "2026-11-16 09:33",
-     "headline": "Why Is Intel Facing a Shareholder Lawsuit Over Its PC Slowdown?",
-     "url": "https://finnhub.io/api/news?id=ee4bfdb8f7cbd919e682778194b3f0d46ea182f861837f77ec2c90e2efcc5aec"
+     "date": "2026-11-16 13:45",
+     "headline": "Jensen's possible return to Nvidia, Intel's steps and missteps",
+     "url": "https://finnhub.io/api/news?id=d7cc12f239dc10185fd5981518c5e6c04f12b4e9c7475ed88d80ac37f5af8a6a"
     },
     {
-     "date": "2026-11-16 08:41",
-     "headline": "Shareholders sue Intel after its shares plunge nearly 29%",
-     "url": "https://finnhub.io/api/news?id=bc31dd6df0c111b915242606fe14ede583c03bc5cbd4f600424e719b5115282d"
+     "date": "2026-11-16 13:35",
+     "headline": "Why Intel Stock Is Falling Monday",
+     "url": "https://finnhub.io/api/news?id=f2fe3dd02e97c8172041d12d26ebd7eb3c6ee65eaeed86a83850f592585a525d"
     }
    ],
    "status": "event",
-   "event_class": "earnings_guidance",
-   "event_headline": "",
-   "day0": "2026-10-29",
-   "car_0_1_pct": -25.7612,
-   "decision_day": 11,
+   "event_class": "legal_regulatory",
+   "event_headline": "INTW 2X Intel ETF Tumbles 13% as Intel Drops Amid Shareholder Lawsuit and AI Chip Selloff; Taiwan Semiconductor Falls 5%",
+   "day0": "2026-11-16",
+   "car_0_1_pct": -1.15304,
+   "decision_day": 0,
    "risk": {
     "drift_1_20": {
-     "pred": 0.02164,
-     "lo80": -0.14538,
-     "hi80": 0.20069
+     "pred": 0.00401,
+     "lo80": -0.17997,
+     "hi80": 0.20245
     },
     "trough_2_20": {
-     "pred": -0.04323,
-     "lo80": -0.15373,
-     "hi80": 0.06621
+     "pred": -0.03221,
+     "lo80": -0.16698,
+     "hi80": 0.06462
     },
     "vol_ratio_2_20": {
-     "pred": 0.88412,
-     "lo80": 0.68295,
-     "hi80": 1.31566
+     "pred": 0.71022,
+     "lo80": 0.53817,
+     "hi80": 1.13179
     },
     "abn_volume_2_20": {
-     "pred": 1.19111,
-     "lo80": 0.83496,
-     "hi80": 1.51381
+     "pred": 1.09759,
+     "lo80": 0.73874,
+     "hi80": 1.39219
     }
-   },
-   "entry": {
-    "signal": "BUY",
-    "expected_next5_sd": 0.0711,
-    "expected_further_dip_pct": 5.33157,
-    "at_new_low": false
    },
    "sizing": {
     "tiers": {
      "safest": {
-      "weight": 0.07329,
-      "bad_case_pct": -27.28846,
+      "weight": 0.04622,
+      "bad_case_pct": -26.73506,
       "loss_budget_pct": 2.0,
       "chance": 0.05
      },
      "recommended": {
-      "weight": 0.19129,
-      "bad_case_pct": -20.91086,
+      "weight": 0.09245,
+      "bad_case_pct": -20.43879,
       "loss_budget_pct": 4.0,
       "chance": 0.1
      },
      "bold": {
-      "weight": 0.38258,
-      "bad_case_pct": -20.91086,
+      "weight": 0.13867,
+      "bad_case_pct": -20.43879,
       "loss_budget_pct": 8.0,
       "chance": 0.1
      }
     },
-    "mu_pct": 3.13578,
-    "sigma_pct": 17.99948
+    "mu_pct": 1.69166,
+    "sigma_pct": 30.24802
    },
    "warning_big_drop": true
   },
   {
    "ticker": "AAPL",
    "name": "Apple",
-   "price": 356.26999,
-   "price_date": "2026-11-13",
-   "chg_1d_pct": 0.39168,
+   "price": 352.78,
+   "price_date": "2026-11-16",
+   "chg_1d_pct": -0.97959,
    "closes": [
-    332.83,
     331.09,
     332.16,
     336.74,
@@ -1247,10 +1277,10 @@
     348.25,
     355.36,
     354.88,
-    356.27
+    356.27,
+    352.78
    ],
    "close_dates": [
-    "2026-09-14",
     "2026-09-15",
     "2026-09-16",
     "2026-09-17",
@@ -1294,10 +1324,21 @@
     "2026-11-10",
     "2026-11-11",
     "2026-11-12",
-    "2026-11-13"
+    "2026-11-13",
+    "2026-11-16"
    ],
    "next_earnings": null,
    "headlines": [
+    {
+     "date": "2026-11-16 16:49",
+     "headline": "What's dragging down the S&P 500? Apple in focus",
+     "url": "https://finnhub.io/api/news?id=247299d1ab30b189136329f7a2f877cabe730885cc260e39bc2ee29038a00a3f"
+    },
+    {
+     "date": "2026-11-16 14:14",
+     "headline": "Apple adds facial recognition unlock to iPhone Duo",
+     "url": "https://finnhub.io/api/news?id=df6681efa7e0df33a193b6ff353993f85824ce8d8327a42999e3c5ac91d6370c"
+    },
     {
      "date": "2026-11-16 11:49",
      "headline": "Apple Is \u201cLiterally the Trade of the Year\u201d Says Josh Brown, for a Very Simple Reason",
@@ -1317,16 +1358,6 @@
      "date": "2026-11-16 06:04",
      "headline": "Invesco NASDAQ 100 ETF (QQQM) Adds Apple and NVIDIA on Thursday",
      "url": "https://finnhub.io/api/news?id=95343f7f03c1a15d9ee56bb48f2a0196e1471b933a0f96d9a4b954480063426a"
-    },
-    {
-     "date": "2026-11-16 06:04",
-     "headline": "iShares Core S&P 500 (IVV) Sells Apple and Nvidia on Nov. 12",
-     "url": "https://finnhub.io/api/news?id=0021c88b988da05561a69d3174496c315a4cd32c5b77388c8149d9af4631de17"
-    },
-    {
-     "date": "2026-11-16 06:04",
-     "headline": "Invesco QQQ (QQQ) Adds Apple and Nvidia on Nov. 12",
-     "url": "https://finnhub.io/api/news?id=8e8b94d93e92d19ca91c67e696c0107afc0d25b5df6f7368572305b02f721db7"
     }
    ],
    "status": "event",
@@ -1334,7 +1365,7 @@
    "event_headline": "",
    "day0": "2026-11-02",
    "car_0_1_pct": -3.61858,
-   "decision_day": 9,
+   "decision_day": 10,
    "risk": {
     "drift_1_20": {
      "pred": -0.00483,
@@ -1359,8 +1390,8 @@
    },
    "entry": {
     "signal": "WAIT",
-    "expected_next5_sd": -0.12622,
-    "expected_further_dip_pct": 2.63307,
+    "expected_next5_sd": -0.1231,
+    "expected_further_dip_pct": 2.44479,
     "at_new_low": false
    },
    "sizing": {
@@ -1392,11 +1423,10 @@
   {
    "ticker": "GRAB",
    "name": "Grab Holdings",
-   "price": 3.24,
-   "price_date": "2026-11-13",
-   "chg_1d_pct": 0.0,
+   "price": 3.21,
+   "price_date": "2026-11-16",
+   "chg_1d_pct": -0.92593,
    "closes": [
-    3.02,
     2.91,
     2.87,
     2.81,
@@ -1440,10 +1470,10 @@
     3.35,
     3.33,
     3.24,
-    3.24
+    3.24,
+    3.21
    ],
    "close_dates": [
-    "2026-09-14",
     "2026-09-15",
     "2026-09-16",
     "2026-09-17",
@@ -1487,7 +1517,8 @@
     "2026-11-10",
     "2026-11-11",
     "2026-11-12",
-    "2026-11-13"
+    "2026-11-13",
+    "2026-11-16"
    ],
    "next_earnings": null,
    "headlines": [],
@@ -1496,7 +1527,7 @@
    "event_headline": "",
    "day0": "2026-11-05",
    "car_0_1_pct": 7.42513,
-   "decision_day": 6,
+   "decision_day": 7,
    "risk": {
     "drift_1_20": {
      "pred": -0.00862,
@@ -1521,10 +1552,9 @@
    },
    "entry": {
     "signal": "WAIT",
-    "expected_next5_sd": -0.00619,
-    "expected_further_dip_pct": 4.22395,
-    "at_new_low": true,
-    "p_low_holds": 0.16152
+    "expected_next5_sd": -0.01082,
+    "expected_further_dip_pct": 4.14851,
+    "at_new_low": false
    },
    "sizing": {
     "tiers": {
@@ -1555,11 +1585,10 @@
   {
    "ticker": "SE",
    "name": "Sea Ltd",
-   "price": 75.36,
-   "price_date": "2026-11-13",
-   "chg_1d_pct": 1.12722,
+   "price": 71.63,
+   "price_date": "2026-11-16",
+   "chg_1d_pct": -4.94958,
    "closes": [
-    108.68,
     102.65,
     103.5,
     101.27,
@@ -1603,10 +1632,10 @@
     76.8,
     73.99,
     74.52,
-    75.36
+    75.36,
+    71.63
    ],
    "close_dates": [
-    "2026-09-14",
     "2026-09-15",
     "2026-09-16",
     "2026-09-17",
@@ -1650,7 +1679,8 @@
     "2026-11-10",
     "2026-11-11",
     "2026-11-12",
-    "2026-11-13"
+    "2026-11-13",
+    "2026-11-16"
    ],
    "next_earnings": null,
    "headlines": [],
@@ -1659,7 +1689,7 @@
    "event_headline": "",
    "day0": "2026-11-10",
    "car_0_1_pct": -6.33966,
-   "decision_day": 3,
+   "decision_day": 4,
    "risk": {
     "drift_1_20": {
      "pred": 0.00704,
@@ -1684,9 +1714,10 @@
    },
    "entry": {
     "signal": "BUY",
-    "expected_next5_sd": 0.04482,
-    "expected_further_dip_pct": 5.40978,
-    "at_new_low": false
+    "expected_next5_sd": 0.04665,
+    "expected_further_dip_pct": 5.2061,
+    "at_new_low": true,
+    "p_low_holds": 0.23231
    },
    "sizing": {
     "tiers": {
@@ -1709,7 +1740,7 @@
       "chance": 0.1
      }
     },
-    "mu_pct": 0.98336,
+    "mu_pct": 0.98337,
     "sigma_pct": 19.9365
    },
    "warning_big_drop": true

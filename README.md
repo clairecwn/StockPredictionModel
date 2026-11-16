@@ -463,19 +463,19 @@ This project avoids all five, so its accuracy for direction sits close to 50%, w
 ## Live board
 
 <!-- LIVE-BOARD:START -->
-_Updated 2026-11-16 18:30 UTC. Research only, not financial advice._
+_Updated 2026-11-16 23:49 UTC. Research only, not financial advice._
 
 | Stock | Price | Event (day 0) | Day | Signal | Expected further dip | 1-in-10 worst point (20 days) | Risk vs normal | Recommended share if buying |
 |---|---|---|---|---|---|---|---|---|
-| NVDA | 162.85 | price/volume shock, no matched news (2026-11-12) | 1 | BUY | 5.4% | -13.9% | 1.07x | 15% |
-| TSLA | 390.22 | price/volume shock, no matched news (2026-11-04) | 7 | WAIT ⚠️ | 4.5% | -11.2% | 0.92x | 25% |
-| META | 641.69 | quiet: no event in the last 15 trading days | | | | | | |
-| BABA | 94.38 | price/volume shock, no matched news (2026-11-05) | 6 | BUY | 4.8% | -15.7% | 1.11x | 5% |
-| BA | 171.50 | earnings guidance (2026-10-27) | 13 | WAIT | 2.4% | -9.2% | 0.93x | 25% |
-| INTC | 59.66 | earnings guidance (2026-10-29) | 11 | BUY ⚠️ | 5.3% | -20.9% | 0.88x | 19% |
-| AAPL | 356.27 | earnings guidance (2026-11-02) | 9 | WAIT | 2.6% | -6.2% | 0.96x | 11% |
-| GRAB | 3.24 | price/volume shock, no matched news (2026-11-05) | 6 | WAIT ⚠️ | 4.2% | -15.5% | 0.88x | 5% |
-| SE | 75.36 | earnings guidance (2026-11-10) | 3 | BUY ⚠️ | 5.4% | -13.8% | 1.20x | 12% |
+| NVDA | 156.14 | earnings guidance (2026-11-16) | 0 |  |  | -12.9% | 0.90x | 9% |
+| TSLA | 379.74 | ma strategy (2026-11-16) | 0 |  |  | -11.8% | 0.72x | 25% |
+| META | 626.41 | earnings guidance (2026-11-16) | 0 |  |  | -9.9% | 0.76x | 25% |
+| BABA | 90.62 | ma strategy (2026-11-16) | 0 |  ⚠️ |  | -11.6% | 0.94x | 14% |
+| BA | 165.22 | earnings guidance (2026-10-27) | 14 | WAIT | 2.4% | -9.2% | 0.93x | 25% |
+| INTC | 55.47 | legal regulatory (2026-11-16) | 0 |  ⚠️ |  | -20.4% | 0.71x | 9% |
+| AAPL | 352.78 | earnings guidance (2026-11-02) | 10 | WAIT | 2.4% | -6.2% | 0.96x | 11% |
+| GRAB | 3.21 | price/volume shock, no matched news (2026-11-05) | 7 | WAIT ⚠️ | 4.1% | -15.5% | 0.88x | 5% |
+| SE | 71.63 | earnings guidance (2026-11-10) | 4 | BUY ⚠️ | 5.2% | -13.8% | 1.20x | 12% |
 <!-- LIVE-BOARD:END -->
 
 The board runs on GitHub Actions twice per trading day, once after the US close and once in the morning to refresh headlines. Each run follows six steps:
