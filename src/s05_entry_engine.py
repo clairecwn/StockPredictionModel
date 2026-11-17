@@ -264,6 +264,12 @@ for j in range(KMAX):
     dip[:, j] = np.maximum(0, cum[:, j] - cum[:, j + 1:].min(axis=1))
     fwd[:, j] = cum[:, min(j + H, 19)] - cum[:, j]                  # abnormal move over the next H days
 
+# days until the 20-day low, seen from the close of day k: 0 = the low is already in (on or before day k)
+LOW_DAY = np.argmin(cum, axis=1) + 1                                        # day 1..20 of the lowest close
+TTL_EDGES = [0, 2, 5, 10]                                                  # buckets: 0 | 1-2 | 3-5 | 6-10 | 11+
+TTL_LABELS = ["already in", "1-2 days", "3-5 days", "6-10 days", "11+ days"]
+rem = np.maximum(LOW_DAY[:, None] - K[None, :], 0)
+ttl = np.digitize(rem, TTL_EDGES, right=True)                              # 0..4
 # s03 predictions are left out: they are functions of these same features, and are blank before 2006,
 # which the first fold would have to learn from.
 STAT = [c for c in BASE_FEATS if c in E]
@@ -274,6 +280,7 @@ for c in DYN:
 P["ev"] = np.repeat(np.arange(NE), KMAX)
 P["y"] = lab.reshape(-1); P["y_any"] = lab_any.reshape(-1); P["dip"] = dip.reshape(-1)
 P["is_low"] = is_low.reshape(-1); P["rw_base"] = np.tile(rw_base, NE)
+P["ttl"] = ttl.reshape(-1)
 P["fwd_z"] = (fwd / (sdd[:, None] * np.sqrt(H))).reshape(-1)
 for c in FEATS:                                                   # infinities (e.g. zero volume) -> missing
     v = P[c].values; v[~np.isfinite(v)] = np.nan
@@ -334,6 +341,12 @@ def make_clf():
         return HistGradientBoostingClassifier(max_iter=300, learning_rate=0.02, max_leaf_nodes=15, min_samples_leaf=3000, l2_regularization=50)
     return lgb.LGBMClassifier(n_estimators=300, learning_rate=0.02, num_leaves=15, min_child_samples=3000,
                               subsample=0.7, subsample_freq=1, colsample_bytree=0.5, reg_lambda=50, verbose=-1)
+def make_mc():
+    return lgb.LGBMClassifier(objective="multiclass", n_estimators=300, learning_rate=0.03, num_leaves=15, min_child_samples=3000,
+                              subsample=0.7, subsample_freq=1, colsample_bytree=0.5, reg_lambda=50, verbose=-1)
+NC = len(TTL_LABELS)
+def mc_proba(m, Xs):
+    out = np.zeros((len(Xs), NC)); out[:, m.classes_.astype(int)] = m.predict_proba(Xs); return out
 def make_logit():
     from sklearn.linear_model import LogisticRegression
     from sklearn.pipeline import make_pipeline
@@ -353,6 +366,7 @@ def cap(idx):
 
 p_wait = np.full(len(P), np.nan); p_dip = np.full(len(P), np.nan); placebo_auc = None
 p_logit = np.full(len(P), np.nan); p_fwd = np.full(len(P), np.nan); p_low = np.full(len(P), np.nan)
+p_ttl = np.full((len(P), NC), np.nan); b_ttl = np.full((len(P), NC), np.nan)
 row_year = np.repeat(year, KMAX); row_day = np.repeat(day0, KMAX)
 X = P[FEATS]
 for fi, (a, b) in enumerate(FOLDS):
@@ -368,6 +382,9 @@ for fi, (a, b) in enumerate(FOLDS):
     p_logit[te] = make_logit().fit(X.iloc[tr], P.y.iloc[tr].astype(int)).predict_proba(X.iloc[te])[:, 1]
     p_fwd[te] = make_reg().fit(X.iloc[trd], P.fwd_z.iloc[trd]).predict(X.iloc[te])
     p_low[te] = make_clf().fit(X.iloc[trd], P.is_low.iloc[trd].astype(int)).predict_proba(X.iloc[te])[:, 1]
+    p_ttl[te] = mc_proba(make_mc().fit(X.iloc[trd], P.ttl.iloc[trd].astype(int)), X.iloc[te])
+    bk_ = pd.crosstab(P.k.iloc[trd], P.ttl.iloc[trd], normalize="index").reindex(columns=range(NC), fill_value=0)   # baseline: day number only
+    b_ttl[te] = bk_.reindex(P.k.iloc[te]).values
     if fi == len(FOLDS) - 1 or (TEST and placebo_auc is None):
         ys = P.y.iloc[tr].values.copy(); rng_.shuffle(ys)
         pm = make_clf().fit(X.iloc[tr], ys.astype(int))
@@ -449,6 +466,31 @@ for name, arr in (("size", ev_size), ("shock", ev_shock), ("class", ev_cls)):
                          "dip_depth_spearman": dsk, "low_holds_auc": roc_auc_score(yl[okL & (rowg == g)], p_low[okL & (rowg == g)]) if (okL & (rowg == g)).sum() > 500 else np.nan})
 say(pd.DataFrame(grp_rows).round(3).to_string(index=False))
 say("the literature (Lopez-Lira & Tang 2024; PEAD studies) finds predictability concentrated in small caps and after negative news; check whether we see the same.")
+
+TTL_LL, TTL_T = (np.nan, np.nan), np.nan
+try:                                    # a reporting error here must not stop the overnight retrain
+    section("7d", "How many more trading days until the 20-day low? (probabilities, out of sample)")
+    okT = np.isfinite(p_ttl).all(axis=1)
+    yT = P.ttl.values[okT].astype(int)
+    def ll(pr, y): return -np.mean(np.log(np.clip(pr[np.arange(len(y)), y], 1e-6, 1)))
+    say("buckets: " + ", ".join(TTL_LABELS) + ". 'already in' = the lowest close of days 1-20 has already happened.")
+    say(f"log loss: model {ll(p_ttl[okT], yT):.4f}  vs baseline that knows only the day number {ll(b_ttl[okT], yT):.4f}  (lower is better)")
+    late = okT & (row_year >= 2016); yL = P.ttl.values[late].astype(int)
+    TTL_LL = (ll(p_ttl[late], yL), ll(b_ttl[late], yL))
+    say(f"2016-2026 only: model {TTL_LL[0]:.4f} vs baseline {TTL_LL[1]:.4f}")
+    mon = pd.Series(row_day[late]).dt.to_period("M").values
+    dd = pd.DataFrame({"m": mon, "d": -np.log(np.clip(b_ttl[late][np.arange(len(yL)), yL], 1e-6, 1)) + np.log(np.clip(p_ttl[late][np.arange(len(yL)), yL], 1e-6, 1))}).groupby("m").d.mean()
+    TTL_T = dd.mean() / (dd.std() / np.sqrt(len(dd)))
+    say(f"monthly gain in log-likelihood over the baseline, 2016-2026: {dd.mean():.4f} (t = {TTL_T:.2f}, {(dd > 0).mean():.0%} of months better)")
+    say(f"most likely bucket is right: model {np.mean(p_ttl[okT].argmax(1) == yT):.1%}, baseline {np.mean(b_ttl[okT].argmax(1) == yT):.1%}")
+    cT = pd.DataFrame({"p": p_ttl[okT][:, 0], "y": (yT == 0).astype(float)}); cT["bin"] = pd.qcut(cT.p, 10, labels=False, duplicates="drop")
+    say("calibration of P(low already in), by decile of prediction:")
+    say(cT.groupby("bin").agg(predicted=("p", "mean"), realised=("y", "mean"), n=("y", "size")).round(3).to_string())
+    cal_all = pd.DataFrame({f"pred_{l}": p_ttl[okT][:, i] for i, l in enumerate(TTL_LABELS)}).mean().round(3)
+    say("average predicted vs realised share per bucket:"); say(pd.DataFrame({"predicted": cal_all.values,
+        "realised": [np.mean(yT == i) for i in range(NC)]}, index=TTL_LABELS).round(3).to_string())
+except Exception as e:
+    say(f"(days-to-low report failed: {e})")
 
 # ---------------------------------------------------------------- entry simulation, scored by regret
 PW = p_wait.reshape(NE, KMAX); PD = dip_pct.reshape(NE, KMAX); PF = p_fwd.reshape(NE, KMAX)
@@ -616,7 +658,10 @@ if not TEST:
     rf = make_reg().fit(X.iloc[alld], P.dip_s.iloc[alld])
     ff = make_reg().fit(X.iloc[alld], P.fwd_z.iloc[alld])
     lf = make_clf().fit(X.iloc[alld], P.is_low.iloc[alld].astype(int))
-    joblib.dump({"clf": mf, "dip_reg": rf, "fwd_reg": ff, "fwd_threshold": best_f, "low_clf": lf, "rw_base": rw_base, "feats": FEATS, "stat_feats": STAT, "dyn_feats": DYN, "threshold": best_thr,
+    tf = make_mc().fit(X.iloc[alld], P.ttl.iloc[alld].astype(int))
+    ttl_base = pd.crosstab(P.k, P.ttl, normalize="index").reindex(columns=range(NC), fill_value=0)
+    joblib.dump({"clf": mf, "dip_reg": rf, "fwd_reg": ff, "fwd_threshold": best_f, "low_clf": lf, "rw_base": rw_base, "ttl_clf": tf, "ttl_labels": TTL_LABELS, "ttl_base": ttl_base.values.tolist(),
+                 "ttl_logloss_2016": TTL_LL, "ttl_t": float(TTL_T), "feats": FEATS, "stat_feats": STAT, "dyn_feats": DYN, "threshold": best_thr,
                  "dip_threshold": best_dip, "H": H, "KMAX": KMAX, "bar_mult": BAR_MULT, "auc_oos": auc, "version": 1},
                 MODELS / "entry_engine.joblib")
     say(""); say(f"saved {MODELS / 'entry_engine.joblib'}")

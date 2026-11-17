@@ -5,238 +5,276 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="color-scheme" content="light dark">
 <title>Settle: how stocks settle after company news</title>
-<meta name="description" content="A research board that shows how stocks tend to behave after company news, with risk, timing and position size.">
-<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='8' fill='%232F5D50'/%3E%3Cpath d='M5 11c4 0 5 10 9 10s4-5 7-5 4 2 6 2' fill='none' stroke='%23F3F4EE' stroke-width='2.6' stroke-linecap='round'/%3E%3C/svg%3E">
+<meta name="description" content="A research board that reads each stock's latest news shock and shows its risk, the timing of the low and a position size.">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='9' fill='%231D4F5C'/%3E%3Cellipse cx='16' cy='19' rx='11' ry='4.2' fill='none' stroke='%23E6ECEA' stroke-width='1.6' opacity='.55'/%3E%3Cellipse cx='16' cy='19' rx='6' ry='2.3' fill='none' stroke='%23E6ECEA' stroke-width='1.6'/%3E%3Cpath d='M12.5 13.5c0-2.3 1.6-4 3.6-4s3.4 1.6 3.4 3.7c0 1.6-1.6 2.6-3.5 2.6s-3.5-.8-3.5-2.3z' fill='%23E6ECEA'/%3E%3C/svg%3E">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Newsreader:opsz,wght@6..72,400;6..72,500&family=Public+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
 <script>try { const t = localStorage.getItem("theme"); if (t) document.documentElement.dataset.theme = t; } catch (e) {}</script>
 <style>
+/* Palette: still water and river stone. Ink is a deep blue-teal rather than black; the three signal colours are
+   jade (buy), amber (wait) and brick (risk), each kept at AA contrast on the paper colour. */
 :root {
-  --bg:#EDEFEA; --surface:#F9FAF7; --raised:#FFFFFF; --ink:#1E2421; --mute:#5C6660; --line:#D7DBD3;
-  --pine:#2F5D50; --pine-soft:#E0E9E4; --on-pine:#F4F6F1;
-  --buy:#2F6A4B; --buy-soft:#E0ECE4; --wait:#86601F; --wait-soft:#F1E7D5; --risk:#9C4637; --risk-soft:#F3E3DE;
-  --chart:#2F5D50; --chart-fill:rgba(47,93,80,.10);
-  --serif:"Newsreader", Georgia, serif; --sans:"Public Sans", system-ui, sans-serif; --r:12px;
+  --paper:#E6ECEA; --sheet:#F3F6F4; --ink:#11272E; --mute:#53666B; --line:#CAD5D3;
+  --pond:#1D4F5C; --pond-2:#D3E1E0; --on-pond:#EEF3F1;
+  --buy:#2A6E52; --buy-2:#D7E9DF; --wait:#8E6116; --wait-2:#F0E3C9; --risk:#9E3D29; --risk-2:#F1DCD4;
+  --serif:"Newsreader", Georgia, serif; --sans:"Public Sans", system-ui, sans-serif;
 }
 @media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) {
-  --bg:#171B19; --surface:#1D2220; --raised:#242A27; --ink:#E5E8E3; --mute:#A5ADA7; --line:#323A35;
-  --pine:#A7C6B8; --pine-soft:#28362F; --on-pine:#15201B;
-  --buy:#A6C9B1; --buy-soft:#25332A; --wait:#D2B485; --wait-soft:#342D21; --risk:#D7A496; --risk-soft:#3A2A26;
-  --chart:#A7C6B8; --chart-fill:rgba(167,198,184,.10); } }
+  --paper:#0D1A1F; --sheet:#122329; --ink:#DCE6E6; --mute:#93A6AA; --line:#24383E;
+  --pond:#8DBCC7; --pond-2:#1B3238; --on-pond:#0D1A1F;
+  --buy:#8CC8AC; --buy-2:#17302A; --wait:#DDB26C; --wait-2:#33291A; --risk:#E39883; --risk-2:#3A231E; } }
 :root[data-theme="dark"] {
-  --bg:#171B19; --surface:#1D2220; --raised:#242A27; --ink:#E5E8E3; --mute:#A5ADA7; --line:#323A35;
-  --pine:#A7C6B8; --pine-soft:#28362F; --on-pine:#15201B;
-  --buy:#A6C9B1; --buy-soft:#25332A; --wait:#D2B485; --wait-soft:#342D21; --risk:#D7A496; --risk-soft:#3A2A26;
-  --chart:#A7C6B8; --chart-fill:rgba(167,198,184,.10); }
+  --paper:#0D1A1F; --sheet:#122329; --ink:#DCE6E6; --mute:#93A6AA; --line:#24383E;
+  --pond:#8DBCC7; --pond-2:#1B3238; --on-pond:#0D1A1F;
+  --buy:#8CC8AC; --buy-2:#17302A; --wait:#DDB26C; --wait-2:#33291A; --risk:#E39883; --risk-2:#3A231E; }
 
 * { box-sizing:border-box; }
 html { -webkit-text-size-adjust:100%; }
-body { margin:0; background:var(--bg); color:var(--ink); font:16px/1.6 var(--sans); font-variant-numeric:tabular-nums; }
+body { margin:0; background:var(--paper); color:var(--ink); font:16px/1.6 var(--sans); font-variant-numeric:tabular-nums; }
 button, input { font:inherit; color:inherit; }
 button { cursor:pointer; }
-a { color:var(--pine); text-underline-offset:3px; }
-:focus-visible { outline:2px solid var(--pine); outline-offset:2px; border-radius:6px; }
+a { color:var(--pond); text-underline-offset:3px; }
+:focus-visible { outline:2px solid var(--pond); outline-offset:3px; }
 p { margin:0; }
+h2 { margin:0 0 6px; font-size:18px; font-weight:600; letter-spacing:-.005em; }
+.mute { color:var(--mute); }
+.wrap { max-width:1120px; margin:0 auto; padding:0 24px; }
 
-.top { max-width:1160px; margin:0 auto; padding:18px 20px 14px; display:flex; align-items:center; gap:14px; }
-.brand { display:flex; align-items:center; gap:10px; text-decoration:none; color:var(--ink); }
-.brand svg { width:30px; height:30px; flex:none; }
-.brand b { font:500 25px/1 var(--serif); }
-.tagline { color:var(--mute); }
-.top-actions { margin-left:auto; display:flex; gap:8px; }
-.ghost { background:none; border:1px solid var(--line); border-radius:999px; padding:7px 15px; font-weight:500; font-size:15px; }
-.ghost:hover { border-color:var(--mute); }
+/* header */
+.top { display:flex; align-items:center; gap:16px; padding-top:20px; padding-bottom:14px; }
+.brand { display:flex; align-items:center; gap:10px; color:var(--ink); text-decoration:none; }
+.brand svg { width:32px; height:32px; flex:none; }
+.brand b { font:500 26px/1 var(--serif); letter-spacing:-.01em; }
+.top .updated { color:var(--mute); font-size:15px; margin-left:auto; }
+.linkbtn { background:none; border:0; padding:6px 2px; color:var(--pond); font-weight:600; text-decoration:underline; text-decoration-thickness:1px; text-underline-offset:4px; }
+.iconbtn { width:38px; height:38px; display:grid; place-items:center; border-radius:50%; background:none; border:1px solid var(--line); color:var(--ink); }
+.iconbtn:hover { border-color:var(--mute); }
+.iconbtn svg { width:18px; height:18px; }
 
-.app { max-width:1160px; margin:0 auto; padding:0 20px 120px; display:grid; grid-template-columns:280px 1fr; gap:18px; align-items:start; }
-.list { background:var(--surface); border:1px solid var(--line); border-radius:var(--r); overflow:hidden; position:sticky; top:12px; }
-.list-head { padding:14px 16px 10px; }
-.list-head b { display:block; font-weight:600; }
-.list-head span { color:var(--mute); font-size:15px; }
-.row { width:100%; display:grid; grid-template-columns:1fr auto; align-items:center; gap:0 10px; text-align:left; background:none; border:0; border-top:1px solid var(--line); padding:12px 16px; }
-.row:hover { background:var(--raised); }
-.row[aria-selected="true"] { background:var(--pine-soft); box-shadow:inset 3px 0 0 var(--pine); }
-.row .t { font-weight:700; }
-.row .s { color:var(--mute); font-size:15px; }
-.row.quiet .t { color:var(--mute); font-weight:600; }
-.pill { font-size:14px; font-weight:600; padding:3px 11px; border-radius:999px; white-space:nowrap; }
-.pill.BUY { background:var(--buy-soft); color:var(--buy); } .pill.WAIT { background:var(--wait-soft); color:var(--wait); }
-.pill.none { color:var(--mute); padding-right:0; }
+/* stock rail: pebbles */
+.rail { display:flex; gap:10px; overflow-x:auto; padding:6px 24px 14px; margin:0 -24px; scrollbar-width:none; }
+.rail::-webkit-scrollbar { display:none; }
+.peb { flex:none; display:flex; align-items:center; gap:9px; padding:9px 16px 9px 13px; border:1px solid var(--line); background:var(--sheet); color:var(--ink); }
+.peb:hover { border-color:var(--mute); }
+.peb[aria-pressed="true"] { background:var(--pond); border-color:var(--pond); color:var(--on-pond); }
+.peb b { font-weight:700; letter-spacing:.01em; }
+.peb span { font-size:14px; color:var(--mute); }
+.peb[aria-pressed="true"] span { color:var(--on-pond); opacity:.85; }
+.dot { width:9px; height:9px; border-radius:50%; flex:none; background:var(--line); }
+.dot.BUY { background:var(--buy); } .dot.WAIT { background:var(--wait); } .dot.PRE { background:none; border:2px solid var(--pond); }
+.peb[aria-pressed="true"] .dot { box-shadow:0 0 0 2px var(--on-pond); }
 
-.detail { background:var(--surface); border:1px solid var(--line); border-radius:var(--r); padding:24px 26px; }
-.d-head { display:flex; align-items:center; gap:8px 14px; flex-wrap:wrap; }
-.d-head h1 { margin:0; font:700 28px/1 var(--sans); }
-.d-head .name { color:var(--mute); }
-.d-head .px { margin-left:auto; text-align:right; line-height:1.25; }
-.d-head .px b { font-size:20px; display:block; }
+/* hero: ripple art with the verdict word, key numbers at the side */
+.hero { display:grid; grid-template-columns:minmax(0,7fr) minmax(0,5fr); gap:0 40px; margin-top:6px; }
+.stage { position:relative; min-height:360px; border-radius:28px 28px 28px 6px; background:var(--sheet); overflow:hidden; padding:28px 32px 30px; display:flex; flex-direction:column; justify-content:flex-end; }
+.stage svg.ripples { position:absolute; inset:0; width:100%; height:100%; }
+.stage > *:not(svg) { position:relative; }
+.who { position:absolute !important; top:24px; left:32px; display:flex; align-items:baseline; gap:12px; }
+.who h1 { margin:0; font:700 22px/1 var(--sans); letter-spacing:.01em; }
+.who span { color:var(--mute); }
+.word { font:400 clamp(76px, 11vw, 132px)/.86 var(--serif); letter-spacing:-.035em; margin:0 0 14px -4px; }
+.word.BUY { color:var(--buy); } .word.WAIT { color:var(--wait); } .word.PRE, .word.QUIET { color:var(--pond); }
+.lead { font-size:18px; line-height:1.55; max-width:46ch; }
+
+.side { padding-top:4px; display:flex; flex-direction:column; }
+.px { display:flex; align-items:baseline; gap:12px; padding-bottom:14px; border-bottom:1px solid var(--line); }
+.px b { font-size:30px; font-weight:600; letter-spacing:-.01em; }
 .up { color:var(--buy); } .down { color:var(--risk); }
+.kv { margin:0; }
+.kv div { display:grid; grid-template-columns:1fr auto; gap:4px 16px; padding:12px 0; border-bottom:1px solid var(--line); }
+.kv dt { color:var(--mute); }
+.kv dd { margin:0; font-weight:600; text-align:right; }
+.kv small { grid-column:1 / -1; color:var(--mute); font-size:14px; line-height:1.45; }
 
-.verdict { margin-top:18px; display:flex; gap:14px; align-items:flex-start; padding:16px 18px; border-radius:10px; background:var(--raised); border:1px solid var(--line); }
-.verdict .tag { flex:none; font-weight:700; padding:5px 14px; border-radius:999px; }
-.verdict.BUY .tag { background:var(--buy-soft); color:var(--buy); } .verdict.WAIT .tag { background:var(--wait-soft); color:var(--wait); }
-.verdict.none .tag { background:var(--pine-soft); color:var(--pine); }
-.verdict p { font:400 19px/1.5 var(--serif); }
+.alarm { margin-top:16px; padding:14px 16px 15px; border-radius:6px 18px 18px 18px; background:var(--risk-2); }
+.alarm h3 { margin:0 0 4px; font-size:16px; color:var(--risk); }
+.alarm p { font-size:15px; line-height:1.5; }
+.alarm .cmp { display:grid; grid-template-columns:auto 1fr; gap:6px 12px; align-items:center; margin-top:10px; font-size:14px; }
+.alarm .cmp i { display:block; height:8px; border-radius:4px; background:var(--risk); }
+.alarm .cmp i.o { background:var(--mute); opacity:.55; }
+.stale { margin-top:12px; color:var(--wait); font-size:15px; }
 
-.sec { margin-top:22px; }
-.sec h2 { margin:0 0 6px; font-size:17px; font-weight:600; }
-.sec > p { max-width:68ch; }
-.chart { margin-top:10px; }
+/* sections */
+.sec { margin-top:44px; }
+.sec > p { max-width:66ch; }
 .chart svg { width:100%; height:auto; display:block; overflow:visible; }
-.legend { display:flex; flex-wrap:wrap; gap:6px 18px; margin-top:8px; }
-.legend span { display:inline-flex; align-items:baseline; gap:8px; }
-.legend i { width:18px; height:0; border-top:2px solid; display:inline-block; }
+.legend { display:flex; flex-wrap:wrap; gap:6px 22px; margin-top:8px; font-size:15px; }
+.legend span { display:inline-flex; align-items:center; gap:8px; }
+.legend i { width:20px; border-top:2px solid; display:inline-block; }
 
-.facts { display:grid; grid-template-columns:repeat(3, minmax(0,1fr)); gap:10px; margin-top:14px; }
-.fact { padding:12px 14px; border-radius:10px; background:var(--raised); border:1px solid var(--line); }
-.fact b { display:block; font-size:16px; }
-.fact span { display:block; color:var(--mute); }
+.split { display:grid; grid-template-columns:minmax(0,8fr) minmax(0,4fr); gap:40px; margin-top:44px; align-items:start; }
+.split .sec { margin-top:0; }
+.when { display:grid; gap:8px; margin-top:14px; }
+.when div { display:grid; grid-template-columns:128px 1fr 46px; align-items:center; gap:12px; }
+.when i { display:block; height:12px; border-radius:2px 6px 6px 2px; background:var(--pond-2); overflow:hidden; }
+.when i b { display:block; height:100%; background:color-mix(in srgb, var(--pond) 55%, var(--pond-2)); }
+.when .hi span { font-weight:700; } .when .hi i b { background:var(--pond); }
+.when em { font-style:normal; text-align:right; font-weight:600; }
+.aside h2 { font-size:16px; }
+.aside dl { margin:8px 0 0; }
+.aside dl div { padding:10px 0; border-top:1px solid var(--line); }
+.aside dt { color:var(--mute); font-size:15px; }
+.aside dd { margin:0; font-weight:600; }
 
-.risk { margin-top:18px; border-radius:10px; background:var(--risk-soft); padding:16px 18px; display:grid; grid-template-columns:1fr 220px; gap:14px 22px; align-items:center; }
-.risk h3 { margin:0 0 4px; font-size:17px; color:var(--risk); }
-.bars { display:grid; gap:8px; }
-.bar { display:grid; grid-template-columns:1fr; gap:3px; }
-.bar div { height:10px; border-radius:5px; background:color-mix(in srgb, var(--risk) 22%, transparent); }
-.bar div i { display:block; height:100%; border-radius:5px; background:var(--risk); }
-.bar.other div i { background:var(--mute); }
-
-.note { margin-top:14px; padding:12px 16px; border-left:3px solid var(--wait); background:var(--wait-soft); border-radius:0 8px 8px 0; }
-
-.amount { margin-top:22px; padding:18px; border-radius:10px; background:var(--pine-soft); }
-.amount h2 { margin:0 0 4px; font-size:17px; }
-.controls { display:flex; flex-wrap:wrap; gap:12px 22px; align-items:end; margin-top:12px; }
-.field { display:flex; flex-direction:column; gap:6px; font-weight:500; }
-.money { display:flex; align-items:center; background:var(--raised); border:1px solid var(--line); border-radius:8px; }
-.money:focus-within { border-color:var(--pine); }
+/* sizing band */
+.size { margin-top:48px; padding:26px 28px 28px; border-radius:6px 28px 6px 28px; background:var(--pond-2); display:grid; grid-template-columns:minmax(0,5fr) minmax(0,6fr); gap:20px 40px; align-items:end; }
+.size p { max-width:46ch; }
+.controls { display:flex; flex-wrap:wrap; gap:14px 20px; align-items:end; margin-top:16px; }
+.field { display:flex; flex-direction:column; gap:6px; font-weight:500; font-size:15px; }
+.money { display:flex; align-items:center; background:var(--sheet); border:1px solid var(--line); border-radius:10px; }
+.money:focus-within { border-color:var(--pond); }
 .money span { padding-left:12px; color:var(--mute); }
-.money input { width:130px; border:0; background:none; padding:9px 12px 9px 4px; font-size:18px; font-weight:600; outline:none; }
-.seg { display:inline-flex; background:var(--raised); border:1px solid var(--line); border-radius:999px; padding:3px; }
-.seg button { border:0; background:none; border-radius:999px; padding:6px 15px; font-weight:600; color:var(--mute); }
-.seg button[aria-pressed="true"] { background:var(--pine); color:var(--on-pine); }
-.answer { margin-top:16px; display:flex; flex-wrap:wrap; align-items:center; gap:10px 18px; }
-.answer .amt { font:700 32px/1 var(--sans); }
-.answer p { max-width:44ch; }
-.add { margin-left:auto; background:var(--pine); color:var(--on-pine); border:0; border-radius:999px; padding:10px 18px; font-weight:600; }
-.add[aria-pressed="true"] { background:none; color:var(--pine); border:1px solid var(--pine); }
+.money input { width:120px; border:0; background:none; padding:9px 12px 9px 4px; font-size:18px; font-weight:600; outline:none; }
+.seg { display:inline-flex; background:var(--sheet); border:1px solid var(--line); border-radius:999px; padding:3px; }
+.seg button { border:0; background:none; border-radius:999px; padding:6px 15px; font-weight:600; color:var(--mute); font-size:15px; }
+.seg button[aria-pressed="true"] { background:var(--pond); color:var(--on-pond); }
+.amt { font:500 56px/1 var(--serif); letter-spacing:-.02em; }
+.answer p { margin-top:10px; }
+.add { margin-top:16px; background:var(--pond); color:var(--on-pond); border:0; border-radius:999px; padding:11px 20px; font-weight:600; }
+.add[aria-pressed="true"] { background:none; color:var(--pond); box-shadow:inset 0 0 0 1px var(--pond); }
 .add:disabled { opacity:.5; cursor:not-allowed; }
 
-details { margin-top:18px; border-top:1px solid var(--line); padding-top:14px; }
-summary { color:var(--pine); font-weight:600; }
-details ul { margin:10px 0 0; padding-left:18px; } details li { margin:6px 0; }
-.quietmsg { margin-top:18px; font:400 19px/1.5 var(--serif); max-width:60ch; }
+.news { margin:10px 0 0; padding:0; list-style:none; max-width:820px; }
+.news li { padding:11px 0; border-top:1px solid var(--line); display:grid; grid-template-columns:70px 1fr; gap:14px; }
+.news li span { color:var(--mute); }
+.news a { color:var(--ink); text-decoration:none; } .news a:hover { text-decoration:underline; }
 
+.quiet { margin-top:44px; max-width:64ch; }
+.facts3 { display:grid; grid-template-columns:minmax(0,1.4fr) minmax(0,1fr) minmax(0,1fr); gap:0; margin-top:18px; border-top:1px solid var(--line); }
+.facts3 div { padding:14px 18px 14px 0; }
+.facts3 div + div { padding-left:18px; border-left:1px solid var(--line); }
+.facts3 b { display:block; font-weight:600; } .facts3 span { color:var(--mute); }
+
+/* loading skeleton */
+.sk { border-radius:28px 28px 28px 6px; background:var(--sheet); min-height:330px; }
+.sk2 { height:16px; border-radius:6px; background:var(--sheet); margin-top:14px; }
+
+/* plan tray */
 .plan { position:fixed; left:50%; bottom:16px; transform:translateX(-50%); width:min(720px, calc(100% - 24px));
-  background:var(--raised); border:1px solid var(--line); border-radius:14px; box-shadow:0 10px 30px rgba(20,30,25,.14); z-index:5; }
+  background:var(--sheet); border:1px solid var(--line); border-radius:18px 18px 6px 18px; box-shadow:0 12px 32px rgba(10,30,36,.16); z-index:5; }
 .plan[hidden] { display:none; }
-.plan-bar { display:flex; align-items:center; gap:4px 12px; flex-wrap:wrap; padding:10px 12px 10px 16px; }
-.plan-bar .go { margin-left:auto; }
-.plan-body { padding:4px 16px 14px; border-top:1px solid var(--line); }
+.plan-bar { display:flex; align-items:center; gap:4px 12px; flex-wrap:wrap; padding:10px 12px 10px 18px; }
+.plan-bar .linkbtn { margin-left:auto; }
+.plan-body { padding:4px 18px 14px; border-top:1px solid var(--line); }
 .plan-body table { width:100%; border-collapse:collapse; margin-top:8px; }
 .plan-body th, .plan-body td { text-align:right; padding:7px 4px; border-bottom:1px solid var(--line); }
 .plan-body th:first-child, .plan-body td:first-child { text-align:left; }
 .plan-body th { color:var(--mute); font-weight:500; }
 .plan-body p { margin-top:10px; }
+.plan-body button { background:none; border:0; color:var(--risk); font-weight:600; }
 
-dialog { border:1px solid var(--line); border-radius:14px; background:var(--surface); color:var(--ink); padding:0; width:min(620px, calc(100% - 24px)); max-height:85vh; }
-dialog::backdrop { background:rgba(15,20,18,.45); }
-.dlg { padding:22px 24px; overflow:auto; max-height:85vh; }
-.dlg h2 { font:500 24px/1.2 var(--serif); margin:0 0 10px; }
-.dlg h3 { font-size:16px; margin:18px 0 4px; }
-.dlg p { margin:0 0 8px; } .dlg ul { padding-left:18px; } .dlg li { margin:5px 0; }
-.dlg .it { padding:10px 0; border-bottom:1px solid var(--line); }
+/* explainer */
+dialog { border:0; border-radius:22px; background:var(--sheet); color:var(--ink); padding:0; width:min(680px, calc(100% - 24px)); max-height:86vh; box-shadow:0 20px 60px rgba(5,20,25,.3); }
+dialog::backdrop { background:rgba(8,22,27,.5); }
+.dlg { padding:34px 38px; overflow:auto; max-height:86vh; }
+.dlg h2 { font:500 30px/1.15 var(--serif); margin:0 0 12px; letter-spacing:-.01em; }
+.dlg h3 { font-size:16px; margin:24px 0 6px; }
+.dlg p { margin:0 0 10px; } .dlg ul { padding-left:18px; margin:0; } .dlg li { margin:7px 0; }
+.dlg .it { padding:10px 0; border-top:1px solid var(--line); }
 .dlg dt { font-weight:600; } .dlg dd { margin:2px 0 0; color:var(--mute); }
-.dlg .close { float:right; }
-footer { max-width:1160px; margin:0 auto; padding:0 20px 40px; color:var(--mute); }
+.dlg .close { float:right; margin:-6px -6px 0 0; }
+footer { padding-top:56px; padding-bottom:120px; color:var(--mute); font-size:15px; max-width:760px; }
 
-@media (max-width:820px) {
-  .top { padding:12px 14px 10px; } .tagline { display:none; }
-  .app { grid-template-columns:1fr; padding:0 14px 150px; gap:12px; }
-  .list { position:sticky; top:0; z-index:4; margin:0 -14px; border-radius:0; border-width:0 0 1px; display:flex; overflow-x:auto; scrollbar-width:none; }
-  .list::-webkit-scrollbar { display:none; }
-  .list-head { display:none; }
-  .row { width:auto; min-width:96px; border-top:0; border-right:1px solid var(--line); grid-template-columns:1fr; gap:4px; padding:10px 12px; }
-  .row .s { display:none; } .row .pill { justify-self:start; }
-  .row[aria-selected="true"] { box-shadow:inset 0 -3px 0 var(--pine); }
-  .detail { padding:18px 16px; }
-  .d-head h1 { font-size:24px; }
-  .verdict { flex-direction:column; gap:10px; padding:14px; } .verdict p { font-size:18px; }
-  .facts { grid-template-columns:1fr; gap:8px; }
-  .fact { display:flex; justify-content:space-between; gap:12px; padding:10px 14px; } .fact span { text-align:right; }
-  .risk { grid-template-columns:1fr; }
-  .add { margin-left:0; width:100%; }
+@media (max-width:860px) {
+  .wrap { padding:0 16px; }
+  .rail { padding:4px 16px 12px; margin:0 -16px; position:sticky; top:0; z-index:4; background:var(--paper); }
+  .top .updated { display:none; }
+  .top .linkbtn { margin-left:auto; }
+  .hero, .split, .size { grid-template-columns:1fr; }
+  .stage { min-height:280px; padding:22px 20px 22px; border-radius:22px 22px 22px 6px; }
+  .stage { justify-content:flex-start; }
+  .who { position:relative !important; top:auto; left:auto; margin-bottom:56px; }
+  .word { margin-bottom:12px; }
+  .lead { font-size:17px; }
+  .side { padding-top:18px; }
+  .split { gap:32px; }
+  .size { padding:22px 20px; }
+  .amt { font-size:46px; }
+  .when div { grid-template-columns:118px 1fr 40px; gap:10px; font-size:15px; }
+  .facts3 { grid-template-columns:1fr; }
+  .facts3 div, .facts3 div + div { padding:12px 0; border-left:0; }
+  .facts3 div + div { border-top:1px solid var(--line); }
+  .dlg { padding:26px 22px; }
 }
-@media (prefers-reduced-motion: no-preference) { .row, .seg button, .ghost, .add { transition:background-color .15s, color .15s, border-color .15s; } }
+@media (prefers-reduced-motion: no-preference) {
+  .ring { transform-box:fill-box; transform-origin:center; animation:spread 1.1s cubic-bezier(.2,.7,.2,1) both; }
+  @keyframes spread { from { transform:scale(.55); opacity:0; } }
+  .peb, .seg button, .iconbtn, .add { transition:background-color .15s, color .15s, border-color .15s; }
+}
 </style>
 </head>
 <body>
-<header class="top">
+<header class="wrap top">
   <a class="brand" href="./" aria-label="Settle home">
-    <svg viewBox="0 0 32 32" aria-hidden="true"><rect width="32" height="32" rx="8" fill="var(--pine)"/><path d="M5 11c4 0 5 10 9 10s4-5 7-5 4 2 6 2" fill="none" stroke="var(--on-pine)" stroke-width="2.6" stroke-linecap="round"/></svg>
+    <svg viewBox="0 0 32 32" aria-hidden="true"><rect width="32" height="32" rx="9" fill="var(--pond)"/><ellipse cx="16" cy="19" rx="11" ry="4.2" fill="none" stroke="var(--on-pond)" stroke-width="1.6" opacity=".55"/><ellipse cx="16" cy="19" rx="6" ry="2.3" fill="none" stroke="var(--on-pond)" stroke-width="1.6"/><path d="M12.5 13.5c0-2.3 1.6-4 3.6-4s3.4 1.6 3.4 3.7c0 1.6-1.6 2.6-3.5 2.6s-3.5-.8-3.5-2.3z" fill="var(--on-pond)"/></svg>
     <b>Settle</b>
   </a>
-  <span class="tagline">How stocks settle after company news</span>
-  <div class="top-actions">
-    <button class="ghost" id="howBtn" type="button">How it works</button>
-    <button class="ghost" id="themeBtn" type="button">Dark</button>
-  </div>
+  <span class="updated" id="updated"></span>
+  <button class="linkbtn" id="howBtn" type="button">How it works</button>
+  <button class="iconbtn" id="themeBtn" type="button"></button>
 </header>
-<main class="app">
-  <nav class="list" id="list" aria-label="Watchlist"></nav>
-  <section class="detail" id="detail" aria-live="polite">
-    <p class="quietmsg">Loading today's board.</p>
-  </section>
-</main>
-
-<footer id="foot">Research project. Signals are probabilities learned from 2001 to 2025 and can be wrong. Nothing here is advice to buy or sell a security.</footer>
+<div class="wrap">
+  <nav class="rail" id="rail" aria-label="Stocks"></nav>
+  <main id="detail" aria-live="polite"><div class="sk"></div><div class="sk2" style="width:60%"></div><div class="sk2" style="width:40%"></div></main>
+  <footer id="foot">This is a research project. Its signals are probabilities learned from 2001 to 2025 and can be wrong, so nothing here is advice to buy or sell.</footer>
+</div>
 
 <div class="plan" id="plan" hidden>
   <div class="plan-bar"><b id="planTitle">Your plan</b><span class="mute" id="planSum"></span>
-    <button class="ghost go" id="planToggle" type="button" aria-expanded="false">Show split</button></div>
+    <button class="linkbtn" id="planToggle" type="button" aria-expanded="false">Show split</button></div>
   <div class="plan-body" id="planBody" hidden></div>
 </div>
 
 <dialog id="howDlg"><div class="dlg">
-  <button class="ghost close" type="button" data-close>Close</button>
+  <button class="iconbtn close" type="button" data-close aria-label="Close"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg></button>
   <h2>How Settle works</h2>
-  <p>When a company is in the news, its stock usually moves on the first day or two and then settles. Settle looks at each stock on the watchlist, finds its most recent news event, and compares it with about 317,000 similar events from 2001 to 2025.</p>
+  <p>When a company is in the news, its stock usually jumps or drops in the first day or two and then settles, much as ripples spread and fade after a stone hits water. Settle finds the latest shock for each stock on the list and compares it with about 317,000 shocks from 2001 to 2025, to estimate how rough the next four weeks are likely to be and how much to put in.</p>
   <h3>What each part means</h3>
   <ul>
-    <li><b>Buy or Wait</b> compares buying today with waiting a few days. It is based on the expected move over the next five trading days.</li>
-    <li><b>Expected further dip</b> is how much lower the stock may still go before its 20-day low.</li>
-    <li><b>Bad case</b> is a level the stock should fall below only about 1 time in 10 while you hold it for 20 trading days.</li>
-    <li><b>Safest, Balanced and Bold</b> are three position sizes. Each one limits the chance of losing more than 2%, 4% or 8% of your budget.</li>
-    <li><b>High drop risk</b> means the stock is in the riskiest fifth of comparable past events.</li>
+    <li><b>Buy or wait</b> compares buying at today's close with waiting a few days. It rests on the expected move over the next five trading days, which is a small edge rather than a forecast you can count on.</li>
+    <li><b>Further dip</b> is how much lower the stock may still go before its lowest close in the four weeks after the news.</li>
+    <li><b>When the low may come</b> gives the chances that this lowest close has already happened, or will come in the next few trading days.</li>
+    <li><b>Bad case</b> is a level the stock should fall below only about 1 time in 10 while you hold it for four weeks.</li>
+    <li><b>Safest, Balanced and Bold</b> are three position sizes. Each one caps the chance of being down more than 2%, 4% or 8% of your budget.</li>
+    <li><b>Higher chance of a sharp further drop</b> appears when a stock sits in the riskiest group of comparable past shocks.</li>
+    <li><b>The ripples</b> behind each stock are drawn from its own numbers: a bigger shock makes more rings, and wider expected swings spread them further.</li>
   </ul>
   <h3>Earnings previews</h3>
-  <p>When a quiet stock has an earnings report within three weeks, Settle shows how big the reaction is likely to be, learned from 147,000 past reports. It cannot say which way the stock will move.</p>
+  <p>When a quiet stock reports earnings within three weeks, Settle estimates how big the reaction is likely to be, learned from 147,000 past reports. It does not say which way the stock will move, because nothing in the data shows that this can be predicted.</p>
   <h3>Combining stocks</h3>
-  <p>Add up to three stocks to a plan. Their sizes shrink together, because stocks tend to fall at the same time in a sell-off.</p>
-  <h3>How much to trust it</h3>
+  <p>You can add up to three stocks to a plan. Their sizes shrink together, because stocks tend to fall at the same time in a sell-off.</p>
+  <h3>How accurate it is</h3>
+  <p>Each forecast was tested on years the model never saw during training. A rank correlation of 0 means no skill and 1 means a perfect ordering.</p>
   <dl id="skillList"></dl>
-  <p class="mute" id="fwdLine"></p>
+  <p class="mute" id="fwdLine" style="margin-top:12px"></p>
 </div></dialog>
 
 <script>
 const TIERS = {safest:{label:"Safest", d:0.02, beta:0.05}, recommended:{label:"Balanced", d:0.04, beta:0.10}, bold:{label:"Bold", d:0.08, beta:0.10}};
 const STRESS = 0.4, MAX_TOTAL = 0.8;
 const WARN = {flagged:35, other:15};        // results/live_models/sizing.md, section 7 (2016-2025, out of sample)
-const KIND = {earnings_guidance:"after its earnings report", analyst:"after an analyst changed their rating", leadership:"after a change in leadership",
+const KIND = {earnings_guidance:"after its earnings report", analyst:"after an analyst changed their view", leadership:"after a change in leadership",
   legal_regulatory:"after legal or regulatory news", accounting_fraud:"after an accounting issue came to light", activist_short:"after an activist or short-seller campaign",
-  credit_distress:"after credit news", operational:"after operational news", politics_policy:"after policy news", ma_strategy:"after deal news", capital:"after a capital raise",
-  other:"with no clear news behind the move"};
+  credit_distress:"after credit news", operational:"after operational news", politics_policy:"after policy news", ma_strategy:"after deal news", capital:"after a capital raise", other:""};
+const SHORT = {earnings_guidance:"earnings", other:"a big move"};
 const $ = s => document.querySelector(s);
 const fmt = (x, d=1) => (x == null || isNaN(x)) ? "–" : Number(x).toFixed(d);
 const money = x => "$" + Number(x || 0).toLocaleString("en-US", {minimumFractionDigits:2, maximumFractionDigits:2});
 const esc = x => String(x ?? "").replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
 const safeUrl = u => /^https?:\/\//i.test(u || "") ? esc(u) : "#";
 const day = d => d ? new Date(String(d).slice(0, 10) + "T12:00:00Z").toLocaleDateString("en-GB", {day:"numeric", month:"short"}) : "";
+const an = x => /^(8|11|18|80|8\d)$/.test(fmt(x, 0)) ? "an" : "a";
 const store = { get(k, v) { try { const x = localStorage.getItem(k); return x == null ? v : JSON.parse(x); } catch (e) { return v; } },
                 set(k, v) { try { localStorage.setItem(k, JSON.stringify(v)); } catch (e) {} } };
-let DATA = null, sel = null, plan = store.get("plan", []), tier = store.get("tier", "recommended"), budget = store.get("budget", 200), planOpen = false;
+let DATA = null, sel = null, plan = store.get("plan", []), tier = store.get("tier", "recommended"), budget = store.get("budget", 200), planOpen = false, drawn = null;
 
 const root = document.documentElement, themeBtn = $("#themeBtn");
+const SUN = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><circle cx="12" cy="12" r="4"/><path d="M12 2.5v2.2M12 19.3v2.2M4.6 4.6l1.6 1.6M17.8 17.8l1.6 1.6M2.5 12h2.2M19.3 12h2.2M4.6 19.4l1.6-1.6M17.8 6.2l1.6-1.6"/></svg>';
+const MOON = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"><path d="M20 14.5A8 8 0 0 1 9.5 4a8 8 0 1 0 10.5 10.5z"/></svg>';
 const dark = () => root.dataset.theme ? root.dataset.theme === "dark" : matchMedia("(prefers-color-scheme: dark)").matches;
-const syncTheme = () => { themeBtn.textContent = dark() ? "Light" : "Dark"; themeBtn.setAttribute("aria-label", dark() ? "Switch to light theme" : "Switch to dark theme"); };
-themeBtn.onclick = () => { root.dataset.theme = dark() ? "light" : "dark"; try { localStorage.setItem("theme", root.dataset.theme); } catch (e) {} syncTheme(); renderDetail(); };
+const syncTheme = () => { themeBtn.innerHTML = dark() ? SUN : MOON; themeBtn.setAttribute("aria-label", dark() ? "Switch to light theme" : "Switch to dark theme"); };
+themeBtn.onclick = () => { root.dataset.theme = dark() ? "light" : "dark"; try { localStorage.setItem("theme", root.dataset.theme); } catch (e) {} syncTheme(); drawn = null; renderDetail(); };
 syncTheme();
 $("#howBtn").onclick = () => $("#howDlg").showModal();
 document.querySelectorAll("[data-close]").forEach(b => b.onclick = () => b.closest("dialog").close());
@@ -255,120 +293,167 @@ const corrOf = (a, b) => { const i = DATA.tickers.indexOf(a), j = DATA.tickers.i
 const stockOf = t => DATA.stocks.find(s => s.ticker === t);
 const live = s => s && s.status === "event";
 const sig = s => (s.entry?.signal === "BUY" || s.entry?.signal === "WAIT") ? s.entry.signal : null;
-const oneIn = p => p > 0 ? `about 1 in ${Math.max(2, Math.round(1 / p))}` : "–";
-const swings = v => !v ? "–" : v < 0.85 ? "Calmer than usual" : v > 1.15 ? "Bigger than usual" : "About usual";
+const swings = v => !v ? "–" : v < 0.85 ? "Calmer than usual" : v > 1.15 ? "Wilder than usual" : "About usual";
+const volWord = v => !v ? "–" : v < 0.85 ? "Lighter than usual" : v > 1.25 ? "Heavier than usual" : "About usual";
+const hash = t => [...t].reduce((a, c) => (a * 31 + c.charCodeAt(0)) >>> 0, 7);
+const pebble = t => { const h = hash(t), r = i => 38 + ((h >> (i * 3)) & 15); return `${r(0)}% ${100 - r(0)}% ${r(1)}% ${100 - r(1)}% / ${r(2)}% ${r(3)}% ${100 - r(3)}% ${100 - r(2)}%`; };
 
-function renderList() {
-  const order = [...DATA.stocks].sort((a, b) => live(b) - live(a));
-  $("#list").innerHTML = `<div class="list-head"><b>Watchlist</b><span>Pick a stock to see the details.</span></div>` + order.map(s => {
-    const g = live(s) ? sig(s) : null;
-    const pill = g ? `<span class="pill ${g}">${g === "BUY" ? "Buy" : "Wait"}</span>` : `<span class="pill none">${live(s) ? "Closed" : s.preview ? "Preview" : "Quiet"}</span>`;
-    const sub = live(s) ? `Day ${s.decision_day} after ${s.event_class === "earnings_guidance" ? "earnings" : s.event_class === "other" ? "a big move" : "news"}`
-              : s.status === "no price data" ? "Prices not loaded" : s.preview ? `Earnings on ${day(s.preview.report_date)}` : "No recent news";
-    return `<button class="row ${live(s) ? "" : "quiet"}" aria-selected="${s.ticker === sel}" data-t="${esc(s.ticker)}"><span><span class="t">${esc(s.ticker)}</span><br><span class="s">${sub}</span></span>${pill}</button>`;
-  }).join("");
-  document.querySelectorAll(".row").forEach(b => b.onclick = () => { sel = b.dataset.t; store.set("sel", sel); renderAll(); });
-  const on = document.querySelector('.row[aria-selected="true"]'); if (on && matchMedia("(max-width:820px)").matches) on.scrollIntoView({inline:"center", block:"nearest"});
+function stateOf(s) {
+  if (live(s)) { const g = sig(s); if (g) return {cls:g, word:g === "BUY" ? "Buy" : "Wait", sub:`Day ${s.decision_day}`};
+    return s.decision_day === 0 ? {cls:"PRE", word:"News", sub:"Today"} : {cls:"QUIET", word:"Closed", sub:"Window over"}; }
+  if (s.preview) return {cls:"PRE", word:"Earnings", sub:`Reports ${day(s.preview.report_date)}`};
+  if (s.status === "no price data") return {cls:"QUIET", word:"No data", sub:"Not loaded"};
+  return {cls:"QUIET", word:"Calm", sub:"No recent news"};
+}
+function renderRail() {
+  const order = [...DATA.stocks].sort((a, b) => (live(b) - live(a)) || (!!b.preview - !!a.preview));
+  $("#rail").innerHTML = order.map(s => { const st = stateOf(s);
+    return `<button class="peb" type="button" style="border-radius:${pebble(s.ticker)}" aria-pressed="${s.ticker === sel}" data-t="${esc(s.ticker)}">
+      <i class="dot ${st.cls}" aria-hidden="true"></i><b>${esc(s.ticker)}</b><span>${live(s) && sig(s) ? st.word : st.sub}</span></button>`; }).join("");
+  document.querySelectorAll(".peb").forEach(b => b.onclick = () => { sel = b.dataset.t; store.set("sel", sel); drawn = null; renderAll(); });
+  const on = document.querySelector('.peb[aria-pressed="true"]'); if (on) on.scrollIntoView({inline:"nearest", block:"nearest"});
+}
+
+/* Ripple art, drawn from the stock's own numbers: ring count grows with the size of the shock, spacing with the
+   expected swings, and each ring fades like the after-shock volatility the models measure (a power law in time). */
+function ripples(s) {
+  const css = getComputedStyle(root), ink = css.getPropertyValue("--pond").trim();
+  const shock = Math.abs(s.car_0_1_pct ?? 0), vr = s.risk?.vol_ratio_2_20?.pred ?? 1;
+  const n = live(s) ? Math.min(11, 4 + Math.round(shock / 1.5)) : s.preview ? 4 : 3;
+  const spread = live(s) ? Math.min(1.25, Math.max(0.8, vr)) : 0.8;
+  const cx = 80, cy = 21, rx0 = 6.2, h = hash(s.ticker);
+  let out = "";
+  for (let i = 1; i <= n; i++) {
+    const rx = rx0 * Math.pow(i, 1.05) * spread * 1.15, ry = rx * 0.34;
+    const op = Math.max(0.10, 0.75 * Math.pow(i, -0.6)), w = Math.max(0.6, 1.6 - i * 0.09);
+    const wob = ((h >> (i % 16)) & 7) / 7 - 0.5;
+    out += `<ellipse class="ring" style="animation-delay:${(i - 1) * 70}ms" cx="${cx + wob * 0.8}" cy="${cy + wob * 0.3}" rx="${rx.toFixed(2)}" ry="${ry.toFixed(2)}" fill="none" stroke="${ink}" stroke-width="${w.toFixed(2)}" opacity="${op.toFixed(3)}" vector-effect="non-scaling-stroke"/>`;
+  }
+  const stone = `<ellipse cx="${cx}" cy="${cy}" rx="1.5" ry=".55" fill="${ink}" opacity="${live(s) ? .9 : .4}"/>`;
+  return `<svg class="ripples" viewBox="0 0 100 60" preserveAspectRatio="xMidYMid slice" aria-hidden="true">${out}${stone}</svg>`;
 }
 
 function chart(s) {
   const c = s.closes || [], dts = s.close_dates || [];
   if (c.length < 5) return "";
-  const narrow = matchMedia("(max-width:820px)").matches, W = narrow ? Math.max(300, Math.min(innerWidth - 60, 520)) : 640, H = narrow ? 180 : 190, padL = 6, padR = narrow ? 84 : 112, padT = 12, padB = 26;
+  const narrow = matchMedia("(max-width:860px)").matches, W = narrow ? Math.max(300, Math.min(innerWidth - 32, 560)) : 1072, H = narrow ? 200 : 240, padL = 4, padT = 16, padB = 28;
   const px = s.price, dip = s.entry?.expected_further_dip_pct, bad = s.sizing?.tiers?.recommended?.bad_case_pct;
+  const padR = (dip != null || bad != null) ? (narrow ? 92 : 190) : 10;
   const lowLvl = dip != null ? px * (1 - dip / 100) : null, badLvl = bad != null ? px * (1 + bad / 100) : null;
   const vals = c.concat([lowLvl, badLvl].filter(v => v != null));
   const lo = Math.min(...vals) * 0.985, hi = Math.max(...vals) * 1.015;
   const x = i => padL + i / (c.length - 1) * (W - padL - padR), y = v => padT + (hi - v) / (hi - lo) * (H - padT - padB);
   const path = c.map((v, i) => `${i ? "L" : "M"}${x(i).toFixed(1)},${y(v).toFixed(1)}`).join(" ");
   const area = path + ` L${x(c.length - 1).toFixed(1)},${H - padB} L${x(0).toFixed(1)},${H - padB} Z`;
-  const ei = dts.indexOf(s.day0), xe = ei >= 0 ? x(ei) : null, xEnd = x(c.length - 1), xF = W - 8;
-  const css = getComputedStyle(root), col = n => css.getPropertyValue(n).trim();
+  const ei = dts.indexOf(s.day0), xe = ei >= 0 ? x(ei) : null, xEnd = x(c.length - 1), xF = W - 2;
+  const css = getComputedStyle(root), col = n => css.getPropertyValue(n).trim(), F = 'font-family="Public Sans, sans-serif" font-size="13"';
   const lvl = (v, color, dash) => v == null ? "" : `<line x1="${xEnd}" x2="${xF}" y1="${y(v)}" y2="${y(v)}" stroke="${color}" stroke-width="2" stroke-dasharray="${dash}"/>
-     <text x="${xF}" y="${y(v) - 6}" text-anchor="end" font-size="13" fill="${color}" font-family="Public Sans, sans-serif">${fmt(v, 2)}</text>`;
-  return `<div class="chart"><svg viewBox="0 0 ${W} ${H}" role="img" aria-label="Price over the last ${c.length} trading days, with the expected low and bad case ahead">
-    <path d="${area}" fill="${col("--chart-fill")}"/>
-    <path d="${path}" fill="none" stroke="${col("--chart")}" stroke-width="2.2" stroke-linejoin="round"/>
+     <text x="${xF}" y="${y(v) - 7}" text-anchor="end" ${F} font-weight="600" fill="${color}">${fmt(v, 2)}</text>`;
+  return `<div class="chart"><svg viewBox="0 0 ${W} ${H}" role="img" aria-label="Closing prices over the last ${c.length} trading days, with the expected low and the bad case for the next four weeks">
+    <path d="${area}" fill="${col("--pond")}" opacity=".08"/>
+    <path d="${path}" fill="none" stroke="${col("--pond")}" stroke-width="2.2" stroke-linejoin="round"/>
     ${xe != null ? `<line x1="${xe}" x2="${xe}" y1="${padT}" y2="${H - padB}" stroke="${col("--mute")}" stroke-width="1" stroke-dasharray="3 4"/>
-      <text x="${xe > W * 0.55 ? xe - 6 : xe + 6}" text-anchor="${xe > W * 0.55 ? "end" : "start"}" y="${padT + 12}" font-size="13" fill="${col("--mute")}" font-family="Public Sans, sans-serif">News day</text>` : ""}
-    <circle cx="${xEnd}" cy="${y(px)}" r="4.5" fill="${col("--chart")}"/>
-    ${lowLvl != null || badLvl != null ? `<rect x="${xEnd + 4}" y="${padT}" width="${xF - xEnd - 4}" height="${H - padT - padB}" fill="${col("--line")}" opacity=".35" rx="6"/>
-    <text x="${(xEnd + xF) / 2}" y="${H - 8}" text-anchor="middle" font-size="13" fill="${col("--mute")}" font-family="Public Sans, sans-serif">${narrow ? "Ahead" : "Next 4 weeks"}</text>` : ""}
-    <text x="${padL}" y="${H - 8}" font-size="13" fill="${col("--mute")}" font-family="Public Sans, sans-serif">${day(dts[0])}</text>
-    ${lvl(lowLvl, col("--wait"), "6 4")}${lvl(badLvl, col("--risk"), "2 4")}
+      <text x="${xe - 6}" text-anchor="end" y="${padT + 10}" ${F} fill="${col("--mute")}">News</text>` : ""}
+    <circle cx="${xEnd}" cy="${y(px)}" r="5" fill="${col("--pond")}"/>
+    ${lowLvl != null || badLvl != null ? `<rect x="${xEnd + 6}" y="${padT}" width="${xF - xEnd - 6}" height="${H - padT - padB}" fill="${col("--pond")}" opacity=".05" rx="4"/>
+    <text x="${xF}" y="${H - 8}" text-anchor="end" ${F} fill="${col("--mute")}">Next 4 weeks</text>` : ""}
+    <text x="${padL}" y="${H - 8}" ${F} fill="${col("--mute")}">${day(dts[0])}</text>
+    ${lvl(lowLvl, col("--wait"), "7 5")}${lvl(badLvl, col("--risk"), "2 4")}
   </svg>
-  <div class="legend">${dip != null ? `<span><i style="border-color:var(--wait);border-top-style:dashed"></i>Expected low, about ${fmt(dip)}% below today</span>` : ""}
-    ${bad != null ? `<span><i style="border-color:var(--risk);border-top-style:dotted"></i>Bad case, ${fmt(-bad)}% below today (1 in 10 chance of worse)</span>` : ""}</div></div>`;
+  ${lowLvl != null ? `<div class="legend"><span><i style="border-color:var(--wait);border-top-style:dashed"></i>Expected low, about ${fmt(dip)}% below today</span>
+    ${bad != null ? `<span><i style="border-color:var(--risk);border-top-style:dotted"></i>Bad case, ${fmt(-bad)}% below today, with a 1 in 10 chance of worse</span>` : ""}</div>` : ""}</div>`;
+}
+
+function whenLow(s) {
+  const d = s.entry?.days_to_low; if (!d) return "";
+  const P = d.probs, L = ["Already passed", "1 to 2 days", "3 to 5 days", "6 to 10 days", "11 or more days"];
+  const LO = [0, 1, 3, 6, 11], keep = P.map((p, i) => i).filter(i => LO[i] <= d.days_left), top = keep.reduce((a, i) => P[i] > P[a] ? i : a, keep[0]);
+  const pct = p => p < 0.005 ? "<1%" : fmt(100 * p, 0) + "%";
+  const when = ["", "in the next 1 to 2 trading days", "in 3 to 5 trading days", "in 6 to 10 trading days", "11 or more trading days from now"];
+  const lead = top === 0 ? `The most likely case, at ${fmt(100 * P[0], 0)}%, is that the lowest close has already happened, so any dip from here would probably stop above that earlier low.`
+                         : `It is most likely to come ${when[top]} (${fmt(100 * P[top], 0)}%), and there is ${an(100 * P[0])} ${fmt(100 * P[0], 0)}% chance it has already happened.`;
+  return `<section class="sec"><h2>When the low may come</h2>
+    <p>After news, a stock often keeps drifting before it reaches its lowest close. These are the chances for when ${esc(s.ticker)}'s lowest close in the 20 trading days after the news will come, with ${d.days_left} of those days left. ${lead}${d.beats_baseline ? "" : " This adds little to simply counting the days left, so treat it as a rough guide."}</p>
+    <div class="when">${keep.map(i => `<div class="${i === top ? "hi" : ""}"><span>${L[i]}</span><i><b style="width:${(100 * P[i]).toFixed(1)}%"></b></i><em>${pct(P[i])}</em></div>`).join("")}</div></section>`;
 }
 
 function renderDetail() {
   const s = stockOf(sel), el = $("#detail");
-  if (!s) { el.innerHTML = `<p class="quietmsg">Pick a stock from the watchlist to begin.</p>`; return; }
-  const chg = s.chg_1d_pct;
-  const head = `<div class="d-head"><h1>${esc(s.ticker)}</h1><span class="name">${esc(s.name || "")}</span>
-    <div class="px"><b>${fmt(s.price, 2)}</b>${chg == null ? "" : `<span class="${chg >= 0 ? "up" : "down"}">${chg >= 0 ? "Up" : "Down"} ${fmt(Math.abs(chg), 2)}% on ${day(s.price_date)}</span>`}</div></div>${s.stale ? `<p class="note">Today's prices could not be loaded, so this is the reading from ${day(s.price_date)}.</p>` : ""}`;
+  if (!s) return;
+  const st = stateOf(s), chg = s.chg_1d_pct, animate = drawn !== s.ticker; drawn = s.ticker;
+  const who = `<div class="who"><h1>${esc(s.ticker)}</h1><span>${esc(s.name || "")}</span></div>`;
+  const pxRow = s.price != null ? `<div class="px"><b>${fmt(s.price, 2)}</b>${chg == null ? "" : `<span class="${chg >= 0 ? "up" : "down"}">${chg >= 0 ? "Up" : "Down"} ${fmt(Math.abs(chg), 2)}% on ${day(s.price_date)}</span>`}</div>` : "";
+  const stale = s.stale ? `<p class="stale">Today's prices could not be loaded, so this is the reading from ${day(s.price_date)}.</p>` : "";
+  const art = ripples(s).replace(/class="ring"/g, animate ? 'class="ring"' : 'class=""');
+  const hl = (s.headlines || []).slice(0, 5);
+  const news = hl.length ? `<section class="sec"><h2>Recent news</h2><ul class="news">${hl.map(h => `<li><span>${day(h.date)}</span><a href="${safeUrl(h.url)}" target="_blank" rel="noopener noreferrer">${esc(h.headline)}</a></li>`).join("")}</ul></section>` : "";
+
   if (!live(s)) {
     const pv = s.preview;
+    let lead, side = "", body = "";
     if (pv) {
-      const usual = pv.usual_move_pct != null ? ` Over its last eight reports it moved about ${fmt(pv.usual_move_pct)}% on average, so this one is expected to be ${pv.typical_move_pct > pv.usual_move_pct * 1.15 ? "bigger than usual" : pv.typical_move_pct < pv.usual_move_pct * 0.85 ? "smaller than usual" : "about as big as usual"}.` : "";
-      el.innerHTML = head + `
-        <div class="verdict none"><span class="tag">Earnings ${day(pv.report_date)}</span>
-          <p>${esc(s.ticker)} reports earnings on ${day(pv.report_date)}. In the two days after the report, the stock is expected to move about <strong>${fmt(pv.typical_move_pct)}%</strong> up or down compared with the market.${usual}</p></div>
-        <div class="facts">
-          <div class="fact"><b>Typical move</b><span>about ${fmt(pv.typical_move_pct)}%, either direction</span></div>
-          <div class="fact"><b>Large move</b><span>1 in 10 chance of more than ${fmt(pv.upper_move_pct)}%</span></div>
-          ${pv.drawdown_pct != null ? `<div class="fact"><b>Deepest dip after</b><span>about ${fmt(Math.abs(pv.drawdown_pct))}% below the market at some point in the following four weeks</span></div>` : `<div class="fact"><b>Direction</b><span>Not predictable before the report</span></div>`}
-        </div>
-        <p class="note">The direction of an earnings reaction cannot be forecast from public information, so the preview only says how big the move may be. A buy or wait call appears after the report, once the reaction is known.</p>
-        <div class="sec"><h2>Price over the last two months</h2>${chart(s)}</div>`;
-      return;
+      const usual = pv.usual_move_pct != null ? (pv.typical_move_pct > pv.usual_move_pct * 1.15 ? "bigger than its usual" : pv.typical_move_pct < pv.usual_move_pct * 0.85 ? "smaller than its usual" : "close to its usual") : null;
+      lead = `${esc(s.ticker)} reports earnings on ${day(pv.report_date)}. Over the two days after the report it is expected to move about ${fmt(pv.typical_move_pct)}% against the market${usual ? `, ${usual} ${fmt(pv.usual_move_pct)}%` : ""}. Which way it moves cannot be told in advance.`;
+      side = `<dl class="kv"><div><dt>Typical move</dt><dd>about ${fmt(pv.typical_move_pct)}%</dd></div>
+        <div><dt>Large move</dt><dd>over ${fmt(pv.upper_move_pct)}%</dd><small>A move this size or bigger happens about 1 time in 10.</small></div>
+        ${pv.drawdown_pct != null ? `<div><dt>Deepest dip after</dt><dd>about ${fmt(Math.abs(pv.drawdown_pct))}%</dd><small>Below the market at some point in the four weeks after the report.</small></div>` : ""}</dl>`;
+    } else if (s.status === "no price data") {
+      lead = `Prices for ${esc(s.ticker)} could not be loaded at the last update, so there is no reading yet. The board tries again at the next update.`;
+    } else {
+      lead = `${esc(s.ticker)} has had no shock from company news in the last three weeks, so there is nothing to time right now.${s.next_earnings ? ` Its next earnings report is due on ${day(s.next_earnings)}, and a preview appears three weeks before it.` : ""}`;
     }
-    if (s.status === "no price data") {
-      el.innerHTML = head + `<p class="quietmsg">Prices for ${esc(s.ticker)} could not be loaded at the last update, so there is no reading for it yet. The board tries again at the next update.</p>`;
-      return;
-    }
-    el.innerHTML = head + `<p class="quietmsg">${esc(s.ticker)} has had no company news in the last three weeks, so there is nothing to time right now.${s.next_earnings ? ` Its next earnings report is due on ${day(s.next_earnings)}, and the board will update after it.` : ""}</p>${chart(s)}`;
+    el.innerHTML = `<div class="hero"><div class="stage">${art}${who}<p class="word ${st.cls}">${st.word}</p><p class="lead">${lead}</p></div>
+      <div class="side">${pxRow}${side}${stale}</div></div>
+      ${s.closes?.length ? `<section class="sec"><h2>Price over the last two months</h2>${chart(s)}</section>` : ""}${news}`;
     return;
   }
+
   const e = s.entry || {}, r = s.risk || {}, g = sig(s), T = TIERS[tier], t = s.sizing?.tiers?.[tier] || {};
-  const mv = s.car_0_1_pct, dip = e.expected_further_dip_pct;
-  const what = `${esc(s.ticker)} ${mv >= 0 ? "rose" : "fell"} ${fmt(Math.abs(mv))}% more than the overall market on ${day(s.day0)}, ${KIND[s.event_class] || "after company news"}.`;
-  let call, tag;
-  if (g === "BUY") { tag = "Buy now"; call = `Buying now looks reasonable. The model expects a small rise over the next week, although the price could still dip about ${fmt(dip)}% at some point in the next four weeks.`; }
-  else if (g === "WAIT") { tag = "Wait"; call = `Waiting may get you a better price. The model expects the stock could slip about ${fmt(dip)}% further before it reaches its lowest point in the next four weeks.`; }
-  else { tag = "No call"; call = `It has been more than three weeks since the news, so the timing model no longer applies.`; }
+  const mv = s.car_0_1_pct, dip = e.expected_further_dip_pct, why = KIND[s.event_class] ?? "after company news";
+  const what = `${esc(s.ticker)} ${mv >= 0 ? "rose" : "fell"} ${fmt(Math.abs(mv))}% more than the market on ${day(s.day0)}${why ? ", " + why : ""}.`;
+  const call = g === "BUY" ? `On balance, buying now looks better than waiting: the model expects it to do slightly better than the market over the next week, though it could still dip about ${fmt(dip)}% below today's price along the way.`
+             : g === "WAIT" ? `Waiting a few days may get a better price: the model expects it to lag the market over the next week, with a dip of about ${fmt(dip)}% below today's price at some point in the next few weeks.`
+             : s.decision_day === 0 ? `The reaction is still forming, so the buy or wait call and the timing of the low appear after the next close, once the full two-day move is known. The risk and sizing below already apply.`
+             : `It is more than three weeks since the news, so the timing model no longer applies.`;
+  const bad = s.sizing?.tiers?.recommended?.bad_case_pct, d20 = r.drift_1_20?.pred;
+  const lean = d20 == null ? "–" : d20 > 0.01 ? "Slightly up" : d20 < -0.01 ? "Slightly down" : "No clear lean";
   const amt = (t.weight || 0) * budget, inPlan = plan.includes(s.ticker);
-  const d20 = r.drift_1_20?.pred, lean = d20 == null ? "–" : d20 > 0.01 ? "Slightly up" : d20 < -0.01 ? "Slightly down" : "No clear lean";
-  const hl = (s.headlines || []).slice(0, 5);
-  el.innerHTML = head + `
-    <div class="verdict ${g || "none"}"><span class="tag">${tag}</span><p>${what} ${call}</p></div>
-    ${s.event_class === "other" ? `<p class="note">There was no news story the board could match to this move. The model learned from moves that had news behind them, so treat this reading as less certain.</p>` : ""}
+  const alarm = s.warning_big_drop ? `<div class="alarm"><h3>Higher chance of a sharp further drop</h3>
+      <p>Shocks like this one have often kept going. In past cases, ${WARN.flagged} in 100 went on to one of the biggest drops, against ${WARN.other} in 100 for other shocks, so a smaller size is wiser here.</p>
+      <div class="cmp" aria-hidden="true"><span>Like ${esc(s.ticker)}</span><i style="width:${WARN.flagged * 2}%"></i><span>Others</span><i class="o" style="width:${WARN.other * 2}%"></i></div></div>` : "";
 
-    <div class="sec">
-      <h2>Price so far and what could come next</h2>
-      ${chart(s)}
-    </div>
-    ${s.warning_big_drop ? `<div class="risk"><div><h3>Higher chance of a sharp further drop</h3>
-        <p>Stocks that moved like ${esc(s.ticker)} have often kept falling. In past events like this one, ${WARN.flagged} in 100 went on to have one of the biggest drops, compared with ${WARN.other} in 100 for other stocks. If you still want to buy, the Safest level keeps the amount small.</p></div>
-        <div class="bars" aria-hidden="true"><div class="bar"><b>Like ${esc(s.ticker)}: ${WARN.flagged} in 100</b><div><i style="width:${WARN.flagged}%"></i></div></div>
-          <div class="bar other"><b>Other stocks: ${WARN.other} in 100</b><div><i style="width:${WARN.other}%"></i></div></div></div></div>` : ""}
-    <div class="facts">
-      <div class="fact"><b>Price swings</b><span>${swings(r.vol_ratio_2_20?.pred)}</span></div>
-      ${e.at_new_low ? `<div class="fact"><b>Chance today is the low</b><span>${oneIn(e.p_low_holds)}</span></div>` : `<div class="fact"><b>Days since the news</b><span>${s.decision_day} of 15</span></div>`}
-      <div class="fact"><b>Longer-term direction</b><span>${lean}, weak signal</span></div>
-    </div>
-
-    <div class="amount">
-      <h2>How much to put in</h2>
-      <p>Enter your budget and choose a risk level. The amount changes as you type.</p>
-      <div class="controls">
-        <label class="field">Your budget<span class="money"><span>$</span><input id="budget" type="number" inputmode="decimal" min="1" step="1" value="${budget}"></span></label>
-        <div class="field">Risk level<div class="seg" role="group" aria-label="Risk level">${Object.entries(TIERS).map(([k, v]) => `<button type="button" data-tier="${k}" aria-pressed="${k === tier}">${v.label}</button>`).join("")}</div></div>
+  el.innerHTML = `
+    <div class="hero">
+      <div class="stage">${art}${who}<p class="word ${st.cls}">${st.word}</p><p class="lead">${what} ${call}</p></div>
+      <div class="side">${pxRow}
+        <dl class="kv">
+          <div><dt>Day after the news</dt><dd>${s.decision_day} of 20</dd></div>
+          ${dip != null ? `<div><dt>Further dip</dt><dd>about ${fmt(dip)}%</dd><small>How far below today's price it may go at some point before the four weeks after the news are over.</small></div>` : ""}
+          ${bad != null ? `<div><dt>Bad case</dt><dd>${fmt(-bad)}% below today</dd><small>It should fall below this only about 1 time in 10 while held for four weeks.</small></div>` : ""}
+        </dl>${alarm}${stale}
       </div>
+    </div>
+
+    <section class="sec"><h2>Price so far and what could come next</h2>${chart(s)}</section>
+
+    <div class="split">
+      <div>${whenLow(s) || `<section class="sec"><h2>What to expect</h2><p>The timing forecast is not available for this stock yet.</p></section>`}</div>
+      <aside class="aside"><h2>Over the next four weeks</h2><dl>
+        <div><dt>Price swings</dt><dd>${swings(r.vol_ratio_2_20?.pred)}</dd></div>
+        <div><dt>Trading volume</dt><dd>${volWord(r.abn_volume_2_20?.pred)}</dd></div>
+        <div><dt>Direction</dt><dd>${lean}, a weak signal</dd></div></dl></aside>
+    </div>
+
+    <section class="size" aria-labelledby="sizeH">
+      <div><h2 id="sizeH">How much to put in</h2><p>Enter your budget and pick a risk level. The amount is sized so that a bad four weeks stays within a limit you choose.</p>
+        <div class="controls">
+          <label class="field">Budget<span class="money"><span>$</span><input id="budget" type="number" inputmode="decimal" min="1" step="1" value="${budget}"></span></label>
+          <div class="field">Risk level<div class="seg" role="group" aria-label="Risk level">${Object.entries(TIERS).map(([k, v]) => `<button type="button" data-tier="${k}" aria-pressed="${k === tier}">${v.label}</button>`).join("")}</div></div>
+        </div></div>
       <div class="answer"><span class="amt" id="amt">${money(amt)}</span><p id="amtNote"></p>
         <button class="add" id="addBtn" type="button" aria-pressed="${inPlan}" ${!inPlan && plan.length >= 3 ? "disabled" : ""}>${inPlan ? "Remove from plan" : plan.length >= 3 ? "Plan is full" : "Add to plan"}</button></div>
-    </div>
-    ${hl.length ? `<details><summary>Recent headlines</summary><ul>${hl.map(h => `<li><a href="${safeUrl(h.url)}" target="_blank" rel="noopener noreferrer">${esc(h.headline)}</a>, ${day(h.date)}</li>`).join("")}</ul></details>` : ""}`;
+    </section>
+    ${news}`;
   updateAnswer();
   const bi = $("#budget");
   bi.oninput = () => { budget = Math.max(Number(bi.value) || 0, 0); store.set("budget", budget); updateAnswer(); renderPlan(); };
@@ -379,7 +464,7 @@ function updateAnswer() {
   const s = stockOf(sel), T = TIERS[tier], amt = (s?.sizing?.tiers?.[tier]?.weight || 0) * budget;
   if (!$("#amt")) return;
   $("#amt").textContent = money(amt);
-  $("#amtNote").textContent = amt > 0 ? `in ${s.ticker}. At this level there is at most a ${Math.round(T.beta * 100)}% chance of being down more than ${money(budget * T.d)} at any point over the next four weeks.`
+  $("#amtNote").textContent = amt > 0 ? `in ${s.ticker}, with the rest kept in cash. At this level there is at most a ${Math.round(T.beta * 100)}% chance of being down more than ${money(budget * T.d)} at any point in the next four weeks.`
                                       : `The model does not expect a positive return here, so it suggests keeping this money in cash.`;
 }
 
@@ -393,9 +478,9 @@ function renderPlan() {
   const ws = rows.length > 1 ? basketScale(w, q, C, T.d) : w.map(x => Math.min(x, MAX_TOTAL));
   const amt = ws.map(x => x * budget), tot = amt.reduce((a, b) => a + b, 0);
   $("#planTitle").textContent = `Your plan: ${plan.join(", ")}`;
-  $("#planSum").textContent = `${money(tot)} of your ${money(budget)} budget`;
+  $("#planSum").textContent = `${money(tot)} of ${money(budget)}`;
   $("#planBody").innerHTML = `<table><tr><th>Stock</th><th>Amount</th><th>Share</th><th></th></tr>
-    ${rows.map((r, i) => `<tr><td><b>${esc(r.ticker)}</b></td><td>${money(amt[i])}</td><td>${fmt(100 * ws[i], 0)}%</td><td><button class="ghost" type="button" data-rm="${esc(r.ticker)}">Remove</button></td></tr>`).join("")}
+    ${rows.map((r, i) => `<tr><td><b>${esc(r.ticker)}</b></td><td>${money(amt[i])}</td><td>${fmt(100 * ws[i], 0)}%</td><td><button type="button" data-rm="${esc(r.ticker)}">Remove</button></td></tr>`).join("")}
     <tr><td><b>Total</b></td><td><b>${money(tot)}</b></td><td>${fmt(100 * tot / Math.max(budget, 1e-9), 0)}%</td><td></td></tr></table>
     <p>${rows.length > 1 ? "Each amount is smaller than it would be on its own, because stocks often fall together in a sell-off." : "Add another stock to see how the money is shared."} Together, the plan keeps at most a ${Math.round(T.beta * 100)}% chance of being down more than ${money(budget * T.d)}, and the rest stays in cash.</p>`;
   $("#planBody").hidden = !planOpen;
@@ -412,16 +497,17 @@ function renderSkill() {
     $("#fwdLine").textContent = `Live record so far: ${f.n_logged || 0} predictions logged, ${f.n_scored || 0} of them old enough to check.${f.too_early ? " That is too few to judge yet." : ""}`;
   }).catch(() => {});
 }
-function renderAll() { renderList(); renderDetail(); renderPlan(); }
+function renderAll() { renderRail(); renderDetail(); renderPlan(); }
 
 fetch("data/predictions.json?" + Date.now()).then(r => r.json()).then(d => {
   DATA = d;
   const remembered = store.get("sel", null);
   sel = (remembered && stockOf(remembered)) ? remembered : (d.stocks.find(live) || d.stocks[0] || {}).ticker;
-  $("#foot").textContent = `Updated ${d.generated_utc.replace("T", " ").replace("+00:00", "")} UTC. This is a research project. Its signals are probabilities learned from 2001 to 2025 and can be wrong, so nothing here is advice to buy or sell.`;
+  const up = new Date(String(d.generated_utc).replace("+00:00", "Z"));
+  if (!isNaN(up)) $("#updated").textContent = "Updated " + up.toLocaleString(undefined, {day:"numeric", month:"short", hour:"2-digit", minute:"2-digit"});
   renderAll(); renderSkill();
-  let rt; addEventListener("resize", () => { clearTimeout(rt); rt = setTimeout(renderDetail, 200); });
-}).catch(() => { $("#detail").innerHTML = `<p class="quietmsg">Today's board could not be loaded. Refresh the page to try again.</p>`; });
+  let rt, lastW = innerWidth; addEventListener("resize", () => { clearTimeout(rt); rt = setTimeout(() => { if (Math.abs(innerWidth - lastW) > 40) { lastW = innerWidth; renderDetail(); } }, 200); });
+}).catch(() => { $("#detail").innerHTML = `<p class="quiet">Today's board could not be loaded. Refresh the page to try again.</p>`; });
 </script>
 </body>
 </html>

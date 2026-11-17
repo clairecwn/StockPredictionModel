@@ -200,19 +200,25 @@ if len(new) or len(old):
 
 # README table
 lines = [f"_Updated {now:%Y-%m-%d %H:%M} UTC. Research only, not financial advice._", "",
-         "| Stock | Price | Event (day 0) | Day | Signal | Expected further dip | 1-in-10 worst point (20 days) | Risk vs normal | Recommended share if buying |",
-         "|---|---|---|---|---|---|---|---|---|"]
+         "| Stock | Price | Event (day 0) | Day | Signal | Expected further dip | Most likely timing of the 20-day low | 1-in-10 worst point (20 days) | Risk vs normal | Balanced size |",
+         "|---|---|---|---|---|---|---|---|---|---|"]
 for b in board:
     if b.get("status") != "event":
-        lines.append(f"| {b['ticker']} | {b.get('price', float('nan')):.2f} | {b.get('status', '')} | | | | | | |"); continue
+        lines.append(f"| {b['ticker']} | {b.get('price', float('nan')):.2f} | {b.get('status', '')} | | | | | | | |"); continue
     e, r, s = b.get("entry", {}), b["risk"], b.get("sizing", {}).get("tiers", {})
     dip = f"{e['expected_further_dip_pct']:.1f}%" if "expected_further_dip_pct" in e else ""
     vr = f"{r['vol_ratio_2_20']['pred']:.2f}x" if "vol_ratio_2_20" in r else ""
     rec = f"{100 * s['recommended']['weight']:.0f}%" if "recommended" in s else ""
-    warn = " ⚠️" if b.get("warning_big_drop") else ""
+    warn = " (high drop risk)" if b.get("warning_big_drop") else ""
+    dl = e.get("days_to_low")
+    if dl:
+        j = int(np.argmax(dl["probs"])); names = ["already passed", "in 1-2 days", "in 3-5 days", "in 6-10 days", "in 11+ days"]
+        low = f"{names[j]} ({100 * dl['probs'][j]:.0f}%)"
+    else:
+        low = ""
     bad = f"{s['recommended']['bad_case_pct']:.1f}%" if "recommended" in s else ""
-    lab = "price/volume shock, no matched news" if b["event_class"] == "other" else b["event_class"].replace("_", " ")
-    lines.append(f"| {b['ticker']} | {b['price']:.2f} | {lab} ({b['day0']}) | {b['decision_day']} | {e.get('signal', '')}{warn} | {dip} | {bad} | {vr} | {rec} |")
+    lab = "price or volume shock" if b["event_class"] == "other" else b["event_class"].replace("_", " ")
+    lines.append(f"| {b['ticker']} | {b['price']:.2f} | {lab} ({b['day0']}) | {b['decision_day']} | {e.get('signal', '')}{warn} | {dip} | {low} | {bad} | {vr} | {rec} |")
 rd = ROOT / "README.md"; txt = rd.read_text()
 A, B = "<!-- LIVE-BOARD:START -->", "<!-- LIVE-BOARD:END -->"
 block = A + "\n" + "\n".join(lines) + "\n" + B

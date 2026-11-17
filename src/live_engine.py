@@ -255,16 +255,26 @@ def detect_event(f, headlines=None, earn_days=(), lookback=KMAX):
                 news[j] = (c, r.headline)
     earn = {j for j in (tday(d) for d in earn_days) if j is not None}
     hl = lambda j: news.get(j, ("", ""))[1]
+    def move(i):                                                   # abnormal return in sd and volume vs normal on row i
+        lo, hi = i + EST_WINDOW[0], i + EST_WINDOW[1]
+        r, m = f.ret.values[lo:hi], f.mkt.values[lo:hi]; ok = np.isfinite(r) & np.isfinite(m)
+        b, a = np.polyfit(m[ok], r[ok], 1); sd = np.std(r[ok] - a - b * m[ok])
+        return (f.ret.values[i] - b * f.mkt.values[i]) / sd, f.vol.values[i] / np.nanmean(f.vol.values[lo:hi])
+    def reacted(i):                                                # did the market treat the headline as news? (day 0 or 1)
+        for j in (i, i + 1):
+            if j < n:
+                z, vr = move(j)
+                if abs(z) > 2 or vr > 2:
+                    return True
+        return False
     for i0 in range(n - 1, max(n - 1 - lookback, 260), -1):
         if i0 in earn:
             return i0, "earnings_guidance", hl(i0)
-        if i0 in news and news[i0][0] != "other":
+        # Live headline feeds carry commentary and previews ("braces for earnings", "stock will beat the market"),
+        # which the training news database did not. A headline counts only if the stock reacted to it.
+        if i0 in news and news[i0][0] != "other" and reacted(i0):
             return i0, news[i0][0], news[i0][1]
-        lo, hi = i0 + EST_WINDOW[0], i0 + EST_WINDOW[1]
-        r, m = f.ret.values[lo:hi], f.mkt.values[lo:hi]; ok = np.isfinite(r) & np.isfinite(m)
-        b, a = np.polyfit(m[ok], r[ok], 1); sd = np.std(r[ok] - a - b * m[ok])
-        z = (f.ret.values[i0] - b * f.mkt.values[i0]) / sd
-        vr = f.vol.values[i0] / np.nanmean(f.vol.values[lo:hi])
+        z, vr = move(i0)
         if abs(z) > 3 or vr > 3:
             if i0 - 1 in earn:
                 return i0 - 1, "earnings_guidance", hl(i0 - 1)
@@ -307,6 +317,13 @@ def predict_all(f, i0, ev, sr=None, vix_now=None, vix0=None):
         dip = float(eng["dip_reg"].predict(X)[0]) * sd_day * np.sqrt(max(20 - k, 1))
         out["entry"] = {"signal": "BUY" if fwd > eng["fwd_threshold"] else "WAIT", "expected_next5_sd": fwd,
                         "expected_further_dip_pct": 100 * max(dip, 0), "at_new_low": bool(dyn["above_low"] <= 0.25 * sd_day)}
+        if "ttl_clf" in eng:                                         # chance the 20-day low comes in each window of days
+            m = eng["ttl_clf"]; pr = np.zeros(len(eng["ttl_labels"])); pr[m.classes_.astype(int)] = m.predict_proba(X)[0]
+            if 20 - k < 11: pr[4] = 0.0                              # windows that run past day 20 cannot happen
+            if 20 - k < 6: pr[3] = 0.0
+            pr = pr / pr.sum()
+            out["entry"]["days_to_low"] = {"labels": eng["ttl_labels"], "probs": [float(x) for x in pr],
+                                           "beats_baseline": bool(eng["ttl_t"] > 2), "days_left": int(20 - k)}
         if out["entry"]["at_new_low"] and "low_clf" in eng:
             out["entry"]["p_low_holds"] = float(eng["low_clf"].predict_proba(X)[0, 1])
     elif k > KMAX:

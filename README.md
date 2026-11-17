@@ -16,18 +16,19 @@ Every number is tested out of sample on years the models never saw during traini
 ## Contents
 
 1. [Results at a glance](#results-at-a-glance)
-2. [Architecture](#architecture)
-3. [Data](#data)
-4. [Data cleaning](#data-cleaning)
-5. [Exploratory analysis](#exploratory-analysis)
-6. [Method](#method)
-7. [Validation](#validation)
-8. [Detailed results](#detailed-results)
-9. [Live board](#live-board)
-10. [Reproducing the results](#reproducing-the-results)
-11. [Repository structure](#repository-structure)
-12. [Limitations](#limitations)
-13. [References](#references)
+2. [Success metrics](#success-metrics)
+3. [Architecture](#architecture)
+4. [Data](#data)
+5. [Data cleaning](#data-cleaning)
+6. [Exploratory analysis](#exploratory-analysis)
+7. [Method](#method)
+8. [Validation](#validation)
+9. [Detailed results](#detailed-results)
+10. [Live board](#live-board)
+11. [Reproducing the results](#reproducing-the-results)
+12. [Repository structure](#repository-structure)
+13. [Limitations](#limitations)
+14. [References](#references)
 
 ## Results at a glance
 
@@ -42,9 +43,47 @@ All figures are out of sample and come from the models used on the live board, w
 | Buy-or-wait rule | entries 0.05 percentage points closer to the 20-day low than buying on day 1 (Holm-adjusted p = 0.020) | Small but significant |
 | Position sizing tiers | losses beyond the stated limit in 2.7%, 2.5% and 1.4% of trades, against promises of 5%, 10% and 10% | Promises kept |
 | Direction of the 20-day abnormal return | rank correlation 0.03, right sign 51% of the time | Not significant |
-| Whether a new low will hold | AUC 0.57, equal to a baseline that only counts days since the event | No added skill |
+| When the 20-day low will come (five windows, from already passed to 11 or more days away) | log loss 1.14 against 1.27 for a day-count baseline; most likely window right 53% of the time against 48.5% | Useful |
 
 The pattern is consistent across every method tried. Risk is predictable, because volatility and trading activity cluster in time. Direction is not, because the market prices news within a day or two. The project is therefore built around managing risk rather than forecasting returns.
+
+## Success metrics
+
+Accuracy means something different for each output, so each one is judged by the measure that fits what it promises. All numbers below are out of sample, from the live models, on test years the models never saw during training.
+
+**How each measure works**
+
+- **Rank correlation (Spearman).** Events are sorted by the forecast and by what really happened, and the two orderings are compared. It is 0 for a random forecast and 1 for a perfect one. It suits risk forecasts, where the question is whether riskier events get higher forecasts.
+- **$R^2$.** The share of the variation in outcomes that the forecast explains. A value above 0 means the forecast beats predicting the average.
+- **AUC.** The chance that a randomly picked bad outcome gets a worse forecast than a randomly picked normal one. It is 0.5 for a coin flip and 1 for a perfect separation.
+- **Hit rate.** The share of forecasts with the right sign (up or down).
+- **Coverage and breach rate.** For a range or a bound, the share of outcomes that land inside it, compared with what was promised. A bound that promises "1 in 10 chance of worse" should be breached about 10% of the time.
+- **Placebo.** The same model trained on shuffled outcomes. A real signal must clearly beat it.
+
+**Scores**
+
+| Output | Measure | Score | Reference point |
+|---|---|---|---|
+| Volatility, days 2 to 20 | rank correlation / $R^2$ | 0.51 / 0.39 | placebo -0.01 |
+| Trading volume, days 2 to 20 | rank correlation / $R^2$ | 0.66 / 0.48 | placebo 0.02 |
+| Deepest drop, days 2 to 20 | rank correlation | 0.20 | placebo 0.08 |
+| Flagging the worst 20% of drops | AUC | 0.68 | simple baseline 0.61 |
+| Big-drop warning on shock days | share of flagged events that end in the worst 20% | 35% | 15% of unflagged events |
+| 80% ranges for every forecast | coverage | 79.7% to 80.0% | promise 80% |
+| Downside bound, 1 in 10 | breach rate, 2021 to 2025 | 9.4% | promise 10% |
+| Sizing tiers (Safest, Balanced, Bold) | share of trades losing more than the tier's limit | 2.7%, 2.5%, 1.4% | promises 5%, 10%, 10% |
+| Further dip before the 20-day low | rank correlation, same decision day, scaled by volatility | 0.15 | 0 |
+| Buy or wait, next five days | AUC for which way the next move goes | 0.518 | placebo 0.504 |
+| Buy or wait, as an entry rule | entry price above the 20-day low | 4.78% | 4.83% for buying on day 1 (Holm p = 0.020) |
+| Earnings preview, size of the move | rank correlation | 0.37 | own usual move 0.36, volatility 0.26 |
+| Earnings preview, moves of twice the usual size | AUC | 0.66 | 0.5 |
+| When the 20-day low will come | log loss (lower is better) / most likely window right | 1.14 / 53.1% | day-count baseline 1.27 / 48.5% |
+| Chance the low has already passed | calibration: predicted vs realised, top decile | 95.0% vs 94.6% | perfect calibration |
+| Direction of the 20-day return | rank correlation / hit rate | 0.03 / 51% | placebo 0.00 / 50% |
+
+The risk forecasts and the calibrated bounds are the parts that work well. The timing and direction outputs are honest but weak: they beat their placebos, yet the gains are small (entries only 0.05 percentage points closer to the low, for example), which is why the board presents them as leanings rather than predictions.
+
+The live board also logs every prediction it makes (`docs/data/forward_log.csv`) and scores each one once 20 trading days have passed (`docs/data/forward_scores.json`). That record starts in November 2026 and will be reported here once it holds enough events to judge.
 
 ## Architecture
 
@@ -448,6 +487,18 @@ The second test asked whether that gap survives three corrections: Newey-West st
 
 The pattern is what the theory predicts: the drift that the model can see is largest exactly where trading costs absorb it. The forecast carries information about direction, but not enough to pay for acting on it, which is why the board does not give directional calls.
 
+### Experiment: when will the low come?
+
+The first timing model answered a narrow question, whether today's new low would hold, and it added nothing to a baseline that only counts the days since the news (AUC 0.57 for both). A more useful question for someone waiting to buy is how many more trading days are likely to pass before the lowest close of the 20 days after the news. A multiclass LightGBM model estimates the chance of five windows from the close of each decision day: the low has already passed, or it comes in 1 to 2, 3 to 5, 6 to 10, or 11 or more trading days. It uses the same features as the buy-or-wait model, including where the price sits relative to its lowest close so far, and is scored on the purged walk-forward folds against a baseline that knows only the day number.
+
+The model's log loss is 1.14 against 1.27 for the baseline, and it beat the baseline in 99% of test months from 2016 on (monthly t = 72). Its most likely window is right 53% of the time, against 48.5%. It is also well calibrated: when it gives a 69% chance that the low has already passed, the realised rate is 67%, and across all events the average predicted share of each window is within 1.2 percentage points of the realised share. Much of this skill comes from where the price sits relative to its low so far and how long ago that low was set, which a reader can see on a chart but would struggle to turn into a probability. The board shows the five chances for every stock in its event window.
+
+### Experiment: investor attention
+
+Da, Engelberg and Gao (2011) found that a jump in retail attention predicts a short-lived rise and a later reversal. Wikipedia page views are a free daily measure of attention, so views from July 2015 on were downloaded for the 1,801 event firms that Wikidata links to an English article (6.8 million firm-days). Three features used views up to day 0 only: the firm's normal level of attention, the build-up over the month before the news, and the spike around the news. Because the data starts in 2015, the test was scored on 2017 to 2025, where 78% of events have page views.
+
+None of the forecasts improved after the Holm correction, with the research or the live features. The closest was the deepest-drop forecast (monthly t = 2.0, Holm p = 0.15). One pattern is worth noting: the attention spike lines up with the part of the 60-day drift the model gets wrong (monthly t = 3.3 with the live features, Holm p = 0.02; t = 2.9 with the research features, Holm p = 0.06), so stocks that drew unusual attention around the news did slightly better over the next three months than predicted. That fits the attention literature, but the effect is small, the ablation did not confirm it, and the data covers only nine years, so it was not added to the models.
+
 ### Why the headline numbers are modest
 
 Published stock models often report directional accuracy of 90% or more. In almost every case, figures like this come from one of five problems:
@@ -463,31 +514,31 @@ This project avoids all five, so its accuracy for direction sits close to 50%, w
 ## Live board
 
 <!-- LIVE-BOARD:START -->
-_Updated 2026-11-16 23:49 UTC. Research only, not financial advice._
+_Updated 2026-11-17 02:06 UTC. Research only, not financial advice._
 
-| Stock | Price | Event (day 0) | Day | Signal | Expected further dip | 1-in-10 worst point (20 days) | Risk vs normal | Recommended share if buying |
-|---|---|---|---|---|---|---|---|---|
-| NVDA | 156.14 | earnings guidance (2026-11-16) | 0 |  |  | -12.9% | 0.90x | 9% |
-| TSLA | 379.74 | ma strategy (2026-11-16) | 0 |  |  | -11.8% | 0.72x | 25% |
-| META | 626.41 | earnings guidance (2026-11-16) | 0 |  |  | -9.9% | 0.76x | 25% |
-| BABA | 90.62 | ma strategy (2026-11-16) | 0 |  ⚠️ |  | -11.6% | 0.94x | 14% |
-| BA | 165.22 | earnings guidance (2026-10-27) | 14 | WAIT | 2.4% | -9.2% | 0.93x | 25% |
-| INTC | 55.47 | legal regulatory (2026-11-16) | 0 |  ⚠️ |  | -20.4% | 0.71x | 9% |
-| AAPL | 352.78 | earnings guidance (2026-11-02) | 10 | WAIT | 2.4% | -6.2% | 0.96x | 11% |
-| GRAB | 3.21 | price/volume shock, no matched news (2026-11-05) | 7 | WAIT ⚠️ | 4.1% | -15.5% | 0.88x | 5% |
-| SE | 71.63 | earnings guidance (2026-11-10) | 4 | BUY ⚠️ | 5.2% | -13.8% | 1.20x | 12% |
+| Stock | Price | Event (day 0) | Day | Signal | Expected further dip | Most likely timing of the 20-day low | 1-in-10 worst point (20 days) | Risk vs normal | Balanced size |
+|---|---|---|---|---|---|---|---|---|---|
+| NVDA | 162.85 | price or volume shock (2026-11-12) | 1 | BUY | 5.4% | in 11+ days (38%) | -13.9% | 1.07x | 15% |
+| TSLA | 390.22 | price or volume shock (2026-11-04) | 7 | WAIT (high drop risk) | 4.5% | already passed (74%) | -11.2% | 0.92x | 25% |
+| META | 641.69 | quiet: no event in the last 15 trading days | | | | | | | |
+| BABA | 94.38 | price or volume shock (2026-11-05) | 6 | BUY | 4.8% | in 11+ days (26%) | -15.7% | 1.11x | 5% |
+| BA | 171.50 | earnings guidance (2026-10-27) | 13 | WAIT | 2.4% | already passed (89%) | -9.2% | 0.93x | 25% |
+| INTC | 59.66 | earnings guidance (2026-10-29) | 11 | BUY (high drop risk) | 5.3% | already passed (71%) | -20.9% | 0.88x | 19% |
+| AAPL | 356.27 | earnings guidance (2026-11-02) | 9 | WAIT | 2.6% | already passed (94%) | -6.2% | 0.96x | 11% |
+| GRAB | 3.24 | price or volume shock (2026-11-05) | 6 | WAIT (high drop risk) | 4.2% | in 11+ days (28%) | -15.5% | 0.88x | 5% |
+| SE | 75.36 | earnings guidance (2026-11-10) | 3 | BUY (high drop risk) | 5.4% | in 11+ days (36%) | -13.8% | 1.20x | 12% |
 <!-- LIVE-BOARD:END -->
 
 The board runs on GitHub Actions twice per trading day, once after the US close and once in the morning to refresh headlines. Each run follows six steps:
 
-1. Download daily prices for the watchlist and SPY. An unfinished intraday bar is never used, because the models were trained on closing values.
+1. Download daily prices for the watchlist and SPY from Yahoo Finance. If Yahoo drops a ticker, the board retries it, then falls back to Alpaca's free consolidated daily bars, and if both fail it shows the last good reading with its date. An unfinished intraday bar is never used, because the models were trained on closing values.
 2. Look for an event in the last 15 trading days. An earnings date from the calendar comes first, then a classified headline that names the company, then an unexplained price or volume shock. Events are dated to the announcement day, which is the same convention as in training.
-3. Rebuild the features with the same code that was checked against the training data. Over 1,500 historical events, the live code matches the training values with rank correlations of 0.97 to 1.00.
-4. Predict risk, entry timing and sizing with the live models. These models are retrained on the 61 features that free data can supply.
+3. Rebuild the features with the same code that was checked against the training data. Over 1,500 historical events, the live code matches the training values with rank correlations of 0.96 to 1.00.
+4. Predict risk, entry timing, the chances for when the 20-day low will come, and sizing with the live models. These models are retrained on the 61 features that free data can supply.
 5. Publish `docs/data/predictions.json`, which drives the page, and update the table above.
 6. Log each prediction in `docs/data/forward_log.csv` and score it once its 20-day outcome is known. This gives a forward test that cannot be affected by look-ahead.
 
-The page includes a calculator that turns an account size into dollar amounts for each tier and for a split across up to three stocks.
+The page leads each stock with its verdict and a ripple drawing made from the stock's own numbers: the size of the shock sets the number of rings and the expected swings set how far they spread. It also includes a calculator that turns an account size into dollar amounts for each tier and for a split across up to three stocks.
 
 ## Reproducing the results
 
@@ -551,6 +602,7 @@ A full run takes about 6 to 8 hours on a laptop. Most of that time is spent in t
 - Bernard, V. and Thomas, J. (1989). Post-earnings-announcement drift: delayed price response or risk premium? *Journal of Accounting Research*.
 - Cohen, L., Malloy, C. and Pomorski, L. (2012). Decoding inside information. *Journal of Finance*.
 - Cohen, L. and Frazzini, A. (2008). Economic links and predictable returns. *Journal of Finance*.
+- Da, Z., Engelberg, J. and Gao, P. (2011). In search of attention. *Journal of Finance*.
 - Fama, E. and French, K. (2015). A five-factor asset pricing model. *Journal of Financial Economics*.
 - Gibbs, I. and Candès, E. (2021). Adaptive conformal inference under distribution shift. *NeurIPS*.
 - Grinold, R. and Kahn, R. (2000). *Active Portfolio Management*. McGraw-Hill.
