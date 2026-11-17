@@ -21,6 +21,36 @@ _U = json.loads((ROOT / "universe.json").read_text())["stocks"] if (ROOT / "univ
 _have = {w["ticker"] for w in WL["stocks"]}
 WL["stocks"] += [u for u in _U if u["ticker"] not in _have]
 CORE = _have
+
+def _model_json(n):
+    p = MODELS / n
+    return json.loads(p.read_text()) if p.exists() else None
+# Past odds behind each call: entry_odds.json from the entry engine's test years, quiet_rule.json from Experiment 16.
+ODDS, QRULE = _model_json("entry_odds.json"), _model_json("quiet_rule.json")
+try:                                                            # Experiment 16: how far a stock without news may dip in 20 days
+    import joblib
+    QDIP = joblib.load(MODELS / "quiet_dip.joblib") if (MODELS / "quiet_dip.joblib").exists() else None
+except Exception:
+    QDIP = None
+def quiet_features(f):
+    """The live dip model's inputs, built the same way as in src/x13_quiet_days.py, from the last day of the frame."""
+    r, m = f.ret.values.astype(float), f.mkt.values.astype(float); ar = r - m; v = f.vol.values.astype(float)
+    lpx = np.cumsum(np.log1p(np.clip(np.nan_to_num(r), -0.95, 10))); px = np.exp(lpx - lpx.max())
+    sd = lambda x: float(np.nanstd(x, ddof=1))
+    sd5, sd20, sd60, sd250 = sd(r[-5:]), sd(r[-20:]), sd(r[-60:]), sd(r[-250:])
+    au, ad = np.nanmean(np.clip(r[-14:], 0, None)), np.nanmean(np.clip(-r[-14:], 0, None))
+    x = {"ar_1": ar[-1], "rev_5": np.nansum(ar[-5:]), "ar_20": np.nansum(ar[-20:]), "ar_60": np.nansum(ar[-60:]),
+         "mom_250_20": lpx[-21] - lpx[-251], "hi_52": px[-1] / px[-250:].max() - 1, "lo_52": px[-1] / px[-250:].min() - 1,
+         "ma50_gap": px[-1] / px[-50:].mean() - 1, "ma200_gap": px[-1] / px[-200:].mean() - 1,
+         "rsi_14": 100 - 100 / (1 + au / ad) if ad > 0 else 100.0, "lv_5_60": np.log(sd5 / sd60), "lv_20_250": np.log(sd20 / sd250),
+         "vol_60": sd60 * np.sqrt(252), "abvol_5": np.log(np.nanmean(v[-5:]) / np.nanmean(v[-60:])),
+         "max_20": np.nanmax(r[-20:]), "min_20": np.nanmin(r[-20:]), "mkt_5": np.nansum(m[-5:]), "mkt_20": np.nansum(m[-20:]),
+         "mkt_vol20": sd(m[-20:]) * np.sqrt(252), "vol_chg": np.log(np.nanmean(v[-20:]) / np.nanmean(v[-250:]))}
+    return x, max(sd60, 0.003)
+def strength(odds, holds=True):
+    """How far the past record sits from a coin flip. odds = share of similar past cases where the call was right."""
+    e = odds - 0.5
+    return "slight" if (e < 0.015 or not holds) else "mild" if e < 0.03 else "stronger"
 TICKERS = [w["ticker"] for w in WL["stocks"]]
 import time
 _last = [0.0]
@@ -156,6 +186,9 @@ for w in WL["stocks"]:
         dc = np.diff(c[-15:]); up, dn = dc.clip(min=0).mean(), (-dc).clip(min=0).mean()
         item["stats"]["rsi_14"] = float(100 - 100 / (1 + up / dn)) if dn > 0 else 100.0
         v = f.vol.values; item["stats"]["vol_vs_avg"] = float(np.nanmean(v[-5:]) / np.nanmean(v[-65:-5]))
+        rel5, sd60 = float(np.nansum(r[-5:] - m[-5:])), max(float(np.nanstd(r[-60:])), 0.003)
+        item["stats"]["rel_5d_pct"] = 100 * rel5                   # last 5 days against the market
+        item["stats"]["rel_5d_z"] = rel5 / (sd60 * np.sqrt(5))     # the same in units of the stock's usual 5-day swing
     except Exception as e:
         print(f"stats failed for {t}: {e}")
     H = f.iloc[-260:]
@@ -201,6 +234,20 @@ for w in WL["stocks"]:
                                "weights": {n: float(min(d / max(abs(q), 1e-3), cap)) for n, (d, q, cap) in tiers.items()}}
         except Exception as e:
             print(f"outlook failed for {t}: {e}")
+        if QDIP is not None and "outlook" in item:
+            try:
+                x, sd60 = quiet_features(f)
+                pred = float(QDIP["model"].predict(pd.DataFrame([x])[QDIP["features"]])[0])
+                item["outlook"]["dip_pct"] = max(0.0, -pred * sd60 * np.sqrt(20) * 100)   # expected deepest fall against the market
+            except Exception as e:
+                print(f"quiet dip failed for {t}: {e}")
+        # Buy-or-wait lean from price alone (Experiment 16): last week's move against the market, with the past odds.
+        z = item.get("stats", {}).get("rel_5d_z")
+        if QRULE and z is not None and np.isfinite(z):
+            B = QRULE["bins"][int(np.searchsorted(QRULE["cut"], z, side="right"))]
+            o = B["up_share"] if B["call"] == "BUY" else 1 - B["up_share"]
+            item["pcall"] = {"signal": B["call"], "when": B["when"], "odds": round(float(o), 4),
+                             "strength": strength(o, B["holds_2021_on"]), "n": B["n"]}
         if next_earn is not None and 0 < (next_earn - pd.Timestamp(f.index[-1]).normalize()).days <= 21:
             try:
                 cap = float(__import__("yfinance").Ticker(t).fast_info["market_cap"]) / 1e3
@@ -228,6 +275,11 @@ for w in WL["stocks"]:
     reg_now = fred_row(f.index[-1], fred_csv)
     out = predict_all(f, i0, ev, sr, reg_now.get("vix"), ev.get("vix"))
     item.update({"status": "event", "event_class": cls, "event_headline": hl, **out})
+    e_ = item.get("entry") or {}
+    if ODDS and e_.get("signal") in ("BUY", "WAIT") and e_.get("expected_next5_sd") is not None:
+        up = ODDS["up_share"][int(np.searchsorted(ODDS["edges"], e_["expected_next5_sd"], side="right"))]
+        o = up if e_["signal"] == "BUY" else 1 - up
+        e_["odds"], e_["strength"] = round(float(o), 4), strength(o)
     if np.isfinite(cap): item.setdefault("quote", {})["market_cap"] = cap * 1e3
     board.append(item)
     log_rows.append({"run_utc": now.isoformat(timespec="minutes"), "price_date": item["price_date"], "ticker": t,

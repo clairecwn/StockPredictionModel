@@ -9,7 +9,8 @@
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%2322355C'/%3E%3Ctext x='16' y='24' text-anchor='middle' font-family='Georgia,serif' font-size='23' fill='%23F7F8FA'%3ES%3C/text%3E%3C/svg%3E">
 <link rel="preload" href="fonts/schibsted-grotesk-latin-400-normal.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="preload" href="fonts/gloock-latin-400-normal.woff2" as="font" type="font/woff2" crossorigin>
-<script>try { const t = localStorage.getItem("theme"); if (t) document.documentElement.dataset.theme = t; } catch (e) {}</script>
+<script>try { const t = localStorage.getItem("theme"); if (t) document.documentElement.dataset.theme = t;
+  const seen = +localStorage.getItem("settle_seen") || 0; if (Date.now() - seen > 3 * 3600e3) document.documentElement.classList.add("intro"); } catch (e) {}</script>
 <style>
 /* Palette. The background painting (Hilma af Klint, The Ten Largest, No. 2, 1907) is powder blue with blush and peach,
    so the interface stays in the cool part of that painting: a deep blue for the brand and the controls, a blue-green for
@@ -198,6 +199,24 @@ dialog::backdrop { background:rgba(18,26,44,.5); }
 .dlg h3 { font-size:16px; margin:22px 0 6px; }
 .dlg p { margin:0 0 10px; }
 .dlg .x { float:right; margin:-8px -10px 0 0; }
+#howDlg .dlg { padding-top:0; }
+.dlg-top { position:sticky; top:0; z-index:2; display:flex; align-items:center; justify-content:space-between; gap:12px; margin:0 -36px 10px; padding:22px 36px 14px; background:var(--sheet); border-bottom:1px solid var(--line); }
+.dlg-top h2 { margin:0; }
+.xbtn { flex:none; border:1px solid var(--line); background:var(--raise); color:var(--brand); border-radius:999px; padding:7px 16px; font-weight:600; font-size:14px; }
+/* opening screen: the name over the painting, on the first visit and after a few hours away */
+#splash { position:fixed; inset:0; z-index:90; display:none; place-items:center; overflow:hidden; background:var(--sheet); }
+.intro #splash { display:grid; }
+.intro body { overflow:hidden; }
+#splash::before { content:""; position:absolute; inset:-80px; background:url("art/klint-bg.jpg") 50% 0% / cover no-repeat; transform:scale(1.7); transform-origin:92% 62%; filter:blur(22px) saturate(.85); }
+#splash::after { content:""; position:absolute; inset:0; background:color-mix(in srgb, var(--sheet) 38%, transparent); }
+#splash .sw { position:relative; z-index:1; text-align:center; padding:0 24px; }
+#splash b { display:block; font:400 clamp(76px, 17vw, 156px)/.95 var(--display); letter-spacing:-.035em; color:var(--brand); }
+#splash span { display:block; margin-top:16px; font:500 clamp(16px, 2.2vw, 20px)/1.4 var(--sans); color:var(--ink); }
+#splash.out { opacity:0; transition:opacity .45s ease; }
+@media (prefers-reduced-motion: no-preference) {
+  #splash .sw { animation:rise .8s cubic-bezier(.2,.7,.2,1) both; }
+  @keyframes rise { from { opacity:0; transform:translateY(12px); } }
+}
 .dlg .it { padding:9px 0; border-top:1px solid var(--line); }
 .dlg dt { font-weight:600; } .dlg dd { margin:2px 0 0; color:var(--mute); }
 .spot { position:relative; z-index:41; border-radius:18px; box-shadow:0 0 0 4px var(--brand), 0 0 0 9999px rgba(18,26,44,.5); }
@@ -232,7 +251,7 @@ footer { max-width:1180px; margin:0 auto; padding:16px 34px 28px; color:var(--in
   .size { padding:22px 18px; }
   .amt { font-size:46px; }
   .ranges button { padding:5px 9px; }
-  .dlg { padding:24px 20px; }
+  .dlg { padding:24px 20px; } .dlg-top h2 { font-size:25px; } .dlg-top { margin:0 -20px 10px; padding:16px 20px 12px; }
 }
 @media (prefers-reduced-motion: no-preference) {
   .tab, .seg button, .ranges button, .add, .i { transition:background-color .15s, color .15s; }
@@ -367,6 +386,8 @@ body.on-stock .plan { bottom:16px; }
 .wtop, .wmid, .wfoot { display:flex; align-items:center; justify-content:space-between; gap:10px; }
 .wt b { font-size:19px; font-weight:700; } .wt span { display:block; color:var(--mute); font-size:14px; }
 .wcall { font:400 34px/1 var(--display); color:var(--brand); }
+.wfoot span { white-space:nowrap; }
+.wcall small { display:block; margin-top:5px; font:600 12px/1.2 var(--sans); color:var(--mute); text-align:right; }
 .wcall.BUY { color:var(--buy); } .wcall.WAIT { color:var(--wait); } .wcall.QUIET { font:600 15px/1.2 var(--sans); color:var(--mute); }
 .wp b { font-size:20px; font-weight:700; margin-right:8px; } .wp span { font-weight:600; }
 .wsp { color:var(--ma); } .wsp .spark { display:block; }
@@ -430,6 +451,15 @@ body.on-stock .plan { bottom:16px; }
 .cb-word { font:400 54px/1 var(--display); color:var(--brand); }
 .callband.BUY .cb-word { color:var(--buy); } .callband.WAIT .cb-word { color:var(--wait); } .callband.QUIET .cb-word { font-size:36px; }
 .cb-for { color:var(--mute); font-size:14px; font-weight:600; }
+.cb-str, .str { font-weight:600; font-size:14px; color:var(--mute); }
+.cb-str { margin-left:10px; } .cb-top > span:first-child { display:flex; align-items:baseline; flex-wrap:wrap; }
+.str { margin:-4px 0 10px; }
+.own { margin-top:14px; font-size:14.5px; color:var(--mute); } .own b { color:var(--ink); }
+
+.navb { flex:none; display:inline-flex; align-items:center; padding:6px 13px; border-radius:999px; border:1px solid var(--line); background:var(--raise); color:var(--brand); font-weight:600; font-size:14px; text-decoration:none; }
+.navb:hover { border-color:var(--brand); }
+.chd .cs { display:block; font-size:12.5px; font-weight:600; color:var(--mute); margin:-2px 0 6px; }
+.tour ul { margin:6px 0 0; padding-left:18px; } .tour li { margin:3px 0; }
 .cb-text { display:block; margin-top:8px; font-size:15.5px; line-height:1.45; }
 .cb-keys { display:grid; grid-template-columns:repeat(3, minmax(0,1fr)); gap:6px; margin-top:12px; }
 .cb-keys span { padding:8px 10px; border-radius:12px; background:var(--sheet); }
@@ -462,7 +492,8 @@ body.tray { padding-bottom:84px; }
   .cheads { gap:6px; } .chd { padding:10px 10px; border-radius:14px; } .chd .cn { display:none; } .chd .ct { font-size:15px; } .chd .cw { font-size:26px; margin:4px 0 2px; } .chd.QUIET .cw { font-size:13px; margin:6px 0 4px; } .chd .cp { font-size:12.5px; } .chd .cp span { display:block; }
   .cgroups { grid-template-columns:1fr; gap:4px; }
   .mrow { grid-template-columns:46px minmax(0,1fr) auto; } .mv { font-size:14px; } .mv em { display:block; margin:2px 0 0; text-align:center; }
-  .snav { margin:-4px 0 12px; } .wstrip { order:3; flex-basis:100%; } .watchbtn span { display:none; } .watchbtn { padding:7px 10px; }
+  .snav { margin:-4px 0 12px; gap:8px; } .wstrip { order:3; flex-basis:100%; } .watchbtn span { display:none; } .watchbtn { padding:6px 9px; }
+  .navb { padding:6px 11px; font-size:13.5px; } .snav .back { font-size:15px; }
   .callband { display:block; }
   .rhead { display:none; }
   footer { padding:14px 16px 22px; }
@@ -506,6 +537,7 @@ body.tray { padding-bottom:84px; }
 </style>
 </head>
 <body>
+<div id="splash" aria-hidden="true"><div class="sw"><b>Settle</b></div></div>
 <header class="top">
   <a class="brand" href="./" aria-label="Settle home"><b>Settle</b></a>
   <div class="chip">
@@ -531,12 +563,14 @@ body.tray { padding-bottom:84px; }
   <div class="plan-body" id="planBody" hidden></div>
 </div>
 
-<dialog id="howDlg"><div class="dlg">
-  <button class="lk x" type="button" data-close>Close</button>
-  <h2>How Settle works</h2>
+<dialog id="howDlg" aria-labelledby="howTitle"><div class="dlg">
+  <div class="dlg-top"><h2 id="howTitle">How Settle works</h2><button class="xbtn" type="button" data-close>Close</button></div>
   <p>When a company is in the news, its stock usually jumps or drops over the first day or two and then settles down. Settle finds the latest news for each stock and compares it with about 317,000 similar moments from 2001 to 2025. From those, it estimates what the next four weeks may bring.</p>
   <h3>The call</h3>
-  <p><b>Buy</b> means that in similar cases, buying right away worked out better than waiting. <b>Wait</b> means that waiting a few days usually got a better price. The difference is small, so the call is best used to time a purchase you were already planning, not as a reason to buy. Stocks without recent news get no call, but their chart and risks are still shown.</p>
+  <p><b>Buy</b> means that in similar cases, buying right away worked out better than waiting. <b>Wait</b> means that waiting a few days usually got a better price. The difference is small, so the call is best used to time a purchase you were already planning, not as a reason to buy.</p>
+  <p>Stocks without recent company news still get a call, from price alone: how the stock moved against the market over the last week, compared with the same kind of week for large US stocks since 2001.</p>
+  <h3>How sure the call is</h3>
+  <p>Next to each call is how often similar past cases went its way. <b>Slight lean</b> means close to a coin flip. <b>Mild lean</b> means a small but steady edge. <b>Clearer call</b> is kept for the most one-sided cases, about 1 in 5 calls.</p>
   <h3>The risks</h3>
   <p>The <b>expected low</b> is how far the price may still fall before it reaches its lowest point in the next four weeks. The <b>bad case</b> is a fall that only about 1 in 10 similar stocks went beyond. Both were tested on years the models never saw, and the bad case was passed about as often as promised.</p>
   <h3>How much to put in</h3>
@@ -564,6 +598,9 @@ const TIPS = {
   bad:"How far the price could fall in a rough month. In the past, only about 1 in 10 similar stocks fell further than this.",
   day:"How many trading days have passed since the news. Settle follows each stock for 20 trading days, which is about four weeks.",
   trend:"The overall direction of the price. Bullish means it has been rising: it is above its 50-day and 200-day averages and has done better than the market over three months. Bearish means the opposite on all three. Mixed means the signs disagree.",
+  str:"How often similar past cases went the way of the call. Slight lean means close to a coin flip, mild lean means a small but steady edge, and clearer call is kept for the most one-sided cases.",
+  rel5:"How the stock moved over the last five trading days compared with the S&P 500. Large stocks that moved much more or less than the market in a week have, on average, partly reversed the next week.",
+  dipq:"How far the price is likely to fall below today's, compared with the market, at its lowest point in the next four weeks. It comes from a model trained on about 1.3 million days when stocks had no company news, using recent moves, swings and trading volume.",
   rsi:"A score from 0 to 100 that shows how fast the price has moved lately. Above 70, it has risen quickly and may be due for a pause. Below 30, it has fallen quickly and may be due for a bounce. It is a warning sign, not a promise.",
   beta:"How much the stock tends to move when the whole market moves. A value of 1.8 means that when the market has risen or fallen 1%, this stock has usually moved about 1.8% the same way.",
   liq:"How easy it is to buy or sell the stock quickly at a fair price. Stocks that trade billions of dollars a day are easy. With thinly traded stocks, your own order can move the price.",
@@ -637,7 +674,25 @@ const corrOf = (a, b) => { if (a === b) return 1; const i = DATA.tickers.indexOf
   const A = DATA.corr_f[i], B = DATA.corr_f[j]; let c = 0; for (let k = 0; k < A.length; k++) c += A[k] * B[k]; return Math.max(-0.95, Math.min(0.95, c)); };
 const stockOf = t => DATA.stocks.find(s => s.ticker === t);
 const live = s => s && s.status === "event";
-const sig = s => (s.entry?.signal === "BUY" || s.entry?.signal === "WAIT") ? s.entry.signal : null;
+const STR = {stronger:"Clearer call", mild:"Mild lean", slight:"Slight lean"};
+/* the call: from the news models when there is recent news, otherwise from the price alone */
+function callOf(s) {
+  if (!s) return null;
+  if (live(s)) { const e = s.entry; return (e?.signal === "BUY" || e?.signal === "WAIT") ? {g:e.signal, odds:e.odds, str:e.strength, basis:"news"} : null; }
+  const p = s.pcall; return p && (p.signal === "BUY" || p.signal === "WAIT") ? {g:p.signal, odds:p.odds, str:p.strength, basis:"price", when:p.when} : null;
+}
+const sig = s => callOf(s)?.g || null;
+function oddsLine(c) {
+  if (!c?.odds) return "";
+  const n = Math.round(100 * c.odds);
+  if (c.str === "slight" || n <= 50) return `Similar past cases were close to a coin flip, so treat this as a slight lean.`;
+  return c.g === "BUY" ? `In ${n} of 100 similar past cases, the stock did better than the market over the next week.`
+                       : `In ${n} of 100 similar past cases, the stock did worse than the market over the next week, so waiting paid.`;
+}
+/* without news: how far the price may dip at some point in the next four weeks, from its usual swings (about 0.8 of a four-week swing) */
+const dipQ = s => live(s) || !s.outlook ? null : s.outlook.dip_pct ?? (s.outlook.vol_20d_pct ? 0.8 * s.outlook.vol_20d_pct : null);
+const rel5 = s => s.stats?.rel_5d_pct;
+const relWord = x => x == null ? "" : Math.abs(x) < 0.5 ? "moved with the market" : `${x > 0 ? "rose" : "fell"} ${fmt(Math.abs(x))}% more than the market`;
 const weightOf = (s, t) => live(s) ? s.sizing?.tiers?.[t]?.weight : s.outlook?.weights?.[t];
 const badOf = (s, t) => live(s) ? s.sizing?.tiers?.[t]?.bad_case_pct : (t === "safest" ? s.outlook?.bad_case_5_pct : s.outlook?.bad_case_pct);
 const swings = v => !v ? "–" : v < 0.85 ? "Calmer than normal" : v > 1.15 ? "Bigger than normal" : "Normal for this stock";
@@ -647,9 +702,10 @@ const signed = x => (x >= 0 ? "up " : "down ") + fmt(Math.abs(x), 1) + "%";
 function stateOf(s) {
   if (live(s)) { const g = sig(s); if (g) return {cls:g, word:g === "BUY" ? "Buy" : "Wait", sub:`Day ${s.decision_day}`};
     return s.decision_day === 0 ? {cls:"PRE", word:"Watch", sub:"First day"} : {cls:"QUIET", word:"Settled", sub:"Window over"}; }
+  const c = callOf(s); if (c) return {cls:c.g, word:c.g === "BUY" ? "Buy" : "Wait", sub:STR[c.str] || "From price"};
   if (s.preview) return {cls:"PRE", word:"Earnings soon", sub:`Reports ${day(s.preview.report_date)}`};
   if (s.status === "no price data") return {cls:"QUIET", word:"No data", sub:"Not loaded"};
-  return {cls:"QUIET", word:"No news", sub:"No recent news"};
+  return {cls:"QUIET", word:"No call", sub:"Price facts below"};
 }
 /* the latest price: the live quote if it is newer than the board's closing data */
 function nowPx(s) {
@@ -684,7 +740,7 @@ function drawChart(s) {
   const full = H.c, ma = isDay ? null : C.map((_, i) => { const j = full.length - C.length + i; if (j < 49) return null; let t = 0; for (let k = j - 49; k <= j; k++) t += full[k]; return t / 50; });
   const showF = !isDay && rng !== "1Y" && rng !== "6M";
   const dip = s.entry?.expected_further_dip_pct, bad = badOf(s, "recommended"), px = nowPx(s).px;
-  const lowLvl = showF && dip != null ? s.price * (1 - dip / 100) : null, badLvl = showF && bad != null ? s.price * (1 + bad / 100) : null;
+  const dipU = dip ?? dipQ(s), lowLvl = showF && dipU != null ? s.price * (1 - dipU / 100) : null, badLvl = showF && bad != null ? s.price * (1 + bad / 100) : null;
   const padR = narrow ? 44 : 56, fz = showF && (lowLvl || badLvl) ? (narrow ? 96 : 150) : 0;
   const vals = C.concat(ma ? ma.filter(v => v) : [], [lowLvl, badLvl].filter(v => v));
   if (isDay && Q.quotes[s.ticker].prev_close) vals.push(Q.quotes[s.ticker].prev_close);
@@ -724,7 +780,7 @@ function drawChart(s) {
     svg += `<text x="${zx0 + zw / 2}" y="${PH - 6}" text-anchor="middle" ${F} fill="${col("--mute")}">Next 4 weeks</text>`;
     const lv = (v, c, dash, name) => v == null ? "" : `<line x1="${x(C.length - 1)}" x2="${x1 + fz - 2}" y1="${y(v)}" y2="${y(v)}" stroke="${c}" stroke-width="2" stroke-dasharray="${dash}"/><text x="${x1 + fz - 4}" y="${y(v) - 5}" text-anchor="end" ${F} font-weight="600" fill="${c}" paint-order="stroke" stroke="${col("--sheet")}" stroke-width="3">${name} ${fmt(v, 2)}</text>`;
     const close = lowLvl != null && badLvl != null && Math.abs(y(lowLvl) - y(badLvl)) < 16;
-    svg += lv(lowLvl, col("--brand"), "6 4", "Expected low") + lv(badLvl, col("--risk"), "2 4", "Bad case").replace(`y="${y(badLvl) - 5}"`, close ? `y="${y(badLvl) + 14}"` : `y="${y(badLvl) - 5}"`);
+    svg += lv(lowLvl, col("--brand"), "6 4", dip != null ? "Expected low" : "Expected dip") + lv(badLvl, col("--risk"), "2 4", "Bad case").replace(`y="${y(badLvl) - 5}"`, close ? `y="${y(badLvl) + 14}"` : `y="${y(badLvl) - 5}"`);
   }
   if (V && Math.max(...V) > 1) { const vm = Math.max(...V, 1);
     svg += V.map((v, i) => { const h = v / vm * (VH - 8), bw = Math.max(1, (x1 - x0) / C.length * 0.7), upd = i === 0 ? true : C[i] >= C[i - 1];
@@ -748,7 +804,11 @@ function drawChart(s) {
 /* ------------------------------------------------------------------ sections */
 function whenLow(s) {
   const d = s.entry?.days_to_low;
-  if (!d) return `<section><h2>When the low may come</h2><p>${s.decision_day === 0 ? "This appears after the next close, together with the buy or wait call." : live(s) ? "Four weeks have passed since the news." : "This appears when the stock has company news."}</p></section>`;
+  if (!d && dipQ(s) != null) { const dq = dipQ(s), px = nowPx(s).px;
+    return `<section><h2>When the low may come</h2><p>The timing of the low is forecast after company news, when stocks tend to slide for a while and then settle. ${esc(s.ticker)} has had none lately, so Settle forecasts how deep the dip may go instead, from its recent moves, swings and trading volume.</p>
+      <dl class="facts"><div><dt>Expected dip ${tip("dipq")}</dt><dd>About −${fmt(dq)}%</dd><small>Near $${fmt(px * (1 - dq / 100), 2)}, if the market stays flat.</small></div>
+      ${s.outlook?.bad_case_pct != null ? `<div><dt>Bad case ${tip("bad")}</dt><dd>−${fmt(-s.outlook.bad_case_pct)}%</dd><small>Only about 1 in 10 four-week stretches in its history fell further.</small></div>` : ""}</dl></section>`; }
+  if (!d) return `<section><h2>When the low may come</h2><p>${s.decision_day === 0 ? "This appears after the next close, together with the buy or wait call." : "Four weeks have passed since the news."}</p></section>`;
   const P = d.probs, L = ["Already passed", "In 1 to 2 days", "In 3 to 5 days", "In 6 to 10 days", "In 11+ days"], LO = [0, 1, 3, 6, 11];
   const keep = P.map((p, i) => i).filter(i => LO[i] <= d.days_left), top = keep.reduce((a, i) => P[i] > P[a] ? i : a, keep[0]);
   const when = ["", "within the next two trading days", "in three to five trading days", "in six to ten trading days", "in eleven or more trading days"];
@@ -771,7 +831,7 @@ function ahead(s) {
   return `<section><h2>Over the next four weeks</h2><dl class="facts">
     <div><dt>Price swings lately ${tip("swings")}</dt><dd>${swings(o.vol_now_vs_usual)}</dd><small>Over the last three months, compared with the last six years.</small></div>
     <div><dt>Typical move ${tip("move4")}</dt><dd>About ${fmt(o.vol_20d_pct, 0)}% up or down</dd><small>That is roughly $${fmt(s.price * o.vol_20d_pct / 100, 2)} either way from today's price.</small></div>
-    <div><dt>Bad case ${tip("bad")}</dt><dd>${fmt(-o.bad_case_pct)}% below today</dd><small>Based on the stock's own history, because there is no recent news to model.</small></div></dl></section>`;
+    <div><dt>Bad case ${tip("bad")}</dt><dd>${fmt(-o.bad_case_pct)}% below today</dd><small>From the stock's own history over the last six years, scaled to how much it swings now.</small></div></dl></section>`;
 }
 function todayFacts(s) {
   const t = s.stats; if (!t) return "";
@@ -809,6 +869,7 @@ function levels(s, px) {
   if (live(s)) { const i = H.d.indexOf(s.day0); if (i >= 0 && i < n - 1) L.push({k:"Lowest close since the news", v:Math.min(...c.slice(i + 1)), c:"w"}); }
   const dip = s.entry?.expected_further_dip_pct, bad = badOf(s, "recommended");
   if (dip != null) L.push({k:"Expected low", v:s.price * (1 - dip / 100), c:"m"});
+  else if (dipQ(s) != null) L.push({k:"Expected dip in four weeks", v:s.price * (1 - dipQ(s) / 100), c:"m"});
   if (bad != null) L.push({k:"Bad case, 1 in 10", v:s.price * (1 + bad / 100), c:"r"});
   return L.filter(x => isFinite(x.v) && Math.abs(x.v / px - 1) < 0.3);
 }
@@ -913,9 +974,10 @@ function bindFinder(id, onPick, exclude) {
 /* ------------------------------------------------------------------ your watchlist */
 function wcard(s) {
   const st = stateOf(s), n = nowPx(s), b = badPct(s), p0 = lowIn(s), t = esc(s.ticker);
-  const foot = p0 != null ? `<span>Low already in <b>${fmt(100 * p0, 0)}%</b></span>` : `<span>${live(s) && s.decision_day === 0 ? "Call after the next close" : s.preview ? `Earnings on <b>${day(s.preview.report_date)}</b>` : "No recent news"}</span>`;
+  const r5 = rel5(s), c = callOf(s);
+  const foot = p0 != null ? `<span>Low already in <b>${fmt(100 * p0, 0)}%</b></span>` : `<span>${live(s) && s.decision_day === 0 ? "Call after the next close" : s.preview ? `Earnings on <b>${day(s.preview.report_date)}</b>` : r5 != null ? `Week vs market <b>${r5 >= 0 ? "+" : "−"}${fmt(Math.abs(r5))}%</b>` : "Price facts inside"}</span>`;
   return `<li class="wcard"><a class="wlink" href="#${t}">
-    <span class="wtop"><span class="wt"><b>${t}</b><span>${esc(s.name || "")}</span></span><span class="wcall ${st.cls}">${st.word}</span></span>
+    <span class="wtop"><span class="wt"><b>${t}</b><span>${esc(s.name || "")}</span></span><span class="wcall ${st.cls}">${st.word}${c?.str ? `<small>${STR[c.str]}</small>` : ""}</span></span>
     <span class="wmid"><span class="wp"><b>${fmt(n.px, 2)}</b><span class="${(n.chg ?? 0) >= 0 ? "up" : "down"}">${sign(n.chg)}</span></span><span class="wsp">${spark(s)}</span></span>
     <span class="wfoot">${foot}${b != null ? `<span>Bad case <b>−${fmt(b)}%</b></span>` : ""}</span></a>
     ${editing ? `<button class="wrm" type="button" data-rmw="${t}">Remove</button>` : ""}</li>`;
@@ -949,7 +1011,7 @@ function renderBoard() {
       <span class="rcall"><span class="pill ${st.cls}">${sig(s) ? st.word : st.sub}</span></span>
       <span class="rp"><b>${fmt(n.px, 2)}</b>${n.chg != null ? `<span class="${n.chg >= 0 ? "up" : "down"}">${sign(n.chg)}</span>` : ""}</span>
       <span class="rr">${bar}<small>${b != null ? `Bad case −${fmt(b)}%` : "No risk forecast"}</small></span>
-      <span class="rl"><b>${p0 != null ? fmt(100 * p0, 0) + "%" : "–"}</b><small>${p0 != null ? "low already in" : live(s) ? "after next close" : "no recent news"}</small></span></a>
+      <span class="rl"><b>${p0 != null ? fmt(100 * p0, 0) + "%" : "–"}</b><small>${p0 != null ? "low already in" : live(s) ? "after next close" : "call from price"}</small></span></a>
       <button class="star${on ? " on" : ""}" type="button" data-star="${esc(s.ticker)}" aria-pressed="${on}" aria-label="${on ? "Remove " + esc(s.ticker) + " from" : "Add " + esc(s.ticker) + " to"} your watchlist">${STAR(on)}</button></li>`; }).join("");
   el.innerHTML = navHTML("all") + `<section class="board" id="boardBox">
     <div class="bhead"><div><h1>All stocks</h1><p class="mute">${nNews} of ${L.length} stocks have had company news in the last three weeks.${upd ? ` Forecasts updated ${upd.toLocaleString([], {weekday:"short", hour:"numeric", minute:"2-digit"})} your time.` : ""}</p></div>
@@ -975,7 +1037,7 @@ function renderCompare() {
   else {
     const head = `<div class="cheads" style="--n:${S.length}">${S.map(s => { const st = stateOf(s), n = nowPx(s);
       return `<a class="chd ${st.cls}" href="#${esc(s.ticker)}"><b class="ct">${esc(s.ticker)}</b><span class="cn">${esc(s.name || "")}</span>
-        <span class="cw">${st.word}</span><span class="cp">${fmt(n.px, 2)} <span class="${(n.chg ?? 0) >= 0 ? "up" : "down"}">${sign(n.chg)}</span></span></a>`; }).join("")}</div>`;
+        <span class="cw">${st.word}</span>${callOf(s)?.str ? `<span class="cs">${STR[callOf(s).str]}</span>` : ""}<span class="cp">${fmt(n.px, 2)} <span class="${(n.chg ?? 0) >= 0 ? "up" : "down"}">${sign(n.chg)}</span></span></a>`; }).join("")}</div>`;
     /* one measure: a bar per stock on the same scale, with the best one marked */
     const metric = (label, note, f, show, better, tag, color) => {
       const v = S.map(f), ok = v.filter(x => x != null), mx = Math.max(...ok, 1e-9);
@@ -991,7 +1053,8 @@ function renderCompare() {
     body = head + `<div class="cgroups">
       <section class="cgroup"><h2>Timing</h2>
         ${metric("Chance the low is already in", "The higher it is, the more likely a further dip stops above the low so far.", s => lowIn(s) != null ? 100 * lowIn(s) : null, v => fmt(v, 0) + "%", "high", "Highest")}
-        ${metric("Expected further dip", "How much lower the price may go before its four-week low.", s => s.entry?.expected_further_dip_pct ?? null, v => "−" + fmt(v) + "%", "low", "Smallest")}</section>
+        ${metric("Expected further dip", "How much lower the price may go before its four-week low. For stocks without recent news, this comes from a separate model for quiet days.", s => s.entry?.expected_further_dip_pct ?? dipQ(s), v => "−" + fmt(v) + "%", "low", "Smallest")}
+        ${words("How sure the call is", "How often similar past cases went the way of each call.", s => { const c = callOf(s); return c?.str ? STR[c.str] + (c.basis === "price" ? ", from price" : "") : "No call yet"; })}</section>
       <section class="cgroup"><h2>Risk</h2>
         ${metric("Bad case over four weeks", "Only about 1 in 10 similar stocks fell further than this.", s => badPct(s), v => "−" + fmt(v) + "%", "low", "Least risk", "var(--risk)")}
         ${words("Price swings ahead", "Compared with what is normal for each stock.", s => (live(s) ? swings(s.risk?.vol_ratio_2_20?.pred) : swings(s.outlook?.vol_now_vs_usual)).replace(" for this stock", ""))}
@@ -1026,7 +1089,12 @@ function whyHTML(s) {
       ${s.event_headline ? `<p class="mute">${esc(s.event_headline)}</p>` : ""}</div>`; }
   if (s.preview) return `<div class="why"><p><b>Coming up:</b> an earnings report on ${day(s.preview.report_date)}. Moves after a report are usually larger than on a normal day.</p></div>`;
   if (s.status === "no price data") return `<div class="why"><p>Prices could not be loaded at the last update. Settle will try again at the next one.</p></div>`;
-  return `<div class="why"><p><b>No recent news.</b> ${esc(s.ticker)} has had no company news in the last three weeks, so there is no buy or wait call. Its risks and sizing still apply.</p></div>`;
+  const t = s.stats || {}, r5 = rel5(s), bits = [];
+  if (t.from_high_pct != null) bits.push(`${fmt(Math.abs(t.from_high_pct))}% below its 52-week high`);
+  if (t.above_ma200_pct != null) bits.push(`${fmt(Math.abs(t.above_ma200_pct))}% ${t.above_ma200_pct >= 0 ? "above" : "below"} its 200-day average`);
+  if (t.ret_3m_pct != null) bits.push(`${t.ret_3m_pct >= 0 ? "up" : "down"} ${fmt(Math.abs(t.ret_3m_pct))}% over three months, against ${t.mkt_3m_pct >= 0 ? "+" : "−"}${fmt(Math.abs(t.mkt_3m_pct))}% for the market`);
+  return `<div class="why"><p><b>Where it stands:</b> ${r5 != null ? `this week it ${relWord(r5)}. ` : ""}${bits.length ? `It is ${bits.slice(0, -1).join(", ")}${bits.length > 1 ? " and " : ""}${bits[bits.length - 1]}.` : ""}</p>
+    <p class="mute">No company news in the last three weeks, so the call comes from price and volume.</p></div>`;
 }
 function quickChips(s) {
   const n = nowPx(s), q = n.q || Q?.quotes?.[s.ticker], qq = s.quote || {}, out = [];
@@ -1043,6 +1111,13 @@ function quickChips(s) {
   out.push(`<div class="qc"><dt>S&amp;P 500 ${tip("spx")}</dt><dd class="${m == null ? "" : m >= 0 ? "up" : "down"}">${m == null ? "–" : (m >= 0 ? "+" : "−") + fmt(Math.abs(m), 2) + "%"}</dd></div>`);
   return `<dl class="quick">${out.join("")}</dl>`;
 }
+/* for owners: no sell call, because no tested signal for it; the sizing gives a limit instead */
+function ownHTML(s) {
+  if (weightOf(s, "recommended") == null) return "";
+  const lead = s.warning_big_drop ? "A sharp fall is more likely than usual here, so holding less than usual is the safer choice. "
+             : "Settle does not make sell calls, because none of its tests found one that worked reliably. ";
+  return `<p class="own"><b>If you already own it:</b> ${lead}Check the amount under How much to put in. If you hold more than that, a bad month could cost more than the loss you chose.</p>`;
+}
 function callHTML(s) {
   const st = stateOf(s);
   if (live(s)) {
@@ -1051,17 +1126,19 @@ function callHTML(s) {
               : g === "WAIT" ? `In similar cases, waiting a few days usually got a better price. Settle expects the price to dip about ${fmt(dip)}% before it reaches its low.`
               : s.decision_day === 0 ? `Settle needs to see how the market reacts over two trading days before it can say buy or wait, so the call comes after the next close. The risk forecasts already use today's move.`
               : `Four weeks have passed since the news, so there is no longer a call.`;
-    return `<p>${txt}</p>
+    return `<p>${txt}${g ? " " + oddsLine(callOf(s)) : ""}</p>
       <dl class="keys">${dip != null ? `<div><dt>Expected low ${tip("low")}</dt><dd>−${fmt(dip)}%</dd></div>` : `<div><dt>Swings ahead ${tip("swings")}</dt><dd>${swings(s.risk?.vol_ratio_2_20?.pred).replace(" than normal", "").replace(" for this stock", "")}</dd></div>`}
         ${bad != null ? `<div><dt>Bad case ${tip("bad")}</dt><dd>−${fmt(-bad)}%</dd></div>` : ""}
         <div><dt>Day ${tip("day")}</dt><dd>${s.decision_day} of 20</dd></div></dl>
-      ${s.warning_big_drop ? `<p class="alarm"><b>Higher chance of a sharp drop.</b> In past cases like this, ${WARN.flagged} in 100 went on to one of the biggest falls, compared with ${WARN.other} in 100 for other stocks. A smaller position is safer.</p>` : ""}`;
+      ${s.warning_big_drop ? `<p class="alarm"><b>Higher chance of a sharp drop.</b> In past cases like this, ${WARN.flagged} in 100 went on to one of the biggest falls, compared with ${WARN.other} in 100 for other stocks. A smaller position is safer.</p>` : ""}${ownHTML(s)}`;
   }
-  const pv = s.preview, o = s.outlook;
-  const txt = pv ? `${esc(s.ticker)} reports earnings on ${day(pv.report_date)}. Over the two days after, it is expected to move about ${fmt(pv.typical_move_pct)}% more than the market${pv.usual_move_pct != null ? `, compared with ${fmt(pv.usual_move_pct)}% after a typical report` : ""}. Which way it will move cannot be known in advance.`
-            : `With no company news in the last three weeks, there is nothing for Settle to compare with past cases, so there is no buy or wait call. The risks and sizing come from the stock's own history.`;
-  return `<p>${txt}</p><dl class="keys">${pv ? `<div><dt>Expected move</dt><dd>±${fmt(pv.typical_move_pct)}%</dd></div><div><dt>Large move, 1 in 10</dt><dd>±${fmt(pv.upper_move_pct)}%</dd></div>` : ""}
-    ${o ? `<div><dt>Bad case ${tip("bad")}</dt><dd>−${fmt(-o.bad_case_pct)}%</dd></div>` : ""}</dl>`;
+  const pv = s.preview, o = s.outlook, c = callOf(s), dq = dipQ(s), r5 = rel5(s);
+  const ctxt = c ? `${c.g === "BUY" ? "Buying now has" : "Waiting a few days has"} usually done better for large stocks that ${c.when || relWord(r5)} over a week, as ${esc(s.ticker)} did. ${oddsLine(c)} ` : "";
+  const txt = ctxt + (pv ? `${esc(s.ticker)} reports earnings on ${day(pv.report_date)}. Over the two days after, it is expected to move about ${fmt(pv.typical_move_pct)}% more than the market${pv.usual_move_pct != null ? `, compared with ${fmt(pv.usual_move_pct)}% after a typical report` : ""}. Which way it will move cannot be known in advance.`
+            : c ? `` : `The risks and sizing come from the stock's own history.`);
+  return `<p>${txt}</p><dl class="keys">${pv ? `<div><dt>Expected move</dt><dd>±${fmt(pv.typical_move_pct)}%</dd></div><div><dt>Large move, 1 in 10</dt><dd>±${fmt(pv.upper_move_pct)}%</dd></div>`
+      : `${r5 != null ? `<div><dt>Week vs market ${tip("rel5")}</dt><dd>${r5 >= 0 ? "+" : "−"}${fmt(Math.abs(r5))}%</dd></div>` : ""}${dq != null ? `<div><dt>Expected dip ${tip("dipq")}</dt><dd>−${fmt(dq)}%</dd></div>` : ""}`}
+    ${o ? `<div><dt>Bad case ${tip("bad")}</dt><dd>−${fmt(-o.bad_case_pct)}%</dd></div>` : ""}</dl>${ownHTML(s)}`;
 }
 function sizeHTML(s) {
   const amt = (weightOf(s, tier) || 0) * budget, inPlan = plan.includes(s.ticker);
@@ -1095,7 +1172,8 @@ function tileSum(s, k) {
     if (d) { const L = ["already in", "in 1 to 2 days", "in 3 to 5 days", "in 6 to 10 days", "in 11+ days"], LO = [0, 1, 3, 6, 11];
       const keep = d.probs.map((p, i) => i).filter(i => LO[i] <= d.days_left), top = keep.reduce((a, i) => d.probs[i] > d.probs[a] ? i : a, keep[0]);
       return {t:"The low", v:`${fmt(100 * d.probs[0], 0)}% already in`, s:top === 0 ? "most likely already passed" : `most likely ${L[top]}`}; }
-    return {t:"The low", v:live(s) && s.decision_day === 0 ? "After the next close" : "No recent news", s:live(s) && s.decision_day === 0 ? "needs two closes" : "appears after company news"}; }
+    if (dipQ(s) != null) return {t:"The low", v:`Dip to −${fmt(dipQ(s))}%`, s:"expected in the next four weeks"};
+    return {t:"The low", v:"After the next close", s:"needs two closes"}; }
   if (k === "risk") { if (live(s)) return {t:"Risk, four weeks", v:swings(s.risk?.vol_ratio_2_20?.pred).replace("Normal for this stock", "Normal") + " swings", s:volWord(s.risk?.abn_volume_2_20?.pred).replace("Normal for this stock", "normal").replace(" than normal", "").toLowerCase() + " trading"};
     return {t:"Risk, four weeks", v:s.outlook ? `About ±${fmt(s.outlook.vol_20d_pct, 0)}%` : "–", s:"typical move"}; }
   if (k === "today") { const t = s.stats || {};
@@ -1113,23 +1191,27 @@ const stripH2 = h => h.replace(/<h2[^>]*>[\s\S]*?<\/h2>/, "");
 function renderStock(s) {
   const el = $("#detail"), st = stateOf(s), n = nowPx(s), on = watch.includes(s.ticker), W = watch.map(stockOf).filter(Boolean);
   const dip = s.entry?.expected_further_dip_pct, bad = badPct(s), p0 = lowIn(s);
-  const short = {BUY:"Buying now has usually beaten waiting in cases like this.", WAIT:"Waiting a few days has usually got a better price in cases like this."}[sig(s)]
+  const c = callOf(s), r5 = rel5(s), dq = dipQ(s);
+  const short = (c?.basis === "price" ? `${c.g === "BUY" ? "Buying now has" : "Waiting has"} usually done better after a week like this one, when it ${relWord(r5)}.`
+             : {BUY:"Buying now has usually beaten waiting in cases like this.", WAIT:"Waiting a few days has usually got a better price in cases like this."}[sig(s)])
              || (live(s) && s.decision_day === 0 ? "The call comes after the next close, once the market has reacted for two days."
              : s.preview ? `Earnings are due on ${day(s.preview.report_date)}. The direction cannot be known in advance.`
              : live(s) ? "Four weeks have passed since the news, so there is no longer a call." : "No company news in the last three weeks, so there is no call.");
-  const keys = [dip != null ? ["Expected low", "−" + fmt(dip) + "%"] : null, bad != null ? ["Bad case", "−" + fmt(bad) + "%"] : null,
-                p0 != null ? ["Low already in", fmt(100 * p0, 0) + "%"] : null].filter(Boolean);
+  const keys = [dip != null ? ["Expected low", "−" + fmt(dip) + "%"] : c?.basis === "price" && r5 != null ? ["Week vs market", (r5 >= 0 ? "+" : "−") + fmt(Math.abs(r5)) + "%"] : null,
+                bad != null ? ["Bad case", "−" + fmt(bad) + "%"] : null,
+                p0 != null ? ["Low already in", fmt(100 * p0, 0) + "%"] : dq != null ? ["Expected dip", "−" + fmt(dq) + "%"] : null].filter(Boolean);
   const forDay = sess() === "open" ? "for today" : Q?.next_open_utc ? "for " + new Date(Q.next_open_utc).toLocaleDateString("en-GB", {weekday:"short", day:"numeric", month:"short", timeZone:"America/New_York"}) : "";
   el.innerHTML = `<div class="snav"><a href="#" class="back">${CH}Watchlist</a>
     ${W.length > 1 || (W.length && !on) ? `<nav class="wstrip" id="wstrip" aria-label="Your watchlist">${W.map(x => { const sx = stateOf(x), nx = nowPx(x);
       return `<a class="ws${x.ticker === s.ticker ? " on" : ""}" href="#${esc(x.ticker)}"${x.ticker === s.ticker ? ' aria-current="page"' : ""}><i class="dot ${sx.cls}" aria-hidden="true"></i><b>${esc(x.ticker)}</b><span class="${(nx.chg ?? 0) >= 0 ? "up" : "down"}">${sign(nx.chg)}</span></a>`; }).join("")}</nav>` : ""}
+      <a class="navb" href="#all">All stocks</a><a class="navb" href="#compare" id="toCmp">Compare</a>
       <button class="watchbtn${on ? " on" : ""}" type="button" id="watchBtn" aria-pressed="${on}">${STAR(on)}<span>${on ? "On your watchlist" : "Add to watchlist"}</span></button></div>
     <div class="sgrid"><div class="sleft">
       <div class="shead"><div class="who"><h1>${esc(s.ticker)}</h1><span class="name">${esc(s.name || "")}</span></div>
         <div class="price"><b>${fmt(n.px, 2)}</b>${n.chg != null ? `<span class="move ${n.chg >= 0 ? "up" : "down"}">${sign(n.chg)}</span>` : ""}</div></div>
       ${statusLine(s)}
       <button class="callband ${st.cls}" type="button" id="callBand" data-sheet="call">
-        <span class="cb-top"><span class="cb-word">${st.word}</span><span class="cb-for">${forDay}</span></span>
+        <span class="cb-top"><span><span class="cb-word">${st.word}</span>${c?.str ? `<span class="cb-str">${STR[c.str]}</span>` : ""}</span><span class="cb-for">${forDay}</span></span>
         <span class="cb-text">${short}</span>
         ${keys.length ? `<span class="cb-keys">${keys.map(([a, b]) => `<span><small>${a}</small><b>${b}</b></span>`).join("")}</span>` : ""}
         <span class="cb-more">Why, and how sure</span></button>
@@ -1138,13 +1220,14 @@ function renderStock(s) {
       ${whyHTML(s)}
       ${quickChips(s)}
     </div><div class="sright">
-      <div class="call ${st.cls}" id="callBox"><small>${forWhen()}</small><p class="word ${st.cls}">${st.word}</p>${callHTML(s)}</div>
+      <div class="call ${st.cls}" id="callBox"><small>${forWhen()}</small><p class="word ${st.cls}">${st.word}</p>${c?.str ? `<p class="str">${STR[c.str]}${c.basis === "price" ? ", from price" : ""} ${tip("str")}</p>` : ""}${callHTML(s)}</div>
       <div class="tiles" id="tiles">${tilesHTML(s)}</div>
     </div></div>`;
   drawChart(s); bindTiles(); fitChart(s);
   $("#watchBtn").onclick = () => { setWatch(s.ticker, !watch.includes(s.ticker)); renderStock(s); };
+  $("#toCmp").onclick = () => { if (!picks.includes(s.ticker)) { picks = [s.ticker, ...picks.filter(x => x !== s.ticker)].slice(0, 4); store.set("cmp", picks); } };
   $(".ws.on")?.scrollIntoView({inline:"center", block:"nearest"});
-  if (store.get("toured", false) && !store.get("toured_stock", false) && tourAt < 0) setTimeout(() => startTour("stock"), 500);
+  if (store.get("toured", false) && !store.get("toured_stock", false) && tourAt < 0 && !root.classList.contains("intro")) setTimeout(() => startTour("stock"), 500);
 }
 /* on wide screens the chart fills whatever height its column ends up with (fonts and live prices can change it after drawing) */
 let chartRO = null;
@@ -1228,14 +1311,17 @@ function renderAll() { render(); }
 
 /* ------------------------------------------------------------------ walkthrough on the first visit */
 const TOURS = {
-  home:[{el:"#wgrid", t:"Your watchlist", b:"The stocks you follow, each with its call for the next session. Green means buy, violet means wait. Tap a stock to open it."},
-        {el:"#addBox", t:"Add or remove stocks", b:"Search for any of about 500 large US stocks, or tap a popular one. Use Edit to remove stocks."},
-        {el:".views", t:"Three views", b:"Switch between your watchlist, every stock with its call, and a side-by-side comparison."}],
-  stock:[{el:"#callBand", t:"The call", b:"Buy or wait, for the next trading session, with how far the price may still dip. Tap it to see why."},
-         {el:"#chartSec", t:"The chart", b:"Move along the line to see any day's price. The shaded area on the right shows when the low is most likely to come."},
-         {el:"#tiles", t:"Everything else, one tap away", b:"Each tile shows the main number. Tap it for the details, then swipe down or tap outside to close."}]};
+  home:[{el:"#wgrid .wcard", t:"Your watchlist", b:"Each card is a stock you follow. The big word is Settle's call for the next trading session. <b>Buy</b> means buying straight away has usually done better than waiting. <b>Wait</b> means waiting a few days has usually got a lower price. The small label under it says how sure the call is."},
+        {el:"#wgrid .wfoot", t:"The two numbers to check", b:"<b>Low already in</b> is the chance the stock has already hit its lowest point after its news, so a further dip would likely stop above it. <b>Bad case</b> is a fall that only about 1 in 10 similar cases went beyond in four weeks. Stocks without recent news show their week against the market instead."},
+        {el:"#addBox", t:"Build your list", b:"Search for any of about 500 large US stocks, or tap a popular one to add it. Tap Edit to remove stocks."},
+        {el:".views", t:"Three ways to look", b:"<b>All stocks</b> ranks every stock, and the star adds one to your list. <b>Compare</b> lines up two to four stocks on timing, risk and how much to put in."}],
+  stock:[{el:"#callBand", t:"The call", b:"Buy or wait for the next session, and how sure it is. After company news it comes from about 317,000 similar past cases. Without news it comes from how the stock moved against the market this week. Tap it for the reasons."},
+         {el:"#chartSec", t:"The chart", b:"Drag along the line to see any day's price. The shaded area on the right shows when the low is most likely to come, and the dashed lines mark the expected low and the bad case."},
+         {el:"#tiles", t:"The details", b:"Each tile shows its main number. Tap one for more.<ul><li><b>Next open:</b> the likely price range for the next session.</li><li><b>The low:</b> when the lowest point may come, or how far it usually dips.</li><li><b>Risk:</b> how much the price may swing over four weeks.</li><li><b>The stock today:</b> trend, momentum and where it sits in its yearly range.</li><li><b>News:</b> the headlines behind the call.</li></ul>"},
+         {el:'[data-sheet="size"]', t:"How much to put in", b:"Enter your budget and pick how much risk you can take. Settle suggests an amount small enough that a bad month stays within the loss you chose. You can add up to three stocks to one plan."},
+         {el:".snav", t:"Getting around", b:"Your watchlist runs along the top, so you can jump between stocks or swipe sideways. All stocks and Compare are here too, and the star adds or removes this stock."}]};
 let STEPS = TOURS.home, tourAt = -1;
-function startTour(which) { STEPS = TOURS[which || (stockOf(route()) ? "stock" : "home")]; if (STEPS === TOURS.home && route()) location.hash = ""; tourAt = 0; showStep(); }
+function startTour(which) { if (which === "stock" && !stockOf(route())) which = "home"; STEPS = TOURS[which || (stockOf(route()) ? "stock" : "home")]; if (STEPS === TOURS.home && route()) location.hash = ""; tourAt = 0; showStep(); }
 function endTour() { if (tourAt < 0) return; document.querySelector(".spot")?.classList.remove("spot"); $("#tour").hidden = true; tourAt = -1; store.set(STEPS === TOURS.stock ? "toured_stock" : "toured", true); }
 function showStep() {
   document.querySelector(".spot")?.classList.remove("spot");
@@ -1259,11 +1345,28 @@ function loadQuotes() {
   if (stockOf(route())) fetch("data/paths.json?" + Date.now()).then(r => r.ok ? r.json() : null).then(p => { if (p) PATHS = p; }).catch(() => {});
   return fetch("data/quotes.json?" + Date.now()).then(r => r.ok ? r.json() : null).then(q => { if (q) { Q = q; if (DATA && !sheet.open) render(); } }).catch(() => {});
 }
-fetch("data/predictions.json?" + Date.now()).then(r => r.json()).then(d => {
+const SEEN = "settle_seen", GAP = 3 * 3600e3, sleep = ms => new Promise(r => setTimeout(r, ms));
+const markSeen = () => { try { localStorage.setItem(SEEN, Date.now()); } catch (e) {} };
+const lastSeen = () => { try { return +localStorage.getItem(SEEN) || 0; } catch (e) { return 0; } };
+function endIntro() {
+  const sp = $("#splash"); if (!root.classList.contains("intro")) return Promise.resolve();
+  sp.classList.add("out");
+  return sleep(matchMedia("(prefers-reduced-motion: reduce)").matches ? 0 : 450).then(() => { root.classList.remove("intro"); sp.classList.remove("out"); markSeen(); });
+}
+function replayIntro() { if (root.classList.contains("intro") || tourAt >= 0) return; root.classList.add("intro"); sleep(1100).then(endIntro); }
+document.addEventListener("visibilitychange", () => { if (document.visibilityState === "hidden") markSeen(); else if (Date.now() - lastSeen() > GAP) replayIntro(); else markSeen(); });
+addEventListener("pagehide", markSeen);
+setInterval(() => { if (document.visibilityState === "visible" && !root.classList.contains("intro")) markSeen(); }, 60000);
+const firstVisit = !store.get("toured", false);
+const boardP = fetch("data/predictions.json?" + Date.now()).then(r => r.json());
+const introP = root.classList.contains("intro") ? Promise.all([sleep(firstVisit ? 1500 : 1100), Promise.race([boardP.catch(() => {}), sleep(4000)])]).then(endIntro) : (markSeen(), Promise.resolve());
+introP.then(() => { if (firstVisit) setTimeout(() => startTour(stockOf(route()) ? "stock" : "home"), 250);
+  else if (stockOf(route()) && !store.get("toured_stock", false)) setTimeout(() => startTour("stock"), 400); });
+boardP.then(d => {
   DATA = d;
   sel = (d.stocks.find(live) || d.stocks[0] || {}).ticker;
   renderAll(); renderSkill();
-  loadQuotes().then(() => { if (!store.get("toured", false) && !stockOf(route())) setTimeout(() => startTour("home"), 600); });
+  loadQuotes();
   setInterval(() => { if (document.visibilityState === "visible") loadQuotes(); }, 60000);
   setInterval(() => fetch("data/predictions.json?" + Date.now()).then(r => r.json()).then(x => { if (x.generated_utc !== DATA.generated_utc && !sheet.open) { DATA = x; renderAll(); } }).catch(() => {}), 600000);
   let rt, lw = innerWidth, lh = innerHeight; addEventListener("resize", () => { clearTimeout(rt); rt = setTimeout(() => { if (Math.abs(innerWidth - lw) > 30 || Math.abs(innerHeight - lh) > 40) { lw = innerWidth; lh = innerHeight; render(); } }, 200); });

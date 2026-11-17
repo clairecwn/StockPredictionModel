@@ -555,6 +555,21 @@ This batch (`src/x12_batch.py`) tested four common ways to squeeze more out of t
 
 Averaging five models passed for volume and the deepest drop, but the gain is less than 0.001 on a scale where the models score 0.2 to 0.66. That is too small to change anything a user sees, so the live models stay as they are. Tuning the settings looked slightly better over all years together but was worse in most months, which is a sign of fitting noise. Feeding the volatility forecast into the drop model, and knowing whether peers moved too, did not pass. Together with the earlier experiments, this suggests the free daily data is close to fully used, and that bigger gains would need new kinds of data, such as option prices.
 
+### Experiment: calls for stocks without recent news
+
+Most stocks on any given day have had no company news, so the news models have nothing to say about them. This test (`src/x13_quiet_days.py`) asks whether price and volume alone carry a usable signal on those quiet days. It uses 1.27 million quiet stock-days from 2006 to 2026 (one every five trading days, stocks above $5 and outside the smallest 20% by market value) and the same walk-forward folds as the other models. The ideas come from the literature: short-term reversal (Jegadeesh 1990; Lehmann 1990), nearness to the 52-week high (George and Hwang 2004), momentum, RSI, moving-average gaps, and changes in volatility and volume.
+
+| Forecast | Target | Monthly rank correlation | t | From 2021 |
+|---|---|---|---|---|
+| LightGBM, all price features | next 5 days against the market | 0.024 | 4.7 | 0.013 |
+| Last week's move against the market, reversed | next 5 days against the market | 0.031 | 7.0 | 0.031 |
+| LightGBM, all price features | deepest fall against the market over 20 days | 0.091 | 17.8 | 0.110 |
+| Rising volatility alone | deepest fall over 20 days | 0.035 | 10.3 | 0.046 |
+
+For buy or wait, the simple reversal rule beat the model and held up from 2021, so the live board uses the rule. Among large stocks, those that rose more than the market over a week went on to trail it the next week (48 to 49 cases in 100 beat the market), and this held from 2021. Stocks that fell more than the market used to bounce, but that stopped holding from 2021, so those Buy calls are shown as a slight lean. For the size of the coming dip, the model is far stronger and also improved from 2021, so the live board uses a version of it built only from features that free daily prices can rebuild.
+
+Each call on the page now shows how often similar past cases went its way, as a slight lean, a mild lean or a clearer call. For calls after news, the odds come from the entry engine's test years: the strongest tenth of Buy calls beat the market over the next week in 53 of 100 cases, and the middle of the range is close to a coin flip.
+
 ### Why the headline numbers are modest
 
 Published stock models often report directional accuracy of 90% or more. In almost every case, figures like this come from one of five problems:
@@ -570,9 +585,9 @@ This project avoids all five, so its accuracy for direction sits close to 50%, w
 ## Live board
 
 <!-- LIVE-BOARD:START -->
-_Updated 2026-11-17 06:58 UTC. Research only, not financial advice._
+_Updated 2026-11-17 08:00 UTC. Research only, not financial advice._
 
-516 stocks checked; 381 have company news in the last 15 trading days. The 40 most recent calls are listed below; the page shows all of them.
+516 stocks checked; 380 have company news in the last 15 trading days. The 40 most recent calls are listed below; the page shows all of them.
 
 | Stock | Price | Event (day 0) | Day | Signal | Expected further dip | Most likely timing of the 20-day low | 1-in-10 worst point (20 days) | Risk vs normal | Balanced size |
 |---|---|---|---|---|---|---|---|---|---|
@@ -696,12 +711,15 @@ A full run takes about 6 to 8 hours on a laptop. Most of that time is spent in t
 - Da, Z., Engelberg, J. and Gao, P. (2011). In search of attention. *Journal of Finance*.
 - Fama, E. and French, K. (2015). A five-factor asset pricing model. *Journal of Financial Economics*.
 - Fischer, T. and Krauss, C. (2018). Deep learning with long short-term memory networks for financial market predictions. *European Journal of Operational Research*.
+- George, T. and Hwang, C. (2004). The 52-week high and momentum investing. *Journal of Finance*.
 - Gibbs, I. and Candès, E. (2021). Adaptive conformal inference under distribution shift. *NeurIPS*.
 - Grinold, R. and Kahn, R. (2000). *Active Portfolio Management*. McGraw-Hill.
 - Gu, S., Kelly, B. and Xiu, D. (2020). Empirical asset pricing via machine learning. *Review of Financial Studies*.
 - Ikenberry, D., Rankine, G. and Stice, E. (1996). What do stock splits really signal? *Journal of Financial and Quantitative Analysis*.
+- Jegadeesh, N. (1990). Evidence of predictable behavior of security returns. *Journal of Finance*.
 - Ke, Z., Kelly, B. and Xiu, D. (2019). Predicting returns with text data. NBER Working Paper.
 - Ledoit, O. and Wolf, M. (2004). A well-conditioned estimator for large-dimensional covariance matrices. *Journal of Multivariate Analysis*.
+- Lehmann, B. (1990). Fads, martingales, and market efficiency. *Quarterly Journal of Economics*.
 - Longin, F. and Solnik, B. (2001). Extreme correlation of international equity markets. *Journal of Finance*.
 - López de Prado, M. (2018). *Advances in Financial Machine Learning*. Wiley.
 - Martineau, C. (2022). Rest in peace post-earnings announcement drift. *Critical Finance Review*.
