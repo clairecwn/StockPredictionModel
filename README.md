@@ -49,39 +49,45 @@ The pattern is consistent across every method tried. Risk is predictable, becaus
 
 ## Success metrics
 
-Accuracy means something different for each output, so each one is judged by the measure that fits what it promises. All numbers below are out of sample, from the live models, on test years the models never saw during training.
+Each output makes a different promise, so each one is judged by the measure that fits that promise. A risk forecast should put riskier events higher, a bound should be broken about as often as it says, and a call should beat the simple alternative it replaces. All numbers below are out of sample: they come from the live models on test years the models never saw during training.
 
-**How each measure works**
+**How to read the measures**
 
-- **Rank correlation (Spearman).** Events are sorted by the forecast and by what really happened, and the two orderings are compared. It is 0 for a random forecast and 1 for a perfect one. It suits risk forecasts, where the question is whether riskier events get higher forecasts.
-- **$R^2$.** The share of the variation in outcomes that the forecast explains. A value above 0 means the forecast beats predicting the average.
-- **AUC.** The chance that a randomly picked bad outcome gets a worse forecast than a randomly picked normal one. It is 0.5 for a coin flip and 1 for a perfect separation.
-- **Hit rate.** The share of forecasts with the right sign (up or down).
-- **Coverage and breach rate.** For a range or a bound, the share of outcomes that land inside it, compared with what was promised. A bound that promises "1 in 10 chance of worse" should be breached about 10% of the time.
+- **Rank correlation (Spearman).** Events are sorted by the forecast and by what really happened, and the two orderings are compared. It is 0 for a random forecast and 1 for a perfect one.
+- **$R^2$.** The share of the variation in outcomes that the forecast explains. Above 0 means it beats predicting the average.
+- **AUC.** The chance that a randomly picked bad outcome gets a worse forecast than a randomly picked normal one. It is 0.5 for a coin flip and 1 for perfect separation.
+- **Log loss.** How much probability the model gave to what actually happened, averaged over events. Lower is better.
+- **Coverage and breach rate.** For a range or a bound, how often the outcome lands inside it, compared with what was promised.
 - **Placebo.** The same model trained on shuffled outcomes. A real signal must clearly beat it.
 
 **Scores**
 
-| Output | Measure | Score | Reference point |
-|---|---|---|---|
-| Volatility, days 2 to 20 | rank correlation / $R^2$ | 0.514 / 0.39 | placebo -0.01 |
-| Trading volume, days 2 to 20 | rank correlation / $R^2$ | 0.666 / 0.48 | placebo 0.02 |
-| Deepest drop, days 2 to 20 | rank correlation | 0.20 | placebo 0.08 |
-| Flagging the worst 20% of drops | AUC | 0.68 | simple baseline 0.61 |
-| Big-drop warning on shock days | share of flagged events that end in the worst 20% | 35% | 15% of unflagged events |
-| 80% ranges for every forecast | coverage | 79.7% to 80.0% | promise 80% |
-| Downside bound, 1 in 10 | breach rate, 2021 to 2025 | 9.4% | promise 10% |
-| Sizing tiers (Safest, Balanced, Bold) | share of trades losing more than the tier's limit | 2.7%, 2.5%, 1.4% | promises 5%, 10%, 10% |
-| Further dip before the 20-day low | rank correlation, same decision day, scaled by volatility | 0.15 | 0 |
-| Buy or wait, next five days | AUC for which way the next move goes | 0.518 | placebo 0.504 |
-| Buy or wait, as an entry rule | entry price above the 20-day low | 4.78% | 4.83% for buying on day 1 (Holm p = 0.020) |
-| Earnings preview, size of the move | rank correlation | 0.37 | own usual move 0.36, volatility 0.26 |
-| Earnings preview, moves of twice the usual size | AUC | 0.66 | 0.5 |
-| When the 20-day low will come | log loss (lower is better) / most likely window right | 1.14 / 53.1% | day-count baseline 1.27 / 48.5% |
-| Chance the low has already passed | calibration: predicted vs realised, top decile | 95.0% vs 94.6% | perfect calibration |
-| Direction of the 20-day return | rank correlation / hit rate | 0.03 / 51% | placebo 0.00 / 50% |
+| Output | Measure | Score | Compared with | In plain words |
+|---|---|---|---|---|
+| Volatility, days 2 to 20 | rank correlation / $R^2$ | 0.514 / 0.39 | placebo -0.01 | Wild and calm months are told apart well. |
+| Trading volume, days 2 to 20 | rank correlation / $R^2$ | 0.666 / 0.48 | placebo 0.02 | The strongest forecast on the board. |
+| Deepest drop, days 2 to 20 | rank correlation | 0.20 | placebo 0.08 | Useful for ranking risk, not for exact levels. |
+| Flagging the worst 20% of drops | AUC | 0.68 | simple baseline 0.61 | |
+| Big-drop warning on shock days | share of flagged events that end in the worst 20% | 35% | 15% of unflagged events | A flagged stock is more than twice as likely to have a bad month. |
+| 80% ranges for every forecast | coverage | 79.7% to 80.0% | promise 80% | The ranges mean what they say. |
+| Downside bound, 1 in 10 | breach rate, 2021 to 2025 | 9.4% | promise 10% | Same, for the bad case. |
+| Sizing tiers (Safest, Balanced, Bold) | share of trades losing more than the tier's limit | 2.7%, 2.5%, 1.4% | promises 5%, 10%, 10% | Losses stayed inside the limits, with room to spare. |
+| When the 20-day low will come | log loss / most likely window right | 1.14 / 53.1% | day-count baseline 1.27 / 48.5% | Better than guessing from the day count alone. |
+| Chance the low has already passed | predicted vs realised, top tenth | 95.0% vs 94.6% | perfect calibration | When it says 95%, it happens about 95% of the time. |
+| Further dip before the 20-day low | rank correlation, same decision day | 0.15 | 0 | |
+| Buy or wait, as an entry rule | entry price above the 20-day low | 4.78% | 4.83% for buying on day 1 (Holm p = 0.020) | A real but small edge. |
+| Earnings preview, size of the move | rank correlation | 0.37 | own usual move 0.36 | About as good as the stock's own history. |
+| Direction of the 20-day return | rank correlation / hit rate | 0.03 / 51% | placebo 0.00 / 50% | Close to a coin flip, as expected for public news. |
 
-The risk forecasts and the calibrated bounds are the parts that work well. The timing and direction outputs are honest but weak: they beat their placebos, yet the gains are small (entries only 0.05 percentage points closer to the low, for example), which is why the board presents them as leanings rather than predictions.
+The risk forecasts and the calibrated bounds are the parts that work well. The timing and direction outputs beat their placebos, but the gains are small, which is why the board presents them as leanings rather than predictions.
+
+**How this compares with other work**
+
+Comparisons are only made where the task is close enough to be fair.
+
+- **Direction.** In stock selection, the rank correlation between forecast and realised return is called the information coefficient. An IC of about 0.05 is usually described as a strong signal (Zhang, Guo and Cao, 2020), and Grinold and Kahn (2000) show why even small values matter when a signal is applied to many stocks. The drift model's 0.03 sits in the range of real professional signals, but in this sample it is not statistically significant, so the board does not trade on it. For machine learning on individual US stocks, Gu, Kelly and Xiu (2020) report monthly out-of-sample $R^2$ below 1% even for their best models, and Fischer and Krauss (2018) found that the edge of deep learning on S&P 500 stocks faded to around zero after costs from 2010 on. A hit rate near 50% for direction is therefore the honest result, not a weak one.
+- **Risk.** Volatility and trading activity are far more predictable than direction, because they cluster in time. That is why the risk models score 0.5 to 0.67 while the direction model scores 0.03, a gap that matches the wider literature. A head-to-head test against the standard volatility model (Corsi, 2009) on the same events is in progress (`src/x11_benchmarks.py`).
+- **Calibration.** A bound or range is only useful if it holds. Every range on the board covers 79.7% to 80.0% of outcomes against a promise of 80%, and the 1-in-10 bound was broken 9.4% of the time in the latest test years.
 
 The live board also logs every prediction it makes (`docs/data/forward_log.csv`) and scores each one once 20 trading days have passed (`docs/data/forward_scores.json`). That record starts in November 2026 and will be reported here once it holds enough events to judge.
 
@@ -526,7 +532,7 @@ This project avoids all five, so its accuracy for direction sits close to 50%, w
 ## Live board
 
 <!-- LIVE-BOARD:START -->
-_Updated 2026-11-17 04:34 UTC. Research only, not financial advice._
+_Updated 2026-11-17 05:01 UTC. Research only, not financial advice._
 
 | Stock | Price | Event (day 0) | Day | Signal | Expected further dip | Most likely timing of the 20-day low | 1-in-10 worst point (20 days) | Risk vs normal | Balanced size |
 |---|---|---|---|---|---|---|---|---|---|
@@ -541,7 +547,7 @@ _Updated 2026-11-17 04:34 UTC. Research only, not financial advice._
 | SE | 71.63 | earnings guidance (2026-11-10) | 4 | BUY (high drop risk) | 5.2% | in 11+ days (34%) | -15.0% | 1.13x | 17% |
 <!-- LIVE-BOARD:END -->
 
-The board runs on GitHub Actions twice per trading day, once after the US close and once in the morning to refresh headlines. Each run follows six steps:
+The board runs on GitHub Actions three times per trading day: after the US close, before the open to refresh headlines, and at midday. Each run follows six steps:
 
 1. Download daily prices for the watchlist and SPY from Yahoo Finance. If Yahoo drops a ticker, the board retries it, then falls back to Alpaca's free consolidated daily bars, and if both fail it shows the last good reading with its date. An unfinished intraday bar is never used, because the models were trained on closing values.
 2. Look for an event in the last 15 trading days. An earnings date from the calendar comes first, then a classified headline that names the company, then an unexplained price or volume shock. Events are dated to the announcement day, which is the same convention as in training.
@@ -550,7 +556,7 @@ The board runs on GitHub Actions twice per trading day, once after the US close 
 5. Publish `docs/data/predictions.json`, which drives the page, and update the table above.
 6. Log each prediction in `docs/data/forward_log.csv` and score it once its 20-day outcome is known. This gives a forward test that cannot be affected by look-ahead.
 
-The page leads each stock with its verdict and a ripple drawing made from the stock's own numbers: the size of the shock sets the number of rings and the expected swings set how far they spread. It also includes a calculator that turns an account size into dollar amounts for each tier and for a split across up to three stocks.
+The page leads each stock with its price, the buy or wait call and a price chart with the forecast range. A separate job (`src/q01_quotes.py`) refreshes prices every 15 minutes while the market is open and every hour during pre-market and after-hours trading, so the page shows the latest trade even when the market is closed. Below the chart, a panel prepares for the next session: the after-hours or pre-market price, the range the stock is likely to trade in, the chance that the low after the news has already passed, and the price levels worth watching, including the model's expected low and bad case. The page also includes a calculator that turns an account size into dollar amounts for each tier and for a split across up to three stocks.
 
 ## Reproducing the results
 
@@ -615,10 +621,13 @@ A full run takes about 6 to 8 hours on a laptop. Most of that time is spent in t
 - Bernard, V. and Thomas, J. (1989). Post-earnings-announcement drift: delayed price response or risk premium? *Journal of Accounting Research*.
 - Cohen, L., Malloy, C. and Pomorski, L. (2012). Decoding inside information. *Journal of Finance*.
 - Cohen, L. and Frazzini, A. (2008). Economic links and predictable returns. *Journal of Finance*.
+- Corsi, F. (2009). A simple approximate long-memory model of realized volatility. *Journal of Financial Econometrics*.
 - Da, Z., Engelberg, J. and Gao, P. (2011). In search of attention. *Journal of Finance*.
 - Fama, E. and French, K. (2015). A five-factor asset pricing model. *Journal of Financial Economics*.
+- Fischer, T. and Krauss, C. (2018). Deep learning with long short-term memory networks for financial market predictions. *European Journal of Operational Research*.
 - Gibbs, I. and Candès, E. (2021). Adaptive conformal inference under distribution shift. *NeurIPS*.
 - Grinold, R. and Kahn, R. (2000). *Active Portfolio Management*. McGraw-Hill.
+- Gu, S., Kelly, B. and Xiu, D. (2020). Empirical asset pricing via machine learning. *Review of Financial Studies*.
 - Ikenberry, D., Rankine, G. and Stice, E. (1996). What do stock splits really signal? *Journal of Financial and Quantitative Analysis*.
 - Ke, Z., Kelly, B. and Xiu, D. (2019). Predicting returns with text data. NBER Working Paper.
 - Ledoit, O. and Wolf, M. (2004). A well-conditioned estimator for large-dimensional covariance matrices. *Journal of Multivariate Analysis*.
@@ -630,6 +639,7 @@ A full run takes about 6 to 8 hours on a laptop. Most of that time is spent in t
 - Tetlock, P. (2007). Giving content to investor sentiment: the role of media in the stock market. *Journal of Finance*.
 - Vovk, V., Lindsay, D., Nouretdinov, I. and Gammerman, A. (2003). Mondrian confidence machine. Technical report, Royal Holloway.
 - Yang, D. and Zhang, Q. (2000). Drift-independent volatility estimation based on high, low, open and close prices. *Journal of Business*.
+- Zhang, F., Guo, R. and Cao, H. (2020). Information coefficient as a performance measure of stock selection models. arXiv:2010.08601.
 
 ## Disclaimer
 
