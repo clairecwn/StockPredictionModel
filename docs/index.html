@@ -567,14 +567,14 @@ body.tray { padding-bottom:84px; }
   <div class="dlg-top"><h2 id="howTitle">How Settle works</h2><button class="xbtn" type="button" data-close>Close</button></div>
   <p>When a company is in the news, its stock usually jumps or drops over the first day or two and then settles down. Settle finds the latest news for each stock and compares it with about 317,000 similar moments from 2001 to 2025. From those, it estimates what the next four weeks may bring.</p>
   <h3>The call</h3>
-  <p><b>Buy</b> means that in similar cases, buying right away worked out better than waiting. <b>Wait</b> means that waiting a few days usually got a better price. The difference is small, so the call is best used to time a purchase you were already planning, not as a reason to buy.</p>
-  <p>Stocks without recent company news still get a call, from price alone: how the stock moved against the market over the last week, compared with the same kind of week for large US stocks since 2001.</p>
+  <p><b>Buy</b> means that in similar cases, buying right away worked out better than waiting. <b>Wait</b> means that waiting a few days usually got a better price. Use it to time a purchase you already plan, not as a reason to buy.</p>
+  <p>For stocks without recent news, the call comes from how the stock moved against the market over the last week.</p>
   <h3>How sure the call is</h3>
-  <p>Next to each call is how often similar past cases went its way. <b>Slight lean</b> means close to a coin flip. <b>Mild lean</b> means a small but steady edge. <b>Clearer call</b> is kept for the most one-sided cases, about 1 in 5 calls.</p>
+  <p><b>Slight lean:</b> close to a coin flip. <b>Mild lean:</b> a small but steady edge. <b>Clearer call:</b> the most one-sided cases, about 1 in 5 calls.</p>
   <h3>The risks</h3>
-  <p>The <b>expected low</b> is how far the price may still fall before it reaches its lowest point in the next four weeks. The <b>bad case</b> is a fall that only about 1 in 10 similar stocks went beyond. Both were tested on years the models never saw, and the bad case was passed about as often as promised.</p>
+  <p>The <b>expected low</b> is how far the price may still fall before it reaches its lowest point in the next four weeks. The <b>bad case</b> is a fall that only about 1 in 10 similar stocks went beyond.</p>
   <h3>How much to put in</h3>
-  <p>Choose a budget and a risk level, and Settle suggests an amount small enough that a bad month stays within the loss you chose. You can add up to three stocks to a plan. Their amounts shrink a little when combined, because stocks often fall together in a sell-off.</p>
+  <p>Choose a budget and a risk level, and Settle suggests an amount small enough that a bad month stays within the loss you chose. Add up to three stocks to one plan. Their amounts shrink a little, because stocks often fall together.</p>
   <h3>How accurate it is</h3>
   <dl id="skillList"></dl>
   <p class="mute" id="fwdLine" style="margin-top:12px"></p>
@@ -601,7 +601,7 @@ const TIPS = {
   str:"How often similar past cases went the way of the call. Slight lean means close to a coin flip, mild lean means a small but steady edge, and clearer call is kept for the most one-sided cases.",
   rel5:"How the stock moved over the last five trading days compared with the S&P 500. Large stocks that moved much more or less than the market in a week have, on average, partly reversed the next week.",
   dipq:"How far the price is likely to fall below today's, compared with the market, at its lowest point in the next four weeks. It comes from a model trained on about 1.3 million days when stocks had no company news, using recent moves, swings and trading volume.",
-  rsi:"A score from 0 to 100 that shows how fast the price has moved lately. Above 70, it has risen quickly and may be due for a pause. Below 30, it has fallen quickly and may be due for a bounce. It is a warning sign, not a promise.",
+  rsi:"A score from 0 to 100 that shows how fast the price has moved lately. Above 70, it has risen quickly and may be due for a pause. Below 30, it has fallen quickly and may be due for a bounce.",
   beta:"How much the stock tends to move when the whole market moves. A value of 1.8 means that when the market has risen or fallen 1%, this stock has usually moved about 1.8% the same way.",
   liq:"How easy it is to buy or sell the stock quickly at a fair price. Stocks that trade billions of dollars a day are easy. With thinly traded stocks, your own order can move the price.",
   range52:"The lowest and highest closing prices of the past year. The marker shows where today's price sits between them.",
@@ -685,7 +685,7 @@ const sig = s => callOf(s)?.g || null;
 function oddsLine(c) {
   if (!c?.odds) return "";
   const n = Math.round(100 * c.odds);
-  if (c.str === "slight" || n <= 50) return `Similar past cases were close to a coin flip, so treat this as a slight lean.`;
+  if (c.str === "slight" || n <= 50) return `Similar past cases went either way about equally.`;
   return c.g === "BUY" ? `In ${n} of 100 similar past cases, the stock did better than the market over the next week.`
                        : `In ${n} of 100 similar past cases, the stock did worse than the market over the next week, so waiting paid.`;
 }
@@ -902,7 +902,7 @@ function nextSession(s) {
     const mv = s.car_0_1_pct;
     st.push(`<div class="stat"><dt>Reaction so far</dt><dd class="${mv >= 0 ? "up" : "down"}">${mv >= 0 ? "+" : "−"}${fmt(Math.abs(mv))}%</dd><small>How much more the stock ${mv >= 0 ? "rose" : "fell"} than the market on the day of the news. The call comes after one more close.</small></div>`);
   } else if (s.preview) {
-    st.push(`<div class="stat"><dt>Move expected on the report</dt><dd>±${fmt(s.preview.typical_move_pct)}%</dd><small>The report is due on ${day(s.preview.report_date)}. Which way the stock will move cannot be known in advance.</small></div>`);
+    st.push(`<div class="stat"><dt>Move expected on the report</dt><dd>±${fmt(s.preview.typical_move_pct)}%</dd><small>The report is due on ${day(s.preview.report_date)}. It could go either way.</small></div>`);
   } else if (s.stats?.trend) {
     const t = s.stats, tw = {bullish:"Bullish", bearish:"Bearish", mixed:"Mixed"}[t.trend];
     st.push(`<div class="stat"><dt>Trend ${tip("trend")}</dt><dd class="${t.trend === "bullish" ? "up" : t.trend === "bearish" ? "down" : ""}">${tw}</dd><small>It is ${t.ret_3m_pct >= 0 ? "up" : "down"} ${fmt(Math.abs(t.ret_3m_pct))}% over three months, while the market ${t.mkt_3m_pct >= 0 ? "rose" : "fell"} ${fmt(Math.abs(t.mkt_3m_pct))}%.</small></div>`);
@@ -1114,18 +1114,16 @@ function quickChips(s) {
 /* for owners: no sell call, because no tested signal for it; the sizing gives a limit instead */
 function ownHTML(s) {
   if (weightOf(s, "recommended") == null) return "";
-  const lead = s.warning_big_drop ? "A sharp fall is more likely than usual here, so holding less than usual is the safer choice. "
-             : "Settle does not make sell calls, because none of its tests found one that worked reliably. ";
-  return `<p class="own"><b>If you already own it:</b> ${lead}Check the amount under How much to put in. If you hold more than that, a bad month could cost more than the loss you chose.</p>`;
+  return `<p class="own"><b>Already own it?</b> ${s.warning_big_drop ? "A sharp fall is more likely than usual, so hold less. " : ""}Keep it within the amount under How much to put in, so a bad month stays within your loss limit.</p>`;
 }
 function callHTML(s) {
   const st = stateOf(s);
   if (live(s)) {
     const e = s.entry || {}, g = sig(s), dip = e.expected_further_dip_pct, bad = badOf(s, "recommended"), d = e.days_to_low;
-    const txt = g === "BUY" ? `In similar cases, buying straight away worked out better than waiting. The price could still dip about ${fmt(dip)}% first, so expect some ups and downs.`
-              : g === "WAIT" ? `In similar cases, waiting a few days usually got a better price. Settle expects the price to dip about ${fmt(dip)}% before it reaches its low.`
-              : s.decision_day === 0 ? `Settle needs to see how the market reacts over two trading days before it can say buy or wait, so the call comes after the next close. The risk forecasts already use today's move.`
-              : `Four weeks have passed since the news, so there is no longer a call.`;
+    const txt = g === "BUY" ? `In similar cases, buying straight away beat waiting. The price may still dip about ${fmt(dip)}% first.`
+              : g === "WAIT" ? `In similar cases, waiting a few days got a better price. The price may dip about ${fmt(dip)}% before its low.`
+              : s.decision_day === 0 ? `The call comes after the next close, once the market has reacted for two days.`
+              : `Four weeks have passed since the news, so the call has ended.`;
     return `<p>${txt}${g ? " " + oddsLine(callOf(s)) : ""}</p>
       <dl class="keys">${dip != null ? `<div><dt>Expected low ${tip("low")}</dt><dd>−${fmt(dip)}%</dd></div>` : `<div><dt>Swings ahead ${tip("swings")}</dt><dd>${swings(s.risk?.vol_ratio_2_20?.pred).replace(" than normal", "").replace(" for this stock", "")}</dd></div>`}
         ${bad != null ? `<div><dt>Bad case ${tip("bad")}</dt><dd>−${fmt(-bad)}%</dd></div>` : ""}
@@ -1134,7 +1132,7 @@ function callHTML(s) {
   }
   const pv = s.preview, o = s.outlook, c = callOf(s), dq = dipQ(s), r5 = rel5(s);
   const ctxt = c ? `${c.g === "BUY" ? "Buying now has" : "Waiting a few days has"} usually done better for large stocks that ${c.when || relWord(r5)} over a week, as ${esc(s.ticker)} did. ${oddsLine(c)} ` : "";
-  const txt = ctxt + (pv ? `${esc(s.ticker)} reports earnings on ${day(pv.report_date)}. Over the two days after, it is expected to move about ${fmt(pv.typical_move_pct)}% more than the market${pv.usual_move_pct != null ? `, compared with ${fmt(pv.usual_move_pct)}% after a typical report` : ""}. Which way it will move cannot be known in advance.`
+  const txt = ctxt + (pv ? `${esc(s.ticker)} reports earnings on ${day(pv.report_date)}. Over the two days after, it is expected to move about ${fmt(pv.typical_move_pct)}% more than the market${pv.usual_move_pct != null ? `, compared with ${fmt(pv.usual_move_pct)}% after a typical report` : ""}. It could go either way.`
             : c ? `` : `The risks and sizing come from the stock's own history.`);
   return `<p>${txt}</p><dl class="keys">${pv ? `<div><dt>Expected move</dt><dd>±${fmt(pv.typical_move_pct)}%</dd></div><div><dt>Large move, 1 in 10</dt><dd>±${fmt(pv.upper_move_pct)}%</dd></div>`
       : `${r5 != null ? `<div><dt>Week vs market ${tip("rel5")}</dt><dd>${r5 >= 0 ? "+" : "−"}${fmt(Math.abs(r5))}%</dd></div>` : ""}${dq != null ? `<div><dt>Expected dip ${tip("dipq")}</dt><dd>−${fmt(dq)}%</dd></div>` : ""}`}
@@ -1196,7 +1194,7 @@ function renderStock(s) {
              : {BUY:"Buying now has usually beaten waiting in cases like this.", WAIT:"Waiting a few days has usually got a better price in cases like this."}[sig(s)])
              || (live(s) && s.decision_day === 0 ? "The call comes after the next close, once the market has reacted for two days."
              : s.preview ? `Earnings are due on ${day(s.preview.report_date)}. The direction cannot be known in advance.`
-             : live(s) ? "Four weeks have passed since the news, so there is no longer a call." : "No company news in the last three weeks, so there is no call.");
+             : live(s) ? "Four weeks have passed since the news, so the call has ended." : "No company news in the last three weeks, so there is no call.");
   const keys = [dip != null ? ["Expected low", "−" + fmt(dip) + "%"] : c?.basis === "price" && r5 != null ? ["Week vs market", (r5 >= 0 ? "+" : "−") + fmt(Math.abs(r5)) + "%"] : null,
                 bad != null ? ["Bad case", "−" + fmt(bad) + "%"] : null,
                 p0 != null ? ["Low already in", fmt(100 * p0, 0) + "%"] : dq != null ? ["Expected dip", "−" + fmt(dq) + "%"] : null].filter(Boolean);
@@ -1277,7 +1275,7 @@ function updateAnswer() {
   if (!$("#amt")) return;
   $("#amt").textContent = money(amt);
   $("#amtNote").textContent = amt > 0 ? `to put in ${s.ticker}, with the rest kept in cash. At this level, there is at most a ${Math.round(T.beta * 100)}% chance of being down more than ${money(budget * T.d)} at any point in the next four weeks.`
-                                      : `Settle does not expect a gain here, so it suggests keeping this money in cash.`;
+                                      : `No gain is expected here, so keep this money in cash.`;
 }
 function renderPlan() {
   plan = plan.filter(t => stockOf(t) && weightOf(stockOf(t), "recommended") != null);
