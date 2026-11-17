@@ -603,15 +603,15 @@ This project avoids all five, so its accuracy for direction sits close to 50%, w
 ## Live board
 
 <!-- LIVE-BOARD:START -->
-_Updated 2026-11-17 21:44 UTC. Research only, not financial advice._
+_Updated 2026-11-17 23:28 UTC. Research only, not financial advice._
 
-516 stocks checked; 353 have company news in the last 15 trading days. The 40 most recent calls are listed below; the page shows all of them.
+516 stocks checked; 354 have company news in the last 15 trading days. The 40 most recent calls are listed below; the page shows all of them.
 
 | Stock | Price | Event (day 0) | Day | Signal | Expected further dip | Most likely timing of the 20-day low | 1-in-10 worst point (20 days) | Risk vs normal | Balanced size |
 |---|---|---|---|---|---|---|---|---|---|
 | NVDA | 155.46 | legal regulatory (2026-11-16) | 1 | BUY | 5.1% | in 11+ days (38%) | -14.6% | 1.04x | 7% |
 | DVN | 43.46 | price or volume shock (2026-11-16) | 1 | BUY | 5.4% | in 11+ days (39%) | -9.7% | 0.85x | 10% |
-| KDP | 34.79 | price or volume shock (2026-11-16) | 1 | WAIT | 4.6% | in 11+ days (40%) | -8.2% | 0.79x | 0% |
+| KDP | 34.79 | price or volume shock (2026-11-16) | 1 | WAIT | 4.6% | in 11+ days (40%) | -8.3% | 0.79x | 0% |
 | PDD | 77.39 | earnings guidance (2026-11-16) | 1 | WAIT | 4.3% | in 11+ days (42%) | -7.3% | 1.03x | 9% |
 | TSN | 63.65 | earnings guidance (2026-11-16) | 1 | WAIT | 4.2% | in 11+ days (41%) | -7.0% | 0.89x | 0% |
 | UAL | 106.35 | operational (2026-11-16) | 1 | WAIT | 5.4% | in 11+ days (46%) | -15.2% | 0.82x | 21% |
