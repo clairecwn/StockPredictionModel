@@ -124,9 +124,27 @@ for w in WL["stocks"]:
         item["stats"] = {"beta": beta, "ret_3m_pct": 100 * r63, "mkt_3m_pct": 100 * m63, "from_high_pct": 100 * float(c[-1] / np.max(c[-252:]) - 1),
                          "above_ma200_pct": 100 * float(c[-1] / ma200 - 1), "trend": trend,
                          "dollar_vol_m": float(np.nanmean(c[-20:] * f.vol.values[-20:])) / 1e6,
-                         "vol_20_pct": 100 * float(np.nanstd(r[-20:]) * np.sqrt(252)), "vol_1y_pct": 100 * float(np.nanstd(r[-250:]) * np.sqrt(252))}
+                         "vol_20_pct": 100 * float(np.nanstd(r[-20:]) * np.sqrt(252)), "vol_1y_pct": 100 * float(np.nanstd(r[-250:]) * np.sqrt(252)),
+                         "low_52w": float(np.min(c[-252:])), "high_52w": float(np.max(c[-252:]))}
+        dc = np.diff(c[-15:]); up, dn = dc.clip(min=0).mean(), (-dc).clip(min=0).mean()
+        item["stats"]["rsi_14"] = float(100 - 100 / (1 + up / dn)) if dn > 0 else 100.0
+        v = f.vol.values; item["stats"]["vol_vs_avg"] = float(np.nanmean(v[-5:]) / np.nanmean(v[-65:-5]))
     except Exception as e:
         print(f"stats failed for {t}: {e}")
+    H = f.iloc[-260:]
+    item["hist"] = {"d": [str(x.date()) for x in H.index], "o": [round(float(x), 2) for x in H.o], "h": [round(float(x), 2) for x in H.h],
+                    "l": [round(float(x), 2) for x in H.l], "c": [round(float(x), 2) for x in H.c], "v": [int(x) if np.isfinite(x) else 0 for x in H.vol]}
+    try:
+        tr = np.maximum(f.h.values[-14:], f.c.values[-15:-1]) - np.minimum(f.l.values[-14:], f.c.values[-15:-1])
+        item["quote"] = {"open": float(f.o.iloc[-1]), "high": float(f.h.iloc[-1]), "low": float(f.l.iloc[-1]), "prev_close": float(f.c.iloc[-2]),
+                         "volume": float(f.vol.iloc[-1]), "avg_volume_3m": float(np.nanmean(f.vol.values[-64:-1])),
+                         "atr_pct": 100 * float(np.mean(tr) / f.c.iloc[-1])}
+        try:
+            item["quote"]["market_cap"] = float(__import__("yfinance").Ticker(t).fast_info["market_cap"])
+        except Exception:
+            pass
+    except Exception as e:
+        print(f"quote failed for {t}: {e}")
     tail = f.c.iloc[-45:]                                       # recent closes for the price chart on the page
     item["closes"] = [round(float(x), 2) for x in tail]; item["close_dates"] = [str(d.date()) for d in tail.index]
     news = finnhub(t)
@@ -143,6 +161,22 @@ for w in WL["stocks"]:
         found = detect_event(f, news, past_earn)
     if found is None:
         item["status"] = "quiet: no event in the last 15 trading days"
+        # Outlook without a news event: the event models do not apply, so the risk comes from the stock's own history.
+        # Bad case = 10th (and 5th) percentile of its lowest point over 20-day holding windows in the last six years,
+        # rescaled by how volatile it is now relative to that period.
+        try:
+            c = f.c.values; lr = np.log(c)
+            W = np.lib.stride_tricks.sliding_window_view(lr, 21)
+            low20 = np.exp((W[:, 1:].min(axis=1) - W[:, 0])) - 1
+            r = f.ret.values; v_now, v_all = np.nanstd(r[-60:]), np.nanstd(r[-1500:])
+            k_ = float(np.clip(v_now / v_all, 0.6, 1.8)) if v_all > 0 else 1.0
+            q10, q05 = k_ * float(np.quantile(low20, 0.10)), k_ * float(np.quantile(low20, 0.05))
+            tiers = {"safest": (0.02, q05, 0.15), "recommended": (0.04, q10, 0.25), "bold": (0.08, q10, 0.40)}
+            item["outlook"] = {"vol_20d_pct": 100 * float(np.nanstd(r[-20:]) * np.sqrt(20)), "bad_case_pct": 100 * q10, "bad_case_5_pct": 100 * q05,
+                               "vol_now_vs_usual": float(v_now / v_all) if v_all > 0 else None,
+                               "weights": {n: float(min(d / max(abs(q), 1e-3), cap)) for n, (d, q, cap) in tiers.items()}}
+        except Exception as e:
+            print(f"outlook failed for {t}: {e}")
         if next_earn is not None and 0 < (next_earn - pd.Timestamp(f.index[-1]).normalize()).days <= 21:
             try:
                 cap = float(__import__("yfinance").Ticker(t).fast_info["market_cap"]) / 1e3

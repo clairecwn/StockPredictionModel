@@ -64,8 +64,8 @@ Accuracy means something different for each output, so each one is judged by the
 
 | Output | Measure | Score | Reference point |
 |---|---|---|---|
-| Volatility, days 2 to 20 | rank correlation / $R^2$ | 0.51 / 0.39 | placebo -0.01 |
-| Trading volume, days 2 to 20 | rank correlation / $R^2$ | 0.66 / 0.48 | placebo 0.02 |
+| Volatility, days 2 to 20 | rank correlation / $R^2$ | 0.514 / 0.39 | placebo -0.01 |
+| Trading volume, days 2 to 20 | rank correlation / $R^2$ | 0.666 / 0.48 | placebo 0.02 |
 | Deepest drop, days 2 to 20 | rank correlation | 0.20 | placebo 0.08 |
 | Flagging the worst 20% of drops | AUC | 0.68 | simple baseline 0.61 |
 | Big-drop warning on shock days | share of flagged events that end in the worst 20% | 35% | 15% of unflagged events |
@@ -505,6 +505,12 @@ Four well-documented price patterns were tested, all built from daily prices tha
 
 None of them predicted direction. Together, though, they improved the volatility forecast (monthly t = 9.1 with the live features, better in 79% of test months) and the volume forecast (t = 6.3), and both gains held from 2021 on. Most of the volatility gain came from the lottery measures: a stock that recently had one very large daily move tends to stay jumpy after news, which the 60-day volatility average understates. All four groups were added to the research and live models.
 
+### Experiment: news the market ignores, and the tone of headlines
+
+Two questions were tested on 1.5 million firm-days with headlines (2009 to 2023). First, does company news that barely moves the stock on the day matter later? A headline was called quiet when the stock stayed within 2 standard deviations of its normal move, on normal volume, on the news day and the day after. Compared with the same firm's ordinary days in the same month, quiet news was not followed by more large moves over the next four weeks (33.2% against 33.4%). Quiet leadership news, such as reports that a former chief executive may return, was followed by slightly fewer large moves than usual. The one exception was quiet earnings headlines, which were followed by more large moves, but these are mostly previews of a report that the earnings calendar already covers.
+
+Second, does the tone of a headline tell us which way the stock will go? At first sight it did: quiet headlines with bullish words were followed by the stock falling 0.65% behind the market over the next four weeks, and bearish ones by a small gain, a gap with a monthly t-statistic of 7.9. The effect did not survive the checks, however. Once the regression controlled for the stock's own move on the news days and over the previous week, the effect shrank to t = -1.8. Among tradeable stocks it fell to t = -0.9, and from 2016 on it was gone (t = -0.2). Many bullish words describe a price rise that has already happened, so most of the apparent signal was ordinary short-term reversal. Neither result was added to the models.
+
 ### Why the headline numbers are modest
 
 Published stock models often report directional accuracy of 90% or more. In almost every case, figures like this come from one of five problems:
@@ -520,19 +526,19 @@ This project avoids all five, so its accuracy for direction sits close to 50%, w
 ## Live board
 
 <!-- LIVE-BOARD:START -->
-_Updated 2026-11-17 04:10 UTC. Research only, not financial advice._
+_Updated 2026-11-17 04:34 UTC. Research only, not financial advice._
 
 | Stock | Price | Event (day 0) | Day | Signal | Expected further dip | Most likely timing of the 20-day low | 1-in-10 worst point (20 days) | Risk vs normal | Balanced size |
 |---|---|---|---|---|---|---|---|---|---|
-| NVDA | 156.14 | earnings guidance (2026-11-16) | 0 |  |  |  | -12.9% | 0.92x | 8% |
-| TSLA | 379.74 | price or volume shock (2026-11-04) | 8 | WAIT (high drop risk) | 4.4% | already passed (85%) | -11.2% | 0.92x | 25% |
+| NVDA | 156.14 | politics policy (2026-11-16) | 0 |  |  |  | -13.5% | 1.04x | 6% |
+| TSLA | 379.74 | price or volume shock (2026-11-04) | 8 | WAIT (high drop risk) | 4.3% | already passed (84%) | -12.6% | 0.95x | 24% |
 | META | 626.41 | quiet: no event in the last 15 trading days | | | | | | | |
-| BABA | 90.62 | price or volume shock (2026-11-05) | 7 | BUY | 5.1% | in 6-10 days (24%) | -15.7% | 1.11x | 5% |
-| BA | 165.22 | earnings guidance (2026-10-27) | 14 | WAIT | 2.4% | already passed (84%) | -9.2% | 0.93x | 25% |
-| INTC | 55.47 | earnings guidance (2026-10-29) | 12 | BUY (high drop risk) | 4.7% | already passed (68%) | -20.9% | 0.88x | 19% |
-| AAPL | 352.78 | earnings guidance (2026-11-02) | 10 | WAIT | 2.4% | already passed (96%) | -6.2% | 0.96x | 11% |
-| GRAB | 3.21 | price or volume shock (2026-11-05) | 7 | WAIT (high drop risk) | 4.1% | already passed (38%) | -15.5% | 0.88x | 5% |
-| SE | 71.63 | earnings guidance (2026-11-10) | 4 | BUY (high drop risk) | 5.2% | in 11+ days (34%) | -13.8% | 1.20x | 12% |
+| BABA | 90.62 | price or volume shock (2026-11-05) | 7 | BUY | 4.8% | in 6-10 days (24%) | -18.5% | 1.11x | 10% |
+| BA | 165.22 | earnings guidance (2026-10-27) | 14 | WAIT | 2.3% | already passed (84%) | -10.1% | 0.95x | 25% |
+| INTC | 55.47 | earnings guidance (2026-10-29) | 12 | BUY (high drop risk) | 4.7% | already passed (71%) | -20.3% | 0.90x | 20% |
+| AAPL | 352.78 | earnings guidance (2026-11-02) | 10 | WAIT | 2.3% | already passed (96%) | -6.9% | 1.01x | 4% |
+| GRAB | 3.21 | price or volume shock (2026-11-05) | 7 | WAIT (high drop risk) | 4.0% | already passed (39%) | -16.1% | 0.91x | 5% |
+| SE | 71.63 | earnings guidance (2026-11-10) | 4 | BUY (high drop risk) | 5.2% | in 11+ days (34%) | -15.0% | 1.13x | 17% |
 <!-- LIVE-BOARD:END -->
 
 The board runs on GitHub Actions twice per trading day, once after the US close and once in the morning to refresh headlines. Each run follows six steps:
@@ -621,6 +627,7 @@ A full run takes about 6 to 8 hours on a laptop. Most of that time is spent in t
 - Martineau, C. (2022). Rest in peace post-earnings announcement drift. *Critical Finance Review*.
 - Romano, Y., Patterson, E. and Candès, E. (2019). Conformalized quantile regression. *NeurIPS*.
 - Shleifer, A. and Vishny, R. (1997). The limits of arbitrage. *Journal of Finance*.
+- Tetlock, P. (2007). Giving content to investor sentiment: the role of media in the stock market. *Journal of Finance*.
 - Vovk, V., Lindsay, D., Nouretdinov, I. and Gammerman, A. (2003). Mondrian confidence machine. Technical report, Royal Holloway.
 - Yang, D. and Zhang, Q. (2000). Drift-independent volatility estimation based on high, low, open and close prices. *Journal of Business*.
 

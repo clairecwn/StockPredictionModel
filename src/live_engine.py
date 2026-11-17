@@ -288,7 +288,11 @@ def detect_event(f, headlines=None, earn_days=(), lookback=KMAX):
             return i0, "earnings_guidance", hl(i0)
         # Live headline feeds carry commentary and previews ("braces for earnings", "stock will beat the market"),
         # which the training news database did not. A headline counts only if the stock reacted to it.
-        if i0 in news and news[i0][0] != "other" and reacted(i0):
+        # An earnings headline counts only on the report date itself or the day after (the calendar has those dates);
+        # anywhere else it is a preview or commentary ("earnings to test AI boom").
+        if i0 in news and news[i0][0] == "earnings_guidance" and not (i0 in earn or i0 - 1 in earn):
+            pass
+        elif i0 in news and news[i0][0] != "other" and reacted(i0):
             return i0, news[i0][0], news[i0][1]
         z, vr = move(i0)
         if abs(z) > 3 or vr > 3:
