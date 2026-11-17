@@ -1,0 +1,33 @@
+name: live-quotes
+# Lives in the PUBLIC repo (public repos have free, unlimited Actions minutes). Copy this file to
+# .github/workflows/quotes.yml in the public repo once. It needs no secrets: prices come from Yahoo Finance.
+# Every 15 minutes while the US market is open (13:30-20:00 UTC covers 9:30-16:00 New York in summer and winter time),
+# and hourly through pre-market (from 4:00 New York) and after hours (to 20:00 New York).
+on:
+  schedule:
+    - cron: "*/15 13-20 * * 1-5"
+    - cron: "5 21-23 * * 1-5"
+    - cron: "5 0 * * 2-6"
+    - cron: "5 8-12 * * 1-5"
+  workflow_dispatch:
+permissions:
+  contents: write
+concurrency: { group: quotes, cancel-in-progress: false }
+jobs:
+  quotes:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 12
+    steps:
+      - uses: actions/checkout@v5
+        with: { fetch-depth: 1 }
+      - uses: actions/setup-python@v6
+        with: { python-version: "3.11" }
+      - run: pip install yfinance pandas requests
+      - name: Fetch quotes and publish
+        run: |
+          python src/q01_quotes.py docs/data/quotes.json
+          git config user.name "live-board-bot"
+          git config user.email "live-board-bot@users.noreply.github.com"
+          git add docs/data/quotes.json docs/data/paths.json
+          git commit -m "Quotes" || exit 0
+          git push || (git pull --rebase && git push)
