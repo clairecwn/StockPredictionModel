@@ -525,7 +525,7 @@ Second, does the tone of a headline tell us which way the stock will go? At firs
 
 ### Experiment: the risk models against standard benchmarks
 
-A placebo shows that a model has found something real, but not whether a simpler, well-known method would do just as well. This experiment (`src/x11_benchmarks.py`) runs the standard methods on the same events and the same purged walk-forward folds as the live models.
+A placebo shows that a model has found something real, but not whether a simpler, well-known method would do just as well. This experiment (`src/experiments/14_benchmarks.py`) runs the standard methods on the same events and the same purged walk-forward folds as the live models.
 
 For volatility, the usual benchmark is the HAR model (Corsi, 2009), which forecasts from the volatility of the last day, week and month. Written in the same ratio form as the live target, it reaches a rank correlation of 0.33, or 0.36 when the stock's long-run level is added. For volume, the benchmarks assume trading stays as busy as it was just before the news. For the deepest drop, they use volatility alone or a linear model on the same features.
 
@@ -543,7 +543,7 @@ The live models beat every benchmark, and every gain holds from 2021 on. The mar
 
 ### Experiment: averaging, tuning, the volatility forecast and peer reactions
 
-This batch (`src/x12_batch.py`) tested four common ways to squeeze more out of the same data, using the same rules as before: a change is kept only if its gain is significant after the Holm correction and still holds from 2021 on.
+This batch (`src/experiments/15_model_tweaks.py`) tested four common ways to squeeze more out of the same data, using the same rules as before: a change is kept only if its gain is significant after the Holm correction and still holds from 2021 on.
 
 | Change | Volatility | Volume | Deepest drop | 20-day drift |
 |---|---|---|---|---|
@@ -557,7 +557,7 @@ Averaging five models passed for volume and the deepest drop, but the gain is le
 
 ### Experiment: calls for stocks without recent news
 
-Most stocks on any given day have had no company news, so the news models have nothing to say about them. This test (`src/x13_quiet_days.py`) asks whether price and volume alone carry a usable signal on those quiet days. It uses 1.27 million quiet stock-days from 2006 to 2026 (one every five trading days, stocks above $5 and outside the smallest 20% by market value) and the same walk-forward folds as the other models. The ideas come from the literature: short-term reversal (Jegadeesh 1990; Lehmann 1990), nearness to the 52-week high (George and Hwang 2004), momentum, RSI, moving-average gaps, and changes in volatility and volume.
+Most stocks on any given day have had no company news, so the news models have nothing to say about them. This test (`src/experiments/16_quiet_days.py`) asks whether price and volume alone carry a usable signal on those quiet days. It uses 1.27 million quiet stock-days from 2006 to 2026 (one every five trading days, stocks above $5 and outside the smallest 20% by market value) and the same walk-forward folds as the other models. The ideas come from the literature: short-term reversal (Jegadeesh 1990; Lehmann 1990), nearness to the 52-week high (George and Hwang 2004), momentum, RSI, moving-average gaps, and changes in volatility and volume.
 
 | Forecast | Target | Monthly rank correlation | t | From 2021 |
 |---|---|---|---|---|
@@ -585,7 +585,7 @@ This project avoids all five, so its accuracy for direction sits close to 50%, w
 ## Live board
 
 <!-- LIVE-BOARD:START -->
-_Updated 2026-11-17 08:23 UTC. Research only, not financial advice._
+_Updated 2026-11-17 09:39 UTC. Research only, not financial advice._
 
 516 stocks checked; 381 have company news in the last 15 trading days. The 40 most recent calls are listed below; the page shows all of them.
 
@@ -642,7 +642,7 @@ The board covers the S&P 500 and the Nasdaq-100 (about 500 stocks, listed in `un
 5. Publish `docs/data/predictions.json`, which drives the page, and update the table above.
 6. Log each prediction in `docs/data/forward_log.csv` and score it once its 20-day outcome is known. This gives a forward test that cannot be affected by look-ahead.
 
-The page opens on a board that lists every stock with its call, today's move, a risk bar on a shared scale and the chance that its low has already passed, and it can be sorted, searched and compared side by side. Each stock page puts the price, the call and the chart on one screen, with the reason for the move, the after-hours price, today's volume and the S&P 500's move underneath. Six tiles summarise the rest (the next session, when the low may come, risk, the stock today, sizing and news), and each opens in full with a tap. Prices refresh every 15 minutes during trading hours and hourly before the open and after the close. That job (`src/q01_quotes.py`) runs in the public repository, where GitHub Actions minutes are free, and needs no private data.
+The page opens on a board that lists every stock with its call, today's move, a risk bar on a shared scale and the chance that its low has already passed, and it can be sorted, searched and compared side by side. Each stock page puts the price, the call and the chart on one screen, with the reason for the move, the after-hours price, today's volume and the S&P 500's move underneath. Six tiles summarise the rest (the next session, when the low may come, risk, the stock today, sizing and news), and each opens in full with a tap. Prices refresh every 15 minutes during trading hours and hourly before the open and after the close. That job (`src/live/quotes.py`) runs in the public repository, where GitHub Actions minutes are free, and needs no private data.
 
 ## Reproducing the results
 
@@ -660,35 +660,35 @@ Download the WRDS files listed in `docs/WRDS_GUIDE.md` into `data/raw/wrds/`, th
 
 | Step | Command | Output |
 |---|---|---|
-| Market regime data | `python src/s01_fred.py` | `data/raw/public/fred_daily.csv` |
-| Event table and event study | `python src/s02_events.py` | `data/processed/events.parquet` |
-| Extra, peer and short-interest features | `python src/s02c_extra_features.py` and `python src/s02d_peer_features.py` | feature tables |
-| Short-sale volume | `python src/s03d_finra_shortvol.py` | FINRA features |
-| News and text features (optional) | `python src/s03a_news_extract.py`, `s03e_sestm.py`, `s03f_text.py` | text features |
-| CNN (optional) | `python src/s03g_cnn.py` | CNN predictions |
-| Risk models | `python src/s03_train.py` | `results/report.md` |
-| Entry engine | `python src/s05_entry_engine.py` | `results/entry_engine.md` |
-| Position sizing | `python src/s06_sizing.py` and `python src/s06c_mondrian.py` | `results/sizing.md` |
-| Live models and parity check | `./run_live_models.sh` | `models/live/`, `results/parity.md` |
-| Live board | `LIVE_FEATS=1 python src/s09_live_board.py` | `docs/data/predictions.json` |
-| Figures and Monte Carlo | `LIVE_FEATS=1 python src/s12_figures.py` | `docs/figures/` |
+| Market regime data | `python src/pipeline/01_fred_data.py` | `data/raw/public/fred_daily.csv` |
+| Event table and event study | `python src/pipeline/02_build_events.py` | `data/processed/events.parquet` |
+| Extra, peer and short-interest features | `python src/pipeline/04_event_features.py` and `python src/pipeline/05_peer_features.py` | feature tables |
+| Short-sale volume | `python src/pipeline/11_short_volume.py` | FINRA features |
+| News and text features (optional) | `python src/pipeline/12_news_headlines.py`, `14_news_sestm.py`, `15_news_embeddings.py` | text features |
+| CNN (optional) | `python src/pipeline/16_price_path_cnn.py` | CNN predictions |
+| Risk models | `python src/pipeline/17_train_risk_models.py` | `results/report.md` |
+| Entry engine | `python src/pipeline/19_entry_engine.py` | `results/entry_engine.md` |
+| Position sizing | `python src/pipeline/20_position_sizing.py` and `python src/pipeline/22_sizing_calibration.py` | `results/sizing.md` |
+| Live models and parity check | `scripts/train_live_models.sh` | `models/live/`, `results/parity.md` |
+| Live board | `LIVE_FEATS=1 python src/live/board.py` | `docs/data/predictions.json` |
+| Figures and Monte Carlo | `LIVE_FEATS=1 python src/pipeline/23_readme_figures.py` | `docs/figures/` |
 
-A full run takes about 6 to 8 hours on a laptop. Most of that time is spent in the walk-forward training and the entry engine.
+`scripts/run_pipeline.sh` runs every pipeline step in order. A full run takes about 6 to 8 hours on a laptop. Most of that time is spent in the walk-forward training and the entry engine.
 
 ## Repository structure
 
 ```
 ├── src/
-│   ├── config.py, modeling.py      paths, features, targets, folds, model definitions
-│   ├── s01 to s03g                 data, events, features, text models, risk models
-│   ├── s05_entry_engine.py         buy-or-wait models and optimal stopping
-│   ├── s06*_sizing*.py             downside bounds and position sizing
-│   ├── live_engine.py              live feature rebuild and predictions
-│   ├── s08_parity.py               live vs training feature check
-│   ├── s09_live_board.py           daily board
-│   └── s11_forward_eval.py         forward-test scoring
-├── docs/                           live page (index.html), its data and the README figures
-├── watchlist.json                  stocks shown on the live board
+│   ├── lib/            shared code: paths, event rules, features, models, live rebuild, sizing maths
+│   ├── pipeline/       research pipeline on the WRDS data, numbered in run order (01 to 23)
+│   ├── experiments/    one file per experiment, numbered as in this README
+│   └── live/           the daily board, live quotes, forward scoring and the parity check
+├── scripts/            run_pipeline.sh (whole pipeline) and train_live_models.sh (live models, parity, first board)
+├── models/live/        trained live models and the odds tables behind each call
+├── docs/               the live page (index.html), its data, fonts, artwork and the README figures
+├── deploy/             the quotes workflow for the public repository
+├── watchlist.json      hand-picked stocks with headline aliases
+├── universe.json       the S&P 500 and Nasdaq-100
 └── requirements*.txt
 ```
 

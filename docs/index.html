@@ -10,9 +10,18 @@
 <link rel="preload" href="fonts/schibsted-grotesk-latin-400-normal.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="preload" href="fonts/gloock-latin-400-normal.woff2" as="font" type="font/woff2" crossorigin>
 <script>try { const t = localStorage.getItem("theme"); if (t) document.documentElement.dataset.theme = t;
-  const seen = +localStorage.getItem("settle_seen") || 0; if (Date.now() - seen > 3 * 3600e3) document.documentElement.classList.add("intro"); } catch (e) {}</script>
+} catch (e) {}
+document.documentElement.classList.add("intro");</script>
+<link rel="apple-touch-icon" href="art/icon-180.png">
+<link rel="manifest" href="manifest.webmanifest">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Settle">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="theme-color" content="#ECEFF4" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#121927" media="(prefers-color-scheme: dark)">
 <style>
-/* Palette. The background painting (Hilma af Klint, The Ten Largest, No. 2, 1907) is powder blue with blush and peach,
+/* Palette: the background painting (Hilma af Klint, The Ten Largest, No. 2, 1907) is powder blue with blush and peach,
    so the interface stays in the cool part of that painting: a deep blue for the brand and the controls, a blue-green for
    Buy and a muted violet for Wait. The only warm colour is the brick red kept for risk, so warm always means danger.
    Every colour sits at a similar depth, so none of them shouts. */
@@ -34,7 +43,9 @@
   --buy:#7CC7B3; --buy-2:#163029; --wait:#C3A8E0; --wait-2:#2A2238; --risk:#EE9A8C; --risk-2:#3A2420; }
 
 * { box-sizing:border-box; }
-html { -webkit-text-size-adjust:100%; }
+html { -webkit-text-size-adjust:100%; background:#ECEFF4; }
+:root[data-theme="dark"] { background:#121927; }
+body { min-height:100dvh; }
 body { margin:0; color:var(--ink); font:16px/1.6 var(--sans); background:#B9C6D8; min-height:100vh; }
 body::before { content:""; position:fixed; inset:-80px; z-index:-2; background:url("art/klint-bg.jpg") 50% 40% / cover no-repeat; filter:blur(42px) saturate(.9); }
 body::after { content:""; position:fixed; inset:0; z-index:-1; background:var(--veil); }
@@ -203,7 +214,7 @@ dialog::backdrop { background:rgba(18,26,44,.5); }
 .dlg-top { position:sticky; top:0; z-index:2; display:flex; align-items:center; justify-content:space-between; gap:12px; margin:0 -36px 10px; padding:22px 36px 14px; background:var(--sheet); border-bottom:1px solid var(--line); }
 .dlg-top h2 { margin:0; }
 .xbtn { flex:none; border:1px solid var(--line); background:var(--raise); color:var(--brand); border-radius:999px; padding:7px 16px; font-weight:600; font-size:14px; }
-/* opening screen: the name over the painting, on the first visit and after a few hours away */
+/* opening screen */
 #splash { position:fixed; inset:0; z-index:90; display:none; place-items:center; overflow:hidden; background:var(--sheet); }
 .intro #splash { display:grid; }
 .intro body { overflow:hidden; }
@@ -257,7 +268,7 @@ footer { max-width:1180px; margin:0 auto; padding:16px 34px 28px; color:var(--in
   .tab, .seg button, .ranges button, .add, .i { transition:background-color .15s, color .15s; }
 }
 
-/* ---------- layout v8: board, one-screen stock page, tiles and the slide-up sheet */
+/* board, stock page, tiles, sheet */
 .sr { position:absolute; width:1px; height:1px; overflow:hidden; clip:rect(0 0 0 0); white-space:nowrap; }
 .pill { display:inline-block; padding:2px 10px; border-radius:999px; font-size:13.5px; font-weight:600; background:var(--soft); color:var(--mute); white-space:nowrap; }
 .pill.BUY { background:var(--buy-2); color:var(--buy); } .pill.WAIT { background:var(--wait-2); color:var(--wait); } .pill.PRE { background:var(--brand-2); color:var(--brand); }
@@ -371,7 +382,7 @@ body.on-stock .plan { bottom:16px; }
   .cmpbar { bottom:12px; }
 }
 
-/* ---------- v9: views, watchlist, compare, the call band, wide screens */
+/* views, watchlist, compare */
 .views { display:flex; gap:4px; padding:4px; border-radius:999px; background:var(--soft); width:max-content; max-width:100%; margin:0 0 20px; }
 .views a { padding:8px 18px; border-radius:999px; color:var(--mute); font-weight:600; text-decoration:none; }
 .views a[aria-current="page"] { background:var(--brand); color:var(--on-brand); }
@@ -454,6 +465,7 @@ body.on-stock .plan { bottom:16px; }
 .cb-str, .str { font-weight:600; font-size:14px; color:var(--mute); }
 .cb-str { margin-left:10px; } .cb-top > span:first-child { display:flex; align-items:baseline; flex-wrap:wrap; }
 .str { margin:-4px 0 10px; }
+.inlk { border:0; background:none; padding:0; font:inherit; color:var(--brand); font-weight:600; text-decoration:underline; text-underline-offset:3px; cursor:pointer; }
 .own { margin-top:14px; font-size:14.5px; color:var(--mute); } .own b { color:var(--ink); }
 
 .navb { flex:none; display:inline-flex; align-items:center; padding:6px 13px; border-radius:999px; border:1px solid var(--line); background:var(--raise); color:var(--brand); font-weight:600; font-size:14px; text-decoration:none; }
@@ -636,7 +648,7 @@ const root = document.documentElement, themeBtn = $("#themeBtn");
 const SUN = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><circle cx="12" cy="12" r="4"/><path d="M12 2.5v2.2M12 19.3v2.2M4.6 4.6l1.6 1.6M17.8 17.8l1.6 1.6M2.5 12h2.2M19.3 12h2.2M4.6 19.4l1.6-1.6M17.8 6.2l1.6-1.6"/></svg>';
 const MOON = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"><path d="M20 14.5A8 8 0 0 1 9.5 4a8 8 0 1 0 10.5 10.5z"/></svg>';
 const dark = () => root.dataset.theme === "dark";             // light unless the reader picks dark
-const syncTheme = () => { themeBtn.innerHTML = dark() ? SUN : MOON; themeBtn.setAttribute("aria-label", dark() ? "Switch to light theme" : "Switch to dark theme"); };
+const syncTheme = () => { document.querySelectorAll('meta[name="theme-color"]').forEach(m => m.content = dark() ? "#121927" : "#ECEFF4"); themeBtn.innerHTML = dark() ? SUN : MOON; themeBtn.setAttribute("aria-label", dark() ? "Switch to light theme" : "Switch to dark theme"); };
 themeBtn.onclick = () => { root.dataset.theme = dark() ? "light" : "dark"; try { localStorage.setItem("theme", root.dataset.theme); } catch (e) {} syncTheme(); render(); };
 syncTheme();
 $("#howBtn").onclick = () => $("#howDlg").showModal();
@@ -689,7 +701,7 @@ function oddsLine(c) {
   return c.g === "BUY" ? `In ${n} of 100 similar past cases, the stock did better than the market over the next week.`
                        : `In ${n} of 100 similar past cases, the stock did worse than the market over the next week, so waiting paid.`;
 }
-/* without news: how far the price may dip at some point in the next four weeks, from its usual swings (about 0.8 of a four-week swing) */
+/* stocks without news: model dip, or 0.8 of a four-week swing if the model is missing */
 const dipQ = s => live(s) || !s.outlook ? null : s.outlook.dip_pct ?? (s.outlook.vol_20d_pct ? 0.8 * s.outlook.vol_20d_pct : null);
 const rel5 = s => s.stats?.rel_5d_pct;
 const relWord = x => x == null ? "" : Math.abs(x) < 0.5 ? "moved with the market" : `${x > 0 ? "rose" : "fell"} ${fmt(Math.abs(x))}% more than the market`;
@@ -714,7 +726,7 @@ function nowPx(s) {
   return {px:s.price, chg:s.chg_1d_pct, q:null, live:false};
 }
 
-/* ------------------------------------------------------------------ chart */
+/* chart */
 const RANGES = {"1D":0, "1M":21, "3M":63, "6M":126, "1Y":252};
 function series(s) {
   if (s.hist?.c?.length) return s.hist;
@@ -730,7 +742,7 @@ function chartHTML(s) {
 function drawChart(s) {
   const box = $("#cbox"); if (!box) return;
   const css = getComputedStyle(root), col = n => css.getPropertyValue(n).trim();
-  box.innerHTML = ""; const narrow = innerWidth < 880, W = Math.max(300, box.clientWidth), PH = narrow ? 200 : Math.round(Math.max(200, Math.min(620, (box.clientHeight || 330) - (innerWidth < 880 ? 26 : 36) - 4))), VH = narrow ? 26 : 36, padT = 22, padB = 24;
+  box.innerHTML = ""; const narrow = innerWidth < 880, W = Math.max(300, box.clientWidth), PH = narrow ? 210 : Math.round(Math.max(200, Math.min(620, (box.clientHeight || 330) - (innerWidth < 880 ? 48 : 36) - 4))), VH = narrow ? 48 : 36, padT = 22, padB = 24;
   let D, C, V, isDay = rng === "1D" && PATHS?.[s.ticker]?.length > 1;
   if (rng === "1D" && !isDay) rng = "3M";
   const H = series(s);
@@ -790,18 +802,21 @@ function drawChart(s) {
   box.innerHTML = svg + `<div class="ctip" id="ctip" hidden></div>`;
   $("#clegend").innerHTML = isDay ? `<span>Prices about 15 minutes behind the market</span>` : "";
   const sv = box.querySelector("svg"), xh = sv.querySelector("#xh"), xd = sv.querySelector("#xd"), ct = $("#ctip");
-  const move = e => { const r = sv.getBoundingClientRect(), mx = (e.clientX - r.left) * W / r.width;
+  const vAvg = V ? V.reduce((a, b) => a + b, 0) / V.length : 0; let hideT = null;
+  const move = e => { clearTimeout(hideT); const r = sv.getBoundingClientRect(), mx = (e.clientX - r.left) * W / r.width;
     const i = Math.max(0, Math.min(C.length - 1, Math.round((mx - x0) / (x1 - x0) * (C.length - 1))));
     xh.setAttribute("x1", x(i)); xh.setAttribute("x2", x(i)); xh.setAttribute("opacity", ".35"); xd.setAttribute("cx", x(i)); xd.setAttribute("cy", y(C[i])); xd.setAttribute("opacity", "1");
     const ch = i > 0 ? 100 * (C[i] / C[i - 1] - 1) : null;
-    ct.innerHTML = `<b>${isDay ? D[i] : day(D[i])}</b><br>${fmt(C[i], 2)}${ch != null ? ` <span style="color:var(${ch >= 0 ? "--buy" : "--risk"})">${ch >= 0 ? "+" : ""}${fmt(ch, 2)}%</span>` : ""}${V ? `<br><span class="mute">Volume ${shares(V[i])}</span>` : ""}`;
+    ct.innerHTML = `<b>${isDay ? D[i] : day(D[i])}</b><br>${fmt(C[i], 2)}${ch != null ? ` <span style="color:var(${ch >= 0 ? "--buy" : "--risk"})">${ch >= 0 ? "+" : ""}${fmt(ch, 2)}%</span>` : ""}${V ? `<br><span class="mute">Volume ${shares(V[i])}${vAvg ? `, ${fmt(V[i] / vAvg, 1)}x normal` : ""}</span>` : ""}`;
     ct.hidden = false; const px_ = x(i) * r.width / W; ct.style.left = Math.min(Math.max(0, px_ + 12), r.width - ct.offsetWidth) + "px"; };
   sv.onpointermove = move; sv.onpointerdown = move;
-  sv.onpointerleave = () => { xh.setAttribute("opacity", "0"); xd.setAttribute("opacity", "0"); ct.hidden = true; };
+  const hide = () => { xh.setAttribute("opacity", "0"); xd.setAttribute("opacity", "0"); ct.hidden = true; };
+  sv.onpointerleave = e => { if (e.pointerType === "mouse") hide(); };
+  sv.onpointerup = e => { if (e.pointerType !== "mouse") hideT = setTimeout(hide, 2500); };
   document.querySelectorAll("[data-r]").forEach(b => b.onclick = () => { rng = b.dataset.r; store.set("range", rng); document.querySelectorAll("[data-r]").forEach(o => o.setAttribute("aria-pressed", o === b)); drawChart(s); });
 }
 
-/* ------------------------------------------------------------------ sections */
+/* sections */
 function whenLow(s) {
   const d = s.entry?.days_to_low;
   if (!d && dipQ(s) != null) { const dq = dipQ(s), px = nowPx(s).px;
@@ -913,7 +928,7 @@ function nextSession(s) {
   return `<section class="next" id="nextBox"><div><h2>${isOpen ? "The rest of today" : "Before the next open"}</h2><p class="when-line">${line}</p><dl class="stats">${st.join("")}</dl></div>${ladder}</section>`;
 }
 
-/* ------------------------------------------------------------------ views: your watchlist (#), all stocks (#all), compare (#compare), one stock (#NVDA) */
+/* views: your watchlist (#), all stocks (#all), compare (#compare), one stock (#NVDA) */
 let SORT = store.get("sort", "calls"), query = "", showAll = false, editing = false;
 const SORTS = {calls:"Calls first", risk:"Most risk", moves:"Biggest moves", low:"Low most likely in"};
 const POPULAR = ["NVDA", "TSLA", "AAPL", "GOOGL", "MSFT", "AMZN", "META", "AMD", "NFLX", "PLTR", "AVGO", "JPM"];
@@ -971,7 +986,7 @@ function bindFinder(id, onPick, exclude) {
   f.oninput = show; f.onkeydown = e => { if (e.key === "Enter") { const b = box.querySelector("[data-pick]"); if (b) b.click(); } };
 }
 
-/* ------------------------------------------------------------------ your watchlist */
+/* your watchlist */
 function wcard(s) {
   const st = stateOf(s), n = nowPx(s), b = badPct(s), p0 = lowIn(s), t = esc(s.ticker);
   const r5 = rel5(s), c = callOf(s);
@@ -998,7 +1013,7 @@ function renderHome() {
   if ($("#editW")) $("#editW").onclick = () => { editing = !editing; renderHome(); };
 }
 
-/* ------------------------------------------------------------------ all stocks */
+/* all stocks */
 function renderBoard() {
   const el = $("#detail"), L = boardOrder(), maxBad = Math.max(10, ...L.map(s => badPct(s) ?? 0));
   const nNews = L.filter(live).length, upd = DATA.generated_utc ? new Date(DATA.generated_utc.replace("+00:00", "Z")) : null;
@@ -1027,7 +1042,7 @@ function renderBoard() {
 }
 function renderCmpBar() {}
 
-/* ------------------------------------------------------------------ compare: the same measure lined up for each stock */
+/* compare: the same measure lined up for each stock */
 function renderCompare() {
   picks = picks.filter(stockOf).slice(0, 4); store.set("cmp", picks);
   const el = $("#detail"), S = picks.map(stockOf), opts = [...new Set([...watch, ...picks])];
@@ -1070,7 +1085,7 @@ function renderCompare() {
   bindFinder("cmpFind", t => { picks = [...picks.filter(x => x !== t), t].slice(-4); store.set("cmp", picks); renderCompare(); }, () => picks);
 }
 
-/* ------------------------------------------------------------------ one stock */
+/* one stock */
 const KIND_N = {earnings_guidance:"an earnings report", analyst:"an analyst's change of view", leadership:"a change in leadership",
   legal_regulatory:"legal or regulatory news", accounting_fraud:"an accounting issue", activist_short:"an activist or short-seller campaign",
   credit_distress:"credit news", operational:"operational news", politics_policy:"policy news", ma_strategy:"deal news", capital:"a capital raise",
@@ -1114,7 +1129,7 @@ function quickChips(s) {
 /* for owners: no sell call, because no tested signal for it; the sizing gives a limit instead */
 function ownHTML(s) {
   if (weightOf(s, "recommended") == null) return "";
-  return `<p class="own"><b>Already own it?</b> ${s.warning_big_drop ? "A sharp fall is more likely than usual, so hold less. " : ""}Keep it within the amount under How much to put in, so a bad month stays within your loss limit.</p>`;
+  return `<p class="own"><b>Already own it?</b> ${s.warning_big_drop ? "A sharp fall is more likely than usual, so hold less. " : ""}Keep it within the amount under <button type="button" class="inlk" data-sheet="size">How much to put in</button>, so a bad month stays within your loss limit.</p>`;
 }
 function callHTML(s) {
   const st = stateOf(s);
@@ -1246,7 +1261,7 @@ document.addEventListener("touchend", e => {
   location.hash = order[(i + (dx < 0 ? 1 : -1) + order.length) % order.length];
 }, {passive:true});
 
-/* ------------------------------------------------------------------ the sheet: slides up on phones, a panel on wider screens */
+/* the sheet: slides up on phones, a panel on wider screens */
 const sheet = $("#sheetDlg");
 let sheetKey = null;
 function openSheet(k, keep) {
@@ -1255,6 +1270,7 @@ function openSheet(k, keep) {
   const body = k === "call" ? `<div class="call-in">${whyHTML(s)}${callHTML(s)}</div>` : k === "next" ? stripH2(nextSession(s).replace('class="next"', 'class="next in"'))
              : k === "low" ? stripH2(whenLow(s)) : k === "risk" ? stripH2(ahead(s)) : k === "today" ? stripH2(todayFacts(s)) : k === "size" ? (weightOf(s, "recommended") != null ? sizeHTML(s) : "<p>Sizing is not available for this stock.</p>") : newsHTML(s);
   $("#bsBody").innerHTML = body;
+  $("#bsBody").querySelectorAll("[data-sheet]").forEach(b => b.onclick = () => openSheet(b.dataset.sheet));
   const j = TILES.indexOf(k);
   $("#bsNav").innerHTML = j < 0 ? "" : `${j > 0 ? `<button class="lk" type="button" data-go="${TILES[j - 1]}">Back: ${SHORT[TILES[j - 1]]}</button>` : "<span></span>"}${j < TILES.length - 1 ? `<button class="lk" type="button" data-go="${TILES[j + 1]}">Next: ${SHORT[TILES[j + 1]]}</button>` : ""}`;
   document.querySelectorAll("[data-go]").forEach(b => b.onclick = () => openSheet(b.dataset.go));
@@ -1307,9 +1323,10 @@ function renderSkill() {
 }
 function renderAll() { render(); }
 
-/* ------------------------------------------------------------------ walkthrough on the first visit */
+/* walkthrough on the first visit */
 const TOURS = {
   home:[{el:"#wgrid .wcard", t:"Your watchlist", b:"Each card is a stock you follow. The big word is Settle's call for the next trading session. <b>Buy</b> means buying straight away has usually done better than waiting. <b>Wait</b> means waiting a few days has usually got a lower price. The small label under it says how sure the call is."},
+        {el:".top", phone:true, t:"Keep Settle on your phone", b:"Add it to your home screen and it opens like an app. <b>iPhone:</b> tap Share in Safari, then Add to Home Screen. <b>Android:</b> open the browser menu, then Add to Home screen."},
         {el:"#wgrid .wfoot", t:"The two numbers to check", b:"<b>Low already in</b> is the chance the stock has already hit its lowest point after its news, so a further dip would likely stop above it. <b>Bad case</b> is a fall that only about 1 in 10 similar cases went beyond in four weeks. Stocks without recent news show their week against the market instead."},
         {el:"#addBox", t:"Build your list", b:"Search for any of about 500 large US stocks, or tap a popular one to add it. Tap Edit to remove stocks."},
         {el:".views", t:"Three ways to look", b:"<b>All stocks</b> ranks every stock, and the star adds one to your list. <b>Compare</b> lines up two to four stocks on timing, risk and how much to put in."}],
@@ -1319,8 +1336,10 @@ const TOURS = {
          {el:'[data-sheet="size"]', t:"How much to put in", b:"Enter your budget and pick how much risk you can take. Settle suggests an amount small enough that a bad month stays within the loss you chose. You can add up to three stocks to one plan."},
          {el:".snav", t:"Getting around", b:"Your watchlist runs along the top, so you can jump between stocks or swipe sideways. All stocks and Compare are here too, and the star adds or removes this stock."}]};
 let STEPS = TOURS.home, tourAt = -1;
-function startTour(which) { if (which === "stock" && !stockOf(route())) which = "home"; STEPS = TOURS[which || (stockOf(route()) ? "stock" : "home")]; if (STEPS === TOURS.home && route()) location.hash = ""; tourAt = 0; showStep(); }
-function endTour() { if (tourAt < 0) return; document.querySelector(".spot")?.classList.remove("spot"); $("#tour").hidden = true; tourAt = -1; store.set(STEPS === TOURS.stock ? "toured_stock" : "toured", true); }
+const installable = () => matchMedia("(pointer: coarse)").matches && innerWidth < 880 && !matchMedia("(display-mode: standalone)").matches && !navigator.standalone;
+let tourKind = "home";
+function startTour(which) { if (which === "stock" && !stockOf(route())) which = "home"; tourKind = which || (stockOf(route()) ? "stock" : "home"); STEPS = TOURS[tourKind].filter(st => !st.phone || installable()); if (tourKind === "home" && route()) location.hash = ""; tourAt = 0; showStep(); }
+function endTour() { if (tourAt < 0) return; document.querySelector(".spot")?.classList.remove("spot"); $("#tour").hidden = true; tourAt = -1; store.set(tourKind === "stock" ? "toured_stock" : "toured", true); }
 function showStep() {
   document.querySelector(".spot")?.classList.remove("spot");
   const st = STEPS[tourAt], el = st && (st.el === "#callBand" && innerWidth > 880 ? $("#callBox") : $(st.el));
@@ -1338,7 +1357,7 @@ function showStep() {
   $("#tSkip").onclick = endTour; $("#tNext").focus();
 }
 
-/* ------------------------------------------------------------------ data: board twice a day, quotes every few minutes */
+/* data: board twice a day, quotes every few minutes */
 function loadQuotes() {
   if (stockOf(route())) fetch("data/paths.json?" + Date.now()).then(r => r.ok ? r.json() : null).then(p => { if (p) PATHS = p; }).catch(() => {});
   return fetch("data/quotes.json?" + Date.now()).then(r => r.ok ? r.json() : null).then(q => { if (q) { Q = q; if (DATA && !sheet.open) render(); } }).catch(() => {});
@@ -1357,7 +1376,7 @@ addEventListener("pagehide", markSeen);
 setInterval(() => { if (document.visibilityState === "visible" && !root.classList.contains("intro")) markSeen(); }, 60000);
 const firstVisit = !store.get("toured", false);
 const boardP = fetch("data/predictions.json?" + Date.now()).then(r => r.json());
-const introP = root.classList.contains("intro") ? Promise.all([sleep(firstVisit ? 1500 : 1100), Promise.race([boardP.catch(() => {}), sleep(4000)])]).then(endIntro) : (markSeen(), Promise.resolve());
+const introP = root.classList.contains("intro") ? Promise.all([sleep(firstVisit ? 1200 : 700), Promise.race([boardP.catch(() => {}), sleep(4000)])]).then(endIntro) : (markSeen(), Promise.resolve());
 introP.then(() => { if (firstVisit) setTimeout(() => startTour(stockOf(route()) ? "stock" : "home"), 250);
   else if (stockOf(route()) && !store.get("toured_stock", false)) setTimeout(() => startTour("stock"), 400); });
 boardP.then(d => {

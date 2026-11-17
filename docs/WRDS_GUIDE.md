@@ -78,7 +78,7 @@ If the query fails for being too large, run it twice with date ranges 1999-01-01
 ```
 cd ~/Downloads/stock-prediction-model-
 pip install -r requirements.txt
-python src/s02_events.py      # first run converts CRSP to a fast cache: ~5 min; event study ~5-15 min
-python src/s03_train.py       # ~10-20 min
+python src/pipeline/02_build_events.py      # first run converts CRSP to a fast cache: ~5 min; event study ~5-15 min
+python src/pipeline/17_train_risk_models.py       # ~10-20 min
 ```
 Results land in `results/report.md`. Models land in `models/`.
