@@ -64,8 +64,8 @@ Each output makes a different promise, so each one is judged by the measure that
 
 | Output | Measure | Score | Compared with | In plain words |
 |---|---|---|---|---|
-| Volatility, days 2 to 20 | rank correlation / $R^2$ | 0.514 / 0.39 | placebo -0.01 | Wild and calm months are told apart well. |
-| Trading volume, days 2 to 20 | rank correlation / $R^2$ | 0.666 / 0.48 | placebo 0.02 | The strongest forecast on the board. |
+| Volatility, days 2 to 20 | rank correlation / $R^2$ | 0.514 / 0.39 | placebo -0.01; HAR model 0.33 | Wild and calm months are told apart well, better than the standard textbook model. |
+| Trading volume, days 2 to 20 | rank correlation / $R^2$ | 0.666 / 0.48 | placebo 0.02; recent volume 0.61 | The strongest forecast on the board. |
 | Deepest drop, days 2 to 20 | rank correlation | 0.20 | placebo 0.08 | Useful for ranking risk, not for exact levels. |
 | Flagging the worst 20% of drops | AUC | 0.68 | simple baseline 0.61 | |
 | Big-drop warning on shock days | share of flagged events that end in the worst 20% | 35% | 15% of unflagged events | A flagged stock is more than twice as likely to have a bad month. |
@@ -86,7 +86,7 @@ The risk forecasts and the calibrated bounds are the parts that work well. The t
 Comparisons are only made where the task is close enough to be fair.
 
 - **Direction.** In stock selection, the rank correlation between forecast and realised return is called the information coefficient. An IC of about 0.05 is usually described as a strong signal (Zhang, Guo and Cao, 2020), and Grinold and Kahn (2000) show why even small values matter when a signal is applied to many stocks. The drift model's 0.03 sits in the range of real professional signals, but in this sample it is not statistically significant, so the board does not trade on it. For machine learning on individual US stocks, Gu, Kelly and Xiu (2020) report monthly out-of-sample $R^2$ below 1% even for their best models, and Fischer and Krauss (2018) found that the edge of deep learning on S&P 500 stocks faded to around zero after costs from 2010 on. A hit rate near 50% for direction is therefore the honest result, not a weak one.
-- **Risk.** Volatility and trading activity are far more predictable than direction, because they cluster in time. That is why the risk models score 0.5 to 0.67 while the direction model scores 0.03, a gap that matches the wider literature. A head-to-head test against the standard volatility model (Corsi, 2009) on the same events is in progress (`src/x11_benchmarks.py`).
+- **Risk.** Volatility and trading activity are far more predictable than direction, because they cluster in time. That is why the risk models score 0.5 to 0.67 while the direction model scores 0.03, a gap that matches the wider literature. On the same events and test years, the volatility model also beats the standard benchmark for this task, the HAR model (Corsi, 2009), with a rank correlation of 0.51 against 0.33, and it is ahead in 99% of test months (see [the benchmark experiment](#experiment-the-risk-models-against-standard-benchmarks)).
 - **Calibration.** A bound or range is only useful if it holds. Every range on the board covers 79.7% to 80.0% of outcomes against a promise of 80%, and the 1-in-10 bound was broken 9.4% of the time in the latest test years.
 
 The live board also logs every prediction it makes (`docs/data/forward_log.csv`) and scores each one once 20 trading days have passed (`docs/data/forward_scores.json`). That record starts in November 2026 and will be reported here once it holds enough events to judge.
@@ -517,6 +517,24 @@ Two questions were tested on 1.5 million firm-days with headlines (2009 to 2023)
 
 Second, does the tone of a headline tell us which way the stock will go? At first sight it did: quiet headlines with bullish words were followed by the stock falling 0.65% behind the market over the next four weeks, and bearish ones by a small gain, a gap with a monthly t-statistic of 7.9. The effect did not survive the checks, however. Once the regression controlled for the stock's own move on the news days and over the previous week, the effect shrank to t = -1.8. Among tradeable stocks it fell to t = -0.9, and from 2016 on it was gone (t = -0.2). Many bullish words describe a price rise that has already happened, so most of the apparent signal was ordinary short-term reversal. Neither result was added to the models.
 
+### Experiment: the risk models against standard benchmarks
+
+A placebo shows that a model has found something real, but not whether a simpler, well-known method would do just as well. This experiment (`src/x11_benchmarks.py`) runs the standard methods on the same events and the same purged walk-forward folds as the live models.
+
+For volatility, the usual benchmark is the HAR model (Corsi, 2009), which forecasts from the volatility of the last day, week and month. Written in the same ratio form as the live target, it reaches a rank correlation of 0.33, or 0.36 when the stock's long-run level is added. For volume, the benchmarks assume trading stays as busy as it was just before the news. For the deepest drop, they use volatility alone or a linear model on the same features.
+
+| Target | Benchmark | Benchmark | Live model | Months the live model is better | t |
+|---|---|---|---|---|---|
+| Volatility, days 2 to 20 | persistence (last 20 days) | 0.28 | 0.51 | 98% | 34.2 |
+| | HAR (day, week, month) | 0.33 | 0.51 | 99% | 42.0 |
+| | HAR plus long-run level | 0.36 | 0.51 | 97% | 33.6 |
+| Volume, days 2 to 20 | persistence (week before) | 0.51 | 0.66 | 100% | 57.6 |
+| | linear model on recent volume | 0.61 | 0.66 | 99% | 35.5 |
+| Deepest drop, days 2 to 20 | volatility only | 0.13 | 0.20 | 72% | 8.0 |
+| | ridge, same features | 0.17 | 0.20 | 76% | 9.6 |
+
+The live models beat every benchmark, and every gain holds from 2021 on. The margin is largest for volatility, where knowing what kind of news hit the stock, how the market reacted and whether an earnings report is due adds a great deal to its recent volatility alone.
+
 ### Why the headline numbers are modest
 
 Published stock models often report directional accuracy of 90% or more. In almost every case, figures like this come from one of five problems:
@@ -532,7 +550,7 @@ This project avoids all five, so its accuracy for direction sits close to 50%, w
 ## Live board
 
 <!-- LIVE-BOARD:START -->
-_Updated 2026-11-17 05:01 UTC. Research only, not financial advice._
+_Updated 2026-11-17 05:17 UTC. Research only, not financial advice._
 
 | Stock | Price | Event (day 0) | Day | Signal | Expected further dip | Most likely timing of the 20-day low | 1-in-10 worst point (20 days) | Risk vs normal | Balanced size |
 |---|---|---|---|---|---|---|---|---|---|

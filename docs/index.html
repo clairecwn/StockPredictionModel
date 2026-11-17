@@ -6,7 +6,7 @@
 <meta name="color-scheme" content="light dark">
 <title>Settle: how stocks settle after company news</title>
 <meta name="description" content="A live research board that reads each stock's latest news shock and shows the call, the chart, the risk ahead and how much to put in.">
-<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='9' fill='%2322355C'/%3E%3Cpath d='M7.5 9.5 14 21.5h10.5' fill='none' stroke='%23F7F8FA' stroke-width='3' stroke-linecap='round' stroke-linejoin='round'/%3E%3Ccircle cx='24.5' cy='21.5' r='2.4' fill='%23F7F8FA'/%3E%3C/svg%3E">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%2322355C'/%3E%3Ctext x='16' y='24' text-anchor='middle' font-family='Georgia,serif' font-size='23' fill='%23F7F8FA'%3ES%3C/text%3E%3C/svg%3E">
 <link rel="preload" href="fonts/schibsted-grotesk-latin-400-normal.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="preload" href="fonts/gloock-latin-400-normal.woff2" as="font" type="font/woff2" crossorigin>
 <script>try { const t = localStorage.getItem("theme"); if (t) document.documentElement.dataset.theme = t; } catch (e) {}</script>
@@ -56,7 +56,7 @@ h2 { margin:0 0 8px; font-size:19px; font-weight:700; letter-spacing:-.01em; }
 .brand { display:flex; align-items:center; gap:11px; color:var(--ink); text-decoration:none; }
 .mark { width:34px; height:34px; flex:none; }
 .mark rect { fill:var(--brand); } .mark path { fill:none; stroke:var(--on-brand); stroke-width:3; stroke-linecap:round; stroke-linejoin:round; } .mark circle { fill:var(--on-brand); }
-.brand b { font:400 29px/1 var(--display); letter-spacing:-.01em; }
+.brand b { font:400 34px/1 var(--display); letter-spacing:-.025em; }
 .chip { display:flex; align-items:center; gap:10px; margin-left:auto; }
 .chip button { background:none; border:0; padding:6px 2px; font-weight:600; color:var(--ink); text-decoration:underline; text-decoration-thickness:1px; text-underline-offset:5px; }
 .chip .ic { width:38px; height:38px; padding:0; display:grid; place-items:center; text-decoration:none; border-radius:50%; background:var(--sheet); }
@@ -210,11 +210,11 @@ dialog::backdrop { background:rgba(18,26,44,.5); }
 .tour h3 { margin:4px 0 6px; font:400 23px/1.25 var(--display); }
 .tour .row { display:flex; align-items:center; gap:8px; margin-top:14px; }
 .tour .row .go { margin-left:auto; background:var(--brand); color:var(--on-brand); border:0; border-radius:999px; padding:8px 20px; font-weight:600; }
-footer { max-width:1180px; margin:0 auto; padding:22px 30px 120px; color:var(--ink); opacity:.8; font-size:14px; }
+footer { max-width:1180px; margin:0 auto; padding:18px 34px 110px; color:var(--ink); opacity:.7; font-size:12.5px; }
 
 @media (max-width:880px) {
   .top { padding:14px 16px 10px; }
-  .brand b { font-size:25px; } .mark { width:30px; height:30px; }
+  .brand b { font-size:29px; }
   .tabs { flex-wrap:nowrap; overflow-x:auto; scrollbar-width:none; padding:2px 16px 14px; position:sticky; top:0; z-index:5; }
   .tabs::-webkit-scrollbar { display:none; }
   .tab { flex:none; }
@@ -245,7 +245,7 @@ footer { max-width:1180px; margin:0 auto; padding:22px 30px 120px; color:var(--i
 </head>
 <body>
 <header class="top">
-  <a class="brand" href="./" aria-label="Settle home"><svg class="mark" viewBox="0 0 32 32" aria-hidden="true"><rect width="32" height="32" rx="9"/><path d="M7.5 9.5 14 21.5h10.5"/><circle cx="24.5" cy="21.5" r="2.6"/></svg><b>Settle</b></a>
+  <a class="brand" href="./" aria-label="Settle home"><b>Settle</b></a>
   <div class="chip">
     <button type="button" id="howBtn">How it works</button>
     <button type="button" class="ic" id="themeBtn"></button>
@@ -256,7 +256,7 @@ footer { max-width:1180px; margin:0 auto; padding:22px 30px 120px; color:var(--i
 <main class="sheet" id="sheet">
   <div id="detail" aria-live="polite"><p style="padding:40px 0" class="mute">Loading the board.</p></div>
 </main>
-<footer id="foot">The colours in the background come from <i>The Ten Largest, No. 2, Childhood</i> (1907) by Hilma af Klint, which is in the public domain. Settle is a research project. Its calls are probabilities learned from 2001 to 2025 and can be wrong, so nothing here is advice to buy or sell.</footer>
+<footer id="foot">Settle is a research project, not financial advice. Its forecasts come from past data and can be wrong.</footer>
 
 <div class="pop" id="pop" role="tooltip" hidden></div>
 <div class="tour" id="tour" role="dialog" aria-live="polite" hidden></div>
@@ -270,13 +270,13 @@ footer { max-width:1180px; margin:0 auto; padding:22px 30px 120px; color:var(--i
 <dialog id="howDlg"><div class="dlg">
   <button class="lk x" type="button" data-close>Close</button>
   <h2>How Settle works</h2>
-  <p>When a company is in the news, its stock usually jumps or drops in the first day or two and then settles. Settle looks for each stock's latest news shock and compares it with about 317,000 past shocks from 2001 to 2025, to judge what the next four weeks are likely to bring.</p>
+  <p>When a company is in the news, its stock usually jumps or drops over the first day or two and then settles down. Settle finds the latest news for each stock and compares it with about 317,000 similar moments from 2001 to 2025. From those, it estimates what the next four weeks may bring.</p>
   <h3>The call</h3>
-  <p><b>Buy</b> means buying today has tended to beat waiting a few days, and <b>Wait</b> means the opposite. The edge is small, so the call is best used to time an entry you were already planning, not as a reason to buy. A stock with no news in the last three weeks has no call, but its chart and risk are still shown.</p>
-  <h3>The risk</h3>
-  <p>The <b>expected low</b> is how far the price is likely to dip in the coming weeks. The <b>bad case</b> is a drop that only about 1 stock in 10 goes beyond. Both are tested on years the models never saw, and the bad case has been passed about as often as promised.</p>
+  <p><b>Buy</b> means that in similar cases, buying right away worked out better than waiting. <b>Wait</b> means that waiting a few days usually got a better price. The difference is small, so the call is best used to time a purchase you were already planning, not as a reason to buy. Stocks without recent news get no call, but their chart and risks are still shown.</p>
+  <h3>The risks</h3>
+  <p>The <b>expected low</b> is how far the price may still fall before it reaches its lowest point in the next four weeks. The <b>bad case</b> is a fall that only about 1 in 10 similar stocks went beyond. Both were tested on years the models never saw, and the bad case was passed about as often as promised.</p>
   <h3>How much to put in</h3>
-  <p>Pick a budget and a risk level, and Settle sizes the position so that a bad month stays within the loss you chose. You can add up to three stocks to a plan, and their sizes shrink together because stocks tend to fall at the same time in a sell-off.</p>
+  <p>Choose a budget and a risk level, and Settle suggests an amount small enough that a bad month stays within the loss you chose. You can add up to three stocks to a plan. Their amounts shrink a little when combined, because stocks often fall together in a sell-off.</p>
   <h3>How accurate it is</h3>
   <dl id="skillList"></dl>
   <p class="mute" id="fwdLine" style="margin-top:12px"></p>
@@ -290,28 +290,28 @@ const KIND = {earnings_guidance:"after its earnings report", analyst:"after an a
   legal_regulatory:"after legal or regulatory news", accounting_fraud:"after an accounting issue came to light", activist_short:"after an activist or short-seller campaign",
   credit_distress:"after credit news", operational:"after operational news", politics_policy:"after policy news", ma_strategy:"after deal news", capital:"after a capital raise", other:""};
 const TIPS = {
-  open:"The first price the stock traded at today.",
-  range:"The lowest and highest prices so far today.",
-  prev:"Yesterday's closing price. Today's change is measured from it.",
-  volume:"How many shares have traded today, compared with a typical day over the last three months.",
-  atr:"How far the price usually travels in a day, from its low to its high, over the last two weeks. It helps when setting a stop loss.",
-  cap:"What the whole company is worth at today's price.",
-  low:"How far below today's price the stock is likely to dip at its lowest point in the coming weeks.",
-  bad:"A rough four weeks could take the price this low. Only about 1 stock in 10 has fallen further.",
-  day:"Trading days since the news. The models cover the 20 trading days after it.",
-  trend:"Bullish means buyers have had the upper hand: the price is above its 50-day and 200-day averages and has beaten the market over three months. Bearish is the opposite.",
-  rsi:"The Relative Strength Index compares recent gains with recent losses on a 0 to 100 scale. Above 70 often means the price has risen quickly, and below 30 that it has fallen quickly.",
-  beta:"How strongly the stock follows the market. A value of 1.5 means it has tended to move 1.5% when the market moves 1%.",
-  liq:"How easily shares can be bought and sold without moving the price, judged by how much money changes hands each day.",
-  range52:"The lowest and highest closing prices of the past year, and where today's price sits between them.",
-  swings:"How much the price is likely to move from day to day over the next four weeks, compared with what is normal for this stock.",
-  vol:"How many shares are likely to trade over the next four weeks, compared with what is normal for this stock.",
-  ext:"Trades made outside normal hours (4:00 to 9:30 AM and 4:00 to 8:00 PM New York time). Fewer people trade then, so these prices can jump around, but they show where the stock may open.",
-  nrange:"The price range the stock stays inside on about two sessions in three, based on how much it is expected to swing. Moves beyond it happen, but less often.",
-  bottom:"The chance that the lowest close of the four weeks after the news has already happened. If it is high, a dip from here would probably stop above that earlier low.",
-  usedRange:"How far the price has travelled today from its low to its high, compared with a usual day. Near or above 100% means most of the day's usual move may already be done.",
-  levels:"Prices where the stock has recently turned, and the levels from Settle's forecasts. Traders often place orders near these.",
-  dir:"The model's view of whether the stock beats the market over the next four weeks. It is weak, so treat it as a lean rather than a forecast."};
+  open:"The price of the first trade today.",
+  range:"The lowest and highest prices the stock has traded at today.",
+  prev:"The price at the end of the last trading day. Today's gain or loss is measured from this price.",
+  volume:"The number of shares traded today. The number in brackets compares it with an average day, so 2x means twice as busy as usual.",
+  atr:"How far the price usually moves between its low and its high in one day, based on the last two weeks. If a stock usually moves 3% a day, a 1% dip is ordinary.",
+  cap:"The value of the whole company: the share price multiplied by the number of shares.",
+  low:"How much further the price may fall, from today, before it reaches its lowest point in the next four weeks.",
+  bad:"How far the price could fall in a rough month. In the past, only about 1 in 10 similar stocks fell further than this.",
+  day:"How many trading days have passed since the news. Settle follows each stock for 20 trading days, which is about four weeks.",
+  trend:"The overall direction of the price. Bullish means it has been rising: it is above its 50-day and 200-day averages and has done better than the market over three months. Bearish means the opposite on all three. Mixed means the signs disagree.",
+  rsi:"A score from 0 to 100 that shows how fast the price has moved lately. Above 70, it has risen quickly and may be due for a pause. Below 30, it has fallen quickly and may be due for a bounce. It is a warning sign, not a promise.",
+  beta:"How much the stock tends to move when the whole market moves. A value of 1.8 means that when the market has risen or fallen 1%, this stock has usually moved about 1.8% the same way.",
+  liq:"How easy it is to buy or sell the stock quickly at a fair price. Stocks that trade billions of dollars a day are easy. With thinly traded stocks, your own order can move the price.",
+  range52:"The lowest and highest closing prices of the past year. The marker shows where today's price sits between them.",
+  swings:"How much the price is likely to move up and down each day over the next four weeks, compared with what is normal for this stock.",
+  vol:"How many shares are likely to trade each day over the next four weeks, compared with what is normal for this stock. Trading often gets busy after news and quietens as the news gets older.",
+  move4:"How far the price could travel over the next four weeks in an ordinary month, either up or down. About two months in three stay within this.",
+  ext:"Trades made before the market opens (4:00 to 9:30 AM New York time) or after it closes (4:00 to 8:00 PM). Fewer people trade then, so the price can jump around, but it hints at where the stock may open.",
+  nrange:"Where the price is likely to stay during the next trading day. On about two days out of three, the stock stays inside this range.",
+  bottom:"After news, a stock often keeps falling for a while before it reaches its lowest point. This is the chance that the lowest point of the four weeks has already happened. If it is high, a further dip would probably stop above that earlier low.",
+  usedRange:"How much of a normal day's movement has already happened today. Near 100% means the stock has already moved about as much as it usually does in a whole day.",
+  levels:"Prices worth keeping an eye on. Stocks often turn near their recent highs, lows and averages. The expected low and bad case come from Settle's forecasts."};
 const $ = s => document.querySelector(s);
 const fmt = (x, d=1) => (x == null || isNaN(x)) ? "–" : Number(x).toFixed(d);
 const money = x => "$" + Number(x || 0).toLocaleString("en-US", {minimumFractionDigits:2, maximumFractionDigits:2});
@@ -370,8 +370,8 @@ const live = s => s && s.status === "event";
 const sig = s => (s.entry?.signal === "BUY" || s.entry?.signal === "WAIT") ? s.entry.signal : null;
 const weightOf = (s, t) => live(s) ? s.sizing?.tiers?.[t]?.weight : s.outlook?.weights?.[t];
 const badOf = (s, t) => live(s) ? s.sizing?.tiers?.[t]?.bad_case_pct : (t === "safest" ? s.outlook?.bad_case_5_pct : s.outlook?.bad_case_pct);
-const swings = v => !v ? "–" : v < 0.85 ? "Calmer than usual" : v > 1.15 ? "Wilder than usual" : "About usual";
-const volWord = v => !v ? "–" : v < 0.85 ? "Lighter than usual" : v > 1.25 ? "Heavier than usual" : "About usual";
+const swings = v => !v ? "–" : v < 0.85 ? "Calmer than normal" : v > 1.15 ? "Bigger than normal" : "Normal for this stock";
+const volWord = v => !v ? "–" : v < 0.85 ? "Quieter than normal" : v > 1.25 ? "Busier than normal" : "Normal for this stock";
 const signed = x => (x >= 0 ? "up " : "down ") + fmt(Math.abs(x), 1) + "%";
 
 function stateOf(s) {
@@ -477,46 +477,47 @@ function drawChart(s) {
 /* ------------------------------------------------------------------ sections */
 function whenLow(s) {
   const d = s.entry?.days_to_low;
-  if (!d) return `<section><h2>When the low may come</h2><p>${s.decision_day === 0 ? "This appears after the next close, together with the buy or wait call." : live(s) ? "The four weeks after the news have passed." : "This appears when the stock has had company news in the last three weeks."}</p></section>`;
-  const P = d.probs, L = ["Already passed", "1 to 2 days", "3 to 5 days", "6 to 10 days", "11 or more days"], LO = [0, 1, 3, 6, 11];
+  if (!d) return `<section><h2>When the low may come</h2><p>${s.decision_day === 0 ? "This appears after the next close, together with the buy or wait call." : live(s) ? "Four weeks have passed since the news." : "This appears when the stock has company news."}</p></section>`;
+  const P = d.probs, L = ["Already passed", "In 1 to 2 days", "In 3 to 5 days", "In 6 to 10 days", "In 11+ days"], LO = [0, 1, 3, 6, 11];
   const keep = P.map((p, i) => i).filter(i => LO[i] <= d.days_left), top = keep.reduce((a, i) => P[i] > P[a] ? i : a, keep[0]);
-  const when = ["", "within the next two trading days", "in three to five trading days", "in six to ten trading days", "eleven or more trading days from now"];
-  const lead = top === 0 ? `Most likely (${fmt(100 * P[0], 0)}%), the bottom has already passed, so a dip from here would probably stop above that earlier low.`
-                         : `The bottom is most likely to come ${when[top]} (${fmt(100 * P[top], 0)}%)${top >= 3 ? ", so it may still be some way off" : ""}. There is ${an(100 * P[0])} ${fmt(100 * P[0], 0)}% chance it has already passed.`;
+  const when = ["", "within the next two trading days", "in three to five trading days", "in six to ten trading days", "in eleven or more trading days"];
+  const lead = top === 0 ? `Most likely (${fmt(100 * P[0], 0)}%), the lowest point has already passed, so a further dip would probably stop above it.`
+                         : `It is most likely to come ${when[top]} (${fmt(100 * P[top], 0)}%)${top >= 3 ? ", so it may still be some time away" : ""}. There is ${an(100 * P[0])} ${fmt(100 * P[0], 0)}% chance it has already passed.`;
   const pct = p => p < 0.005 ? "<1%" : fmt(100 * p, 0) + "%";
   return `<section><h2>When the low may come</h2>
-    <p>After news, a stock often keeps sliding for a while before it finds a floor. These are the chances for when ${esc(s.ticker)}'s lowest close of the four weeks after the news will come, with ${d.days_left} trading days left. ${lead}</p>
+    <p>After news, a stock often keeps sliding for a while before it reaches its lowest point. These are the chances of when ${esc(s.ticker)}'s lowest close will come, within the ${d.days_left} trading days left. ${lead}</p>
     <div class="when">${keep.map(i => `<div class="${i === top ? "hi" : ""}"><span>${L[i]}</span><i><b style="width:${(100 * P[i]).toFixed(1)}%"></b></i><em>${pct(P[i])}</em></div>`).join("")}</div></section>`;
 }
 function ahead(s) {
   const r = s.risk || {}, o = s.outlook;
-  if (live(s)) { const d20 = r.drift_1_20?.pred, lean = d20 == null ? "–" : d20 > 0.01 ? "Slight lean up" : d20 < -0.01 ? "Slight lean down" : "No clear lean";
+  const pctMore = v => v > 1 ? `about ${fmt(100 * (v - 1), 0)}% bigger than` : `about ${fmt(100 * (1 - v), 0)}% smaller than`;
+  if (live(s)) { const vr = r.vol_ratio_2_20?.pred, av = r.abn_volume_2_20?.pred, m4 = s.sizing?.sigma_pct;
     return `<section><h2>Over the next four weeks</h2><dl class="facts">
-      <div><dt>Price swings ${tip("swings")}</dt><dd>${swings(r.vol_ratio_2_20?.pred)}</dd></div>
-      <div><dt>Trading volume ${tip("vol")}</dt><dd>${volWord(r.abn_volume_2_20?.pred)}</dd></div>
-      <div><dt>Direction ${tip("dir")}</dt><dd>${lean}</dd></div></dl></section>`; }
+      <div><dt>Price swings ${tip("swings")}</dt><dd>${swings(vr)}</dd>${vr ? `<small>${vr >= 0.85 && vr <= 1.15 ? "Daily moves are expected to stay close to this stock's usual size." : `Daily moves are expected to be ${pctMore(vr)} usual for this stock.`}</small>` : ""}</div>
+      <div><dt>Trading activity ${tip("vol")}</dt><dd>${volWord(av)}</dd>${av ? `<small>${av >= 0.85 && av <= 1.25 ? "About the usual number of shares is expected to trade each day." : `About ${fmt(av, 1)} times the usual number of shares is expected to trade each day.`}</small>` : ""}</div>
+      ${m4 ? `<div><dt>Typical move ${tip("move4")}</dt><dd>About ${fmt(m4, 0)}% up or down</dd><small>That is roughly $${fmt(s.price * m4 / 100, 2)} either way from today's price.</small></div>` : ""}</dl></section>`; }
   if (!o) return "";
   return `<section><h2>Over the next four weeks</h2><dl class="facts">
-    <div><dt>Price swings lately ${tip("swings")}</dt><dd>${swings(o.vol_now_vs_usual)}</dd><small>Over the last three months, compared with the past six years.</small></div>
-    <div><dt>Typical four-week move</dt><dd>about ${fmt(o.vol_20d_pct)}% either way</dd></div>
-    <div><dt>Bad case ${tip("bad")}</dt><dd>${fmt(-o.bad_case_pct)}% below today</dd><small>From the stock's own history, since there is no news event to model.</small></div></dl></section>`;
+    <div><dt>Price swings lately ${tip("swings")}</dt><dd>${swings(o.vol_now_vs_usual)}</dd><small>Over the last three months, compared with the last six years.</small></div>
+    <div><dt>Typical move ${tip("move4")}</dt><dd>About ${fmt(o.vol_20d_pct, 0)}% up or down</dd><small>That is roughly $${fmt(s.price * o.vol_20d_pct / 100, 2)} either way from today's price.</small></div>
+    <div><dt>Bad case ${tip("bad")}</dt><dd>${fmt(-o.bad_case_pct)}% below today</dd><small>Based on the stock's own history, because there is no recent news to model.</small></div></dl></section>`;
 }
 function todayFacts(s) {
   const t = s.stats; if (!t) return "";
   const m = t.dollar_vol_m, lq = m == null ? null : m >= 100 ? "Very easy to trade" : m >= 10 ? "Easy to trade" : "Thinly traded";
   const tw = {bullish:"Bullish", bearish:"Bearish", mixed:"Mixed"}[t.trend];
-  const tn = `Over three months it is ${signed(t.ret_3m_pct)}, against ${signed(t.mkt_3m_pct)} for the market.`;
+  const mk = t.mkt_3m_pct >= 0 ? `the market rose ${fmt(t.mkt_3m_pct)}%` : `the market fell ${fmt(-t.mkt_3m_pct)}%`;
+  const tn = `It is ${t.ret_3m_pct >= 0 ? "up" : "down"} ${fmt(Math.abs(t.ret_3m_pct))}% over three months, while ${mk}.${t.trend === "mixed" ? " The signs disagree, so there is no clear trend." : ""}`;
   const px = nowPx(s).px, pos = t.low_52w != null ? Math.max(0, Math.min(100, 100 * (px - t.low_52w) / Math.max(t.high_52w - t.low_52w, 1e-9))) : null;
   return `<section class="today"><h2>The stock today</h2><dl class="facts">
     <div><dt>Trend ${tip("trend")}</dt><dd>${tw}</dd><small>${tn}</small></div>
-    ${pos != null ? `<div><dt>52-week range ${tip("range52")}</dt><dd>${fmt(t.low_52w, 2)} to ${fmt(t.high_52w, 2)}</dd><i class="range" aria-hidden="true"><b style="left:${pos}%"></b></i><small>${fmt(Math.abs(t.from_high_pct))}% below the year's high.</small></div>` : ""}
-    ${t.rsi_14 != null ? `<div><dt>Momentum (RSI) ${tip("rsi")}</dt><dd>${fmt(t.rsi_14, 0)}</dd><small>${t.rsi_14 >= 70 ? "It has risen quickly and may be stretched." : t.rsi_14 <= 30 ? "It has fallen quickly and may be oversold." : "Recent moves have been ordinary in size."}</small></div>` : ""}
-    <div><dt>Moves with the market ${tip("beta")}</dt><dd>${fmt(t.beta, 1)} times as much</dd></div>
-    ${lq ? `<div><dt>Liquidity ${tip("liq")}</dt><dd>${lq}</dd><small>About ${big(m * 1e6)} trades on a typical day.</small></div>` : ""}
-    ${s.next_earnings ? `<div><dt>Next earnings report</dt><dd>${day(s.next_earnings)}</dd></div>` : `<div><dt>Volume this week</dt><dd>${fmt(t.vol_vs_avg, 1)} times normal</dd></div>`}
+    ${pos != null ? `<div><dt>52-week range ${tip("range52")}</dt><dd>${fmt(t.low_52w, 2)} to ${fmt(t.high_52w, 2)}</dd><i class="range" aria-hidden="true"><b style="left:${pos}%"></b></i><small>Today's price is ${fmt(Math.abs(t.from_high_pct))}% below the year's highest close.</small></div>` : ""}
+    ${t.rsi_14 != null ? `<div><dt>Momentum (RSI) ${tip("rsi")}</dt><dd>${fmt(t.rsi_14, 0)} out of 100</dd><small>${t.rsi_14 >= 70 ? "It has risen fast lately and may be due for a pause." : t.rsi_14 <= 30 ? "It has fallen fast lately and may be due for a bounce." : "It has moved at a normal pace lately."}</small></div>` : ""}
+    <div><dt>Link to the market (beta) ${tip("beta")}</dt><dd>${fmt(t.beta, 1)}</dd><small>When the market moves 1%, this stock has usually moved about ${fmt(t.beta, 1)}%.</small></div>
+    ${lq ? `<div><dt>Liquidity ${tip("liq")}</dt><dd>${lq}</dd><small>About ${big(m * 1e6)} worth of shares change hands on a typical day.</small></div>` : ""}
+    ${s.next_earnings ? `<div><dt>Next earnings report</dt><dd>${day(s.next_earnings)}</dd><small>Prices often move sharply around this date.</small></div>` : `<div><dt>Trading this week</dt><dd>${fmt(t.vol_vs_avg, 1)} times normal</dd></div>`}
   </dl></section>`;
 }
-
 function forWhen() {
   if (Q?.session === "open" || (!Q?.session && Q?.market_open)) return "Settle's call for today";
   return Q?.next_open_utc ? `Settle's call for ${nyDay(Q.next_open_utc)}` : "Settle's call";
@@ -546,33 +547,33 @@ function nextSession(s) {
   const sess = Q?.session || (Q?.market_open ? "open" : "closed"), isOpen = sess === "open", now = Date.now();
   const base = ext?.price ?? px, sd = daySd(s);
   let line;
-  if (isOpen && Q?.close_utc) line = `The market is open and closes in <b>${dur(Date.parse(Q.close_utc) - now)}</b>, at ${when(Q.close_utc)} your time.`;
-  else if (Q?.next_open_utc) line = `The market opens in <b>${dur(Date.parse(Q.next_open_utc) - now)}</b>, at ${when(Q.next_open_utc)} your time.`;
+  if (isOpen && Q?.close_utc) line = `The market is open and closes in <b>${dur(Date.parse(Q.close_utc) - now)}</b> (${when(Q.close_utc)} your time).`;
+  else if (Q?.next_open_utc) line = `The market opens in <b>${dur(Date.parse(Q.next_open_utc) - now)}</b> (${when(Q.next_open_utc)} your time).`;
   else line = "These numbers are for the next session.";
   const st = [];
   if (isOpen) {
     const qq = s.quote || {}, h = q?.high, l = q?.low, pc = q?.prev_close ?? qq.prev_close;
     if (h && l && pc && qq.atr_pct) { const used = 100 * (h - l) / pc / qq.atr_pct;
-      st.push(`<div class="stat"><dt>Day's range used ${tip("usedRange")}</dt><dd>${fmt(used, 0)}%</dd><small>${fmt(100 * (h - l) / pc)}% from low to high so far, against about ${fmt(qq.atr_pct)}% on a usual day.</small></div>`); }
+      st.push(`<div class="stat"><dt>Day's range used ${tip("usedRange")}</dt><dd>${fmt(used, 0)}%</dd><small>It has moved ${fmt(100 * (h - l) / pc)}% from low to high so far, against about ${fmt(qq.atr_pct)}% on a normal day.</small></div>`); }
   } else if (ext) {
-    st.push(`<div class="stat"><dt>${ext.session === "pre-market" ? "Pre-market" : "After hours"} ${tip("ext")}</dt><dd>${fmt(ext.price, 2)} <span class="${ext.change_pct >= 0 ? "up" : "down"}" style="font-size:17px">${ext.change_pct >= 0 ? "+" : "−"}${fmt(Math.abs(ext.change_pct), 2)}%</span></dd><small>Against the last close, at ${when(ext.time)} your time.</small></div>`);
+    st.push(`<div class="stat"><dt>${ext.session === "pre-market" ? "Pre-market" : "After hours"} ${tip("ext")}</dt><dd>${fmt(ext.price, 2)} <span class="${ext.change_pct >= 0 ? "up" : "down"}" style="font-size:17px">${ext.change_pct >= 0 ? "+" : "−"}${fmt(Math.abs(ext.change_pct), 2)}%</span></dd><small>Compared with the last close. Last trade at ${when(ext.time)} your time.</small></div>`);
   } else {
-    st.push(`<div class="stat"><dt>Since the close ${tip("ext")}</dt><dd class="sm">No trades yet</dd><small>Pre-market trading starts at 4:00 AM New York time and shows here when it does.</small></div>`);
+    st.push(`<div class="stat"><dt>Since the close ${tip("ext")}</dt><dd class="sm">No trades yet</dd><small>Early trading starts at 4:00 AM New York time and will show here.</small></div>`);
   }
   if (sd) { const f = isOpen && Q?.close_utc ? Math.sqrt(Math.max(0.05, Math.min(1, (Date.parse(Q.close_utc) - now) / 23400000))) : 1;
-    st.push(`<div class="stat"><dt>${isOpen ? "Likely range to the close" : "Likely range"} ${tip("nrange")}</dt><dd class="rg">${fmt(base * (1 - f * sd / 100), 2)} to ${fmt(base * (1 + f * sd / 100), 2)}</dd><small>About ${fmt(f * sd)}% either way${ext && !isOpen ? `, measured from the ${ext.session} price` : ""}. Two sessions in three stay inside it.</small></div>`); }
+    st.push(`<div class="stat"><dt>${isOpen ? "Likely range to the close" : "Likely range"} ${tip("nrange")}</dt><dd class="rg">${fmt(base * (1 - f * sd / 100), 2)} to ${fmt(base * (1 + f * sd / 100), 2)}</dd><small>About ${fmt(f * sd)}% either way${ext && !isOpen ? ` from the ${ext.session === "after hours" ? "after-hours" : ext.session} price` : ""}. The price stays in this range on about two days out of three.</small></div>`); }
   const d = s.entry?.days_to_low;
   if (d) {
     const H = series(s), i = H.d.indexOf(s.day0), lowSince = i >= 0 && i < H.c.length - 1 ? Math.min(...H.c.slice(i + 1)) : null;
-    st.push(`<div class="stat"><dt>Chance the low is in ${tip("bottom")}</dt><dd>${fmt(100 * d.probs[0], 0)}%</dd><small>${s.entry.at_new_low ? "Today's close is at or near the lowest since the news, so this is roughly the chance that today was the bottom." : lowSince ? `The lowest close since the news is ${fmt(lowSince, 2)}, ${fmt(100 * (1 - lowSince / px))}% below now.` : ""}</small></div>`);
+    st.push(`<div class="stat"><dt>Chance the low is in ${tip("bottom")}</dt><dd>${fmt(100 * d.probs[0], 0)}%</dd><small>${s.entry.at_new_low ? "Today's close is at or near the lowest since the news, so this is roughly the chance that today was the bottom." : lowSince ? `The lowest close since the news was ${fmt(lowSince, 2)}, which is ${fmt(100 * (1 - lowSince / px))}% below today's price.` : ""}</small></div>`);
   } else if (live(s) && s.decision_day === 0) {
     const mv = s.car_0_1_pct;
-    st.push(`<div class="stat"><dt>Reaction so far</dt><dd class="${mv >= 0 ? "up" : "down"}">${mv >= 0 ? "+" : "−"}${fmt(Math.abs(mv))}%</dd><small>Against the market on the day of the news. The call needs one more close.</small></div>`);
+    st.push(`<div class="stat"><dt>Reaction so far</dt><dd class="${mv >= 0 ? "up" : "down"}">${mv >= 0 ? "+" : "−"}${fmt(Math.abs(mv))}%</dd><small>How much more the stock ${mv >= 0 ? "rose" : "fell"} than the market on the day of the news. The call comes after one more close.</small></div>`);
   } else if (s.preview) {
-    st.push(`<div class="stat"><dt>Move expected on the report</dt><dd>±${fmt(s.preview.typical_move_pct)}%</dd><small>Reports on ${day(s.preview.report_date)}. The direction cannot be told in advance.</small></div>`);
+    st.push(`<div class="stat"><dt>Move expected on the report</dt><dd>±${fmt(s.preview.typical_move_pct)}%</dd><small>The report is due on ${day(s.preview.report_date)}. Which way the stock will move cannot be known in advance.</small></div>`);
   } else if (s.stats?.trend) {
     const t = s.stats, tw = {bullish:"Bullish", bearish:"Bearish", mixed:"Mixed"}[t.trend];
-    st.push(`<div class="stat"><dt>Trend ${tip("trend")}</dt><dd class="${t.trend === "bullish" ? "up" : t.trend === "bearish" ? "down" : ""}">${tw}</dd><small>Over three months it is ${signed(t.ret_3m_pct)}, against ${signed(t.mkt_3m_pct)} for the market. With no recent news, there is no call.</small></div>`);
+    st.push(`<div class="stat"><dt>Trend ${tip("trend")}</dt><dd class="${t.trend === "bullish" ? "up" : t.trend === "bearish" ? "down" : ""}">${tw}</dd><small>It is ${t.ret_3m_pct >= 0 ? "up" : "down"} ${fmt(Math.abs(t.ret_3m_pct))}% over three months, while the market ${t.mkt_3m_pct >= 0 ? "rose" : "fell"} ${fmt(Math.abs(t.mkt_3m_pct))}%.</small></div>`);
   }
   const L = levels(s, px).concat([{k:"Now", v:px, now:true}]).sort((a, b) => b.v - a.v);
   const ladder = L.length > 1 ? `<div><h3 style="display:flex;align-items:center;gap:6px;margin:0 0 8px;font-size:16px">Price levels to watch ${tip("levels")}</h3><ul class="ladder">
@@ -585,8 +586,8 @@ function renderDetail() {
   if (!s) return;
   const st = stateOf(s), n = nowPx(s), q = n.q, qq = s.quote || {};
   const mkt = Q?.market_open, upd = Q?.generated_utc ? new Date(Q.generated_utc.replace("+00:00", "Z")) : null;
-  const liveLine = n.live && mkt ? `<div class="live on"><i></i>Live price, about 15 minutes behind the market${upd ? `. Checked at ${upd.toLocaleTimeString([], {hour:"2-digit", minute:"2-digit"})}` : ""}.</div>`
-                 : `<div class="live"><i></i>Market closed. Price from the close on ${day(q?.session_date || s.price_date)}${q?.ext ? `, with ${q.ext.session} trading below` : ""}.</div>`;
+  const liveLine = n.live && mkt ? `<div class="live on"><i></i>Live price, about 15 minutes behind the market${upd ? `. Updated at ${upd.toLocaleTimeString([], {hour:"2-digit", minute:"2-digit"})}` : ""}.</div>`
+                 : `<div class="live"><i></i>Market closed. Showing the closing price from ${day(q?.session_date || s.price_date)}.</div>`;
   const o_ = q?.open ?? qq.open, h_ = q?.high ?? qq.high, l_ = q?.low ?? qq.low, v_ = q?.volume ?? qq.volume, pc = q?.prev_close ?? qq.prev_close;
   const quote = `<dl class="quote">
     <div><dt>Open ${tip("open")}</dt><dd>${fmt(o_, 2)}</dd></div>
@@ -601,23 +602,23 @@ function renderDetail() {
   let call;
   if (live(s)) {
     const e = s.entry || {}, g = sig(s), mv = s.car_0_1_pct, dip = e.expected_further_dip_pct, why = KIND[s.event_class] ?? "after company news", bad = badOf(s, "recommended");
-    const what = `${esc(s.ticker)} ${mv >= 0 ? "rose" : "fell"} ${fmt(Math.abs(mv))}% more than the market on ${day(s.day0)}${why ? ", " + why : ""}.`;
-    const txt = g === "BUY" ? `Buying now has tended to beat waiting in cases like this, although the price could still dip about ${fmt(dip)}% along the way.`
-              : g === "WAIT" ? `Waiting a few days has tended to get a better price in cases like this. The model expects a dip of about ${fmt(dip)}% before the low.`
-              : s.decision_day === 0 ? `The buy or wait call needs the market's reaction over two closes, so it comes after the next one. The risk forecasts below already use today's move.`
-              : `The four weeks after the news have passed.`;
+    const what = `On ${day(s.day0)}, ${esc(s.ticker)} ${mv >= 0 ? "rose" : "fell"} ${fmt(Math.abs(mv))}% more than the market${why ? " " + why : ""}.`;
+    const txt = g === "BUY" ? `In similar cases, buying straight away worked out better than waiting. The price could still dip about ${fmt(dip)}% first, so expect some ups and downs.`
+              : g === "WAIT" ? `In similar cases, waiting a few days usually got a better price. Settle expects the price to dip about ${fmt(dip)}% before it reaches its low.`
+              : s.decision_day === 0 ? `Settle needs to see how the market reacts over two trading days before it can say buy or wait, so the call comes after the next close. The forecasts below already use today's move.`
+              : `Four weeks have passed since the news, so there is no longer a call.`;
     call = `<div class="call ${st.cls}" id="callBox"><small>${forWhen()}</small><p class="word ${st.cls}">${st.word}</p><p>${what} ${txt}</p>
-      <dl class="keys">${dip != null ? `<div><dt>Expected low ${tip("low")}</dt><dd>−${fmt(dip)}%</dd></div>` : s.decision_day === 0 ? `<div><dt>Swings ahead ${tip("swings")}</dt><dd>${swings(s.risk?.vol_ratio_2_20?.pred).replace(" than usual", "")}</dd></div>` : ""}
+      <dl class="keys">${dip != null ? `<div><dt>Expected low ${tip("low")}</dt><dd>−${fmt(dip)}%</dd></div>` : s.decision_day === 0 ? `<div><dt>Swings ahead ${tip("swings")}</dt><dd>${swings(s.risk?.vol_ratio_2_20?.pred).replace(" than normal", "").replace(" for this stock", "")}</dd></div>` : ""}
         ${bad != null ? `<div><dt>Bad case ${tip("bad")}</dt><dd>−${fmt(-bad)}%</dd></div>` : ""}
         <div><dt>Day ${tip("day")}</dt><dd>${s.decision_day} of 20</dd></div></dl>
-      ${s.warning_big_drop ? `<p class="alarm"><b>Higher chance of a sharp further drop.</b> In past shocks like this one, ${WARN.flagged} in 100 went on to one of the biggest drops, against ${WARN.other} in 100 for the rest, so a smaller size is wiser.</p>` : ""}</div>`;
+      ${s.warning_big_drop ? `<p class="alarm"><b>Higher chance of a sharp drop.</b> In past cases like this, ${WARN.flagged} in 100 went on to one of the biggest falls, compared with ${WARN.other} in 100 for other stocks. A smaller position is safer.</p>` : ""}</div>`;
   } else {
     const pv = s.preview, o = s.outlook;
-    const txt = pv ? `${esc(s.ticker)} reports earnings on ${day(pv.report_date)}. In the two days after, it is expected to move about ${fmt(pv.typical_move_pct)}% against the market${pv.usual_move_pct != null ? `, compared with ${fmt(pv.usual_move_pct)}% on a usual report` : ""}. Which way it moves cannot be told in advance.`
-              : s.status === "no price data" ? `Prices could not be loaded at the last update. The board tries again at the next one.`
-              : `${esc(s.ticker)} has had no company news in the last three weeks, so there is no buy or wait call. The chart, the risk ahead and the sizing below still apply.`;
+    const txt = pv ? `${esc(s.ticker)} reports earnings on ${day(pv.report_date)}. Over the two days after, it is expected to move about ${fmt(pv.typical_move_pct)}% more than the market${pv.usual_move_pct != null ? `, compared with ${fmt(pv.usual_move_pct)}% after a typical report` : ""}. Which way it will move cannot be known in advance.`
+              : s.status === "no price data" ? `Prices could not be loaded at the last update. Settle will try again at the next one.`
+              : `${esc(s.ticker)} has had no company news in the last three weeks, so there is no buy or wait call. The chart, the risks and the sizing below still apply.`;
     call = `<div class="call ${st.cls}" id="callBox"><small>${forWhen()}</small><p class="word ${st.cls}">${st.word}</p><p>${txt}</p>
-      <dl class="keys">${pv ? `<div><dt>Typical move</dt><dd>±${fmt(pv.typical_move_pct)}%</dd></div><div><dt>1 in 10 move</dt><dd>±${fmt(pv.upper_move_pct)}%</dd></div>` : ""}
+      <dl class="keys">${pv ? `<div><dt>Expected move</dt><dd>±${fmt(pv.typical_move_pct)}%</dd></div><div><dt>Large move, 1 in 10</dt><dd>±${fmt(pv.upper_move_pct)}%</dd></div>` : ""}
         ${o ? `<div><dt>Bad case ${tip("bad")}</dt><dd>−${fmt(-o.bad_case_pct)}%</dd></div>` : ""}</dl></div>`;
   }
 
@@ -628,7 +629,7 @@ function renderDetail() {
     ${nextSession(s)}
     <div class="grid2">${whenLow(s)}${ahead(s)}</div>
     ${todayFacts(s)}
-    ${sizeOK ? `<section class="size" id="sizeBox"><div><h2>How much to put in</h2><p>Enter your budget and pick a risk level. The amount is sized so that a bad four weeks stays within the loss you choose.</p>
+    ${sizeOK ? `<section class="size" id="sizeBox"><div><h2>How much to put in</h2><p>Enter your budget and choose a risk level. Settle suggests an amount small enough that a bad month stays within the loss you are willing to take.</p>
       <div class="controls"><label class="field">Budget<span class="money"><span>$</span><input id="budget" type="number" inputmode="decimal" min="1" step="1" value="${budget}"></span></label>
         <div class="field">Risk level<div class="seg" role="group" aria-label="Risk level">${Object.entries(TIERS).map(([k, v]) => `<button type="button" data-tier="${k}" aria-pressed="${k === tier}">${v.label}</button>`).join("")}</div></div></div></div>
       <div class="answer"><span class="amt" id="amt">${money(amt)}</span><p id="amtNote"></p>
@@ -647,8 +648,8 @@ function updateAnswer() {
   const s = stockOf(sel), T = TIERS[tier], amt = (weightOf(s, tier) || 0) * budget;
   if (!$("#amt")) return;
   $("#amt").textContent = money(amt);
-  $("#amtNote").textContent = amt > 0 ? `in ${s.ticker}, with the rest kept in cash. At this level there is at most a ${Math.round(T.beta * 100)}% chance of being down more than ${money(budget * T.d)} at any point in the next four weeks.`
-                                      : `The model does not expect a positive return here, so it suggests keeping this money in cash.`;
+  $("#amtNote").textContent = amt > 0 ? `to put in ${s.ticker}, with the rest kept in cash. At this level, there is at most a ${Math.round(T.beta * 100)}% chance of being down more than ${money(budget * T.d)} at any point in the next four weeks.`
+                                      : `Settle does not expect a gain here, so it suggests keeping this money in cash.`;
 }
 function renderPlan() {
   plan = plan.filter(t => stockOf(t) && weightOf(stockOf(t), "recommended") != null);
@@ -664,7 +665,7 @@ function renderPlan() {
   $("#planBody").innerHTML = `<table><tr><th>Stock</th><th>Amount</th><th>Share</th><th></th></tr>
     ${rows.map((r, i) => `<tr><td><b>${esc(r.ticker)}</b></td><td>${money(amt[i])}</td><td>${fmt(100 * ws[i], 0)}%</td><td><button type="button" data-rm="${esc(r.ticker)}">Remove</button></td></tr>`).join("")}
     <tr><td><b>Total</b></td><td><b>${money(tot)}</b></td><td>${fmt(100 * tot / Math.max(budget, 1e-9), 0)}%</td><td></td></tr></table>
-    <p>${rows.length > 1 ? "Each amount is smaller than it would be on its own, because stocks often fall together in a sell-off." : "Add another stock to see how the money is shared."} Together, the plan keeps at most a ${Math.round(T.beta * 100)}% chance of being down more than ${money(budget * T.d)}, and the rest stays in cash.</p>`;
+    <p>${rows.length > 1 ? "Each amount is a little smaller than it would be on its own, because stocks often fall together in a sell-off." : "Add another stock to see how your budget is shared."} Together, the plan has at most a ${Math.round(T.beta * 100)}% chance of being down more than ${money(budget * T.d)}, and the rest stays in cash.</p>`;
   $("#planBody").hidden = !planOpen;
   $("#planToggle").textContent = planOpen ? "Hide" : "Show split";
   $("#planToggle").setAttribute("aria-expanded", planOpen);
@@ -682,11 +683,11 @@ function renderAll() { renderTabs(); renderDetail(); renderPlan(); }
 
 /* ------------------------------------------------------------------ walkthrough on the first visit */
 const STEPS = [
-  {el:"#tabs", t:"Your watchlist", b:"Each stock shows its latest call. Green means buy, violet means wait, and grey means there has been no recent news. Tap one to open it."},
-  {el:"#callBox", t:"The call", b:"After company news, Settle compares buying today with waiting a few days, and shows how far the price may still dip and how bad a rough month could get."},
-  {el:"#chartSec", t:"The chart", b:"Switch between today and longer ranges, and move across the chart to read any day. On the right are the expected low and the bad case for the next four weeks."},
-  {el:"#nextBox", t:"Before the next open", b:"Even when the market is closed, this shows where the stock traded after hours, the range it is likely to move in next, and the price levels worth watching."},
-  {el:"#sizeBox", t:"How much to put in", b:"Enter your budget and choose a risk level. The amount is sized so that a bad month stays within the loss you are willing to take."}];
+  {el:"#tabs", t:"Your stocks", b:"Each stock shows its latest call. Green means buy, violet means wait, and grey means there has been no recent news. Tap a stock to open it."},
+  {el:"#callBox", t:"The call", b:"After company news, Settle checks whether buying now or waiting a few days worked better in similar cases. It also shows how far the price may still dip and how bad a rough month could get."},
+  {el:"#chartSec", t:"The chart", b:"Switch between today and longer periods, and move along the line to see the price on any day. The shaded area on the right shows the expected low and the bad case for the next four weeks."},
+  {el:"#nextBox", t:"Before the next open", b:"Even when the market is closed, this shows the latest after-hours price, the range the price is likely to stay in, and the prices worth watching."},
+  {el:"#sizeBox", t:"How much to put in", b:"Enter your budget and choose a risk level. Settle suggests an amount small enough that a bad month stays within the loss you are willing to take."}];
 let tourAt = -1;
 function startTour() { tourAt = 0; showStep(); }
 function endTour() { if (tourAt < 0) return; document.querySelector(".spot")?.classList.remove("spot"); $("#tour").hidden = true; tourAt = -1; store.set("toured", true); }

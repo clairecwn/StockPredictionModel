@@ -1,5 +1,5 @@
 {
- "generated_utc": "2026-11-17T05:01+00:00",
+ "generated_utc": "2026-11-17T05:17+00:00",
  "tickers": [
   "NVDA",
   "TSLA",
@@ -114,18 +114,17 @@
  ],
  "disclaimer": "Research project. Directional guidance, not financial advice. Past patterns can fail.",
  "skill": {
-  "How these were measured": "Live-feature models, purged walk-forward, test years 2006-2026 never used for fitting or tuning. Rank correlation: 0 = no skill, 1 = perfect ordering.",
-  "Volatility vs normal": "rank correlation 0.51 with what happened (shuffled-label placebo: -0.01). Reliable.",
-  "Trading volume vs normal": "rank correlation 0.66 (placebo 0.02). Reliable. Trading activity in the month before the news is one of its strongest inputs.",
-  "Expected further dip": "rank correlation 0.15 after removing the effects of volatility and days left. Useful but rough.",
-  "BUY / WAIT signal": "bought on average 0.05 percentage points closer to the 20-day low than buying on day 1 (2016-2025, significant after correcting for 11 strategies tested, p = 0.02). Small but consistent edge.",
-  "20-day direction": "rank correlation 0.03, right sign 51% of the time, not significant, close to zero since 2021. Shown as a weak lean only and never used for sizing.",
-  "Worst-point bound and sizing": "losses beyond each tier's limit happened in 2.7% / 2.5% / 1.4% of trades (promise: at most 5% / 10% / 10%). 3-stock split: 6.7% (promise at most 10%).",
-  "80% ranges": "contained the real outcome 79.7% to 80.0% of the time.",
-  "Not covered": "stocks under $5 or in the smallest 20% of firms, and any market regime unlike 2001-2025. Price shocks with no matched headline are scored like other shocks, although training saw fewer of them.",
-  "Earnings calendar": "knowing whether an earnings report falls inside the next four weeks raised the volatility and volume forecasts, and the gain held in every recent year.",
-  "Earnings preview": "the expected size of the move after an upcoming report ranks reports better than the stock's own usual move (rank correlation 0.37 against 0.35), its 1-in-10 upper bound was exceeded in 10.2% of reports from 2016 to 2025, and the expected deepest dip over the following four weeks beats a volatility rule once analyst disagreement is included. Direction is not forecast.",
-  "When the low may come": "chances for five windows, from already passed to 11 or more days away. Log loss 1.14 against 1.27 for a baseline that only counts the days since the news; better in 99% of test months since 2016; well calibrated (a 69% chance came true 67% of the time).",
+  "How these were measured": "Every score comes from years the models never saw while they were being built (2006 to 2026).",
+  "Price swings": "Reliable. Settle tells calm months from wild ones well, and it beat the standard textbook forecast for this (the HAR model) in 99% of test months.",
+  "Trading volume": "The most accurate forecast on the board. It beat a simple guess that trading stays as busy as the week before in every test month.",
+  "Bad case and sizing": "The bad case was passed about as often as promised. Positions sized by Settle lost more than their limit in 2.7%, 2.5% and 1.4% of trades, against promises of at most 5%, 10% and 10%.",
+  "Forecast ranges": "Each range is meant to hold the real outcome 8 times in 10, and it did so 79.7% to 80.0% of the time.",
+  "Expected low": "Useful but rough. It ranks deeper and shallower dips better than chance, but the exact depth of a dip is hard to predict.",
+  "Buy or wait": "A small but steady edge. From 2016 to 2025, following the call bought slightly closer to the four-week low than buying the day after the news.",
+  "When the low may come": "Clearly better than guessing from the number of days since the news, and its chances are honest: when it said 69%, it happened 67% of the time.",
+  "Earnings preview": "It predicts the size of the move after a report slightly better than the stock's own history does. It does not predict which way the stock will move.",
+  "Direction": "Whether a stock will beat the market over the next four weeks cannot be predicted reliably from public news, so Settle does not show it.",
+  "Not covered": "Stocks under $5, the smallest companies, and market conditions unlike anything seen from 2001 to 2025.",
   "Big-drop warning (shock-sized events, 2016-2026)": "AUC 0.65 for spotting the worst 20% of drops (0.50 = coin flip)"
  },
  "stocks": [
@@ -144,7 +143,7 @@
     "trend": "mixed",
     "dollar_vol_m": 40055.12319,
     "vol_20_pct": 51.34209,
-    "vol_1y_pct": 38.79399,
+    "vol_1y_pct": 38.79398,
     "low_52w": 156.14,
     "high_52w": 239.24001,
     "rsi_14": 15.97665,
@@ -1215,7 +1214,7 @@
      180.21,
      178.45,
      182.11,
-     177.39,
+     177.4,
      179.83,
      176.58,
      179.49,
@@ -3716,7 +3715,7 @@
     "dollar_vol_m": 14879.78748,
     "vol_20_pct": 40.57153,
     "vol_1y_pct": 41.70443,
-    "low_52w": 524.81897,
+    "low_52w": 524.81903,
     "high_52w": 777.59003,
     "rsi_14": 51.79602,
     "vol_vs_avg": 0.60392
@@ -5404,8 +5403,8 @@
    "status": "quiet: no event in the last 15 trading days",
    "outlook": {
     "vol_20d_pct": 11.42973,
-    "bad_case_pct": -16.70897,
-    "bad_case_5_pct": -20.24437,
+    "bad_case_pct": -16.70898,
+    "bad_case_5_pct": -20.24436,
     "vol_now_vs_usual": 1.0358,
     "weights": {
      "safest": 0.09879,
@@ -7119,7 +7118,7 @@
    "event_class": "other",
    "event_headline": "",
    "day0": "2026-11-05",
-   "car_0_1_pct": 8.4759,
+   "car_0_1_pct": 8.47591,
    "decision_day": 7,
    "risk": {
     "drift_1_20": {
@@ -10695,7 +10694,7 @@
    "event_class": "earnings_guidance",
    "event_headline": "",
    "day0": "2026-10-29",
-   "car_0_1_pct": -25.76121,
+   "car_0_1_pct": -25.7612,
    "decision_day": 12,
    "risk": {
     "drift_1_20": {
@@ -10784,8 +10783,8 @@
     "trend": "bullish",
     "dollar_vol_m": 16521.64884,
     "vol_20_pct": 27.43288,
-    "vol_1y_pct": 24.87926,
-    "low_52w": 245.84351,
+    "vol_1y_pct": 24.87925,
+    "low_52w": 245.84352,
     "high_52w": 356.26999,
     "rsi_14": 54.06874,
     "vol_vs_avg": 0.84007
@@ -11613,7 +11612,7 @@
      268.96,
      269.57,
      268.62,
-     271.26,
+     271.25,
      271.91,
      271.4,
      271.33,
@@ -11871,7 +11870,7 @@
      273.16,
      273.66,
      270.9,
-     271.24,
+     271.25,
      272.72,
      270.03,
      271.41,
@@ -14253,7 +14252,7 @@
    "event_class": "other",
    "event_headline": "",
    "day0": "2026-11-05",
-   "car_0_1_pct": 7.42512,
+   "car_0_1_pct": 7.42513,
    "decision_day": 7,
    "risk": {
     "drift_1_20": {
