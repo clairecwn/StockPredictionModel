@@ -11,11 +11,28 @@
 <link rel="preload" href="fonts/gloock-latin-400-normal.woff2" as="font" type="font/woff2" crossorigin>
 <script>try { const t = localStorage.getItem("theme"); if (t) document.documentElement.dataset.theme = t;
 } catch (e) {}
-document.documentElement.classList.add("intro");
+/* the opening screen shows on fresh visits and refreshes. When a home-screen app is reopened soon after it was left, the
+   phone first shows its saved picture of the page, so the opening screen would flash over it: skip it then */
+(function () { let back = 0; try { back = Date.now() - (+localStorage.getItem("settle_left") || 0); } catch (e) {}
+  const app = matchMedia("(display-mode: standalone)").matches || navigator.standalone;
+  if (!(app && back < 30 * 60e3)) document.documentElement.classList.add("intro"); })();
 (function () { const r = document.documentElement, ok = () => r.classList.add("fok"); setTimeout(ok, 900);
   try { document.fonts.load('400 1em "Gloock"').then(ok, ok); } catch (e) { ok(); } })();</script>
 <link rel="preload" href="fonts/gloock-latin-400-normal.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="apple-touch-icon" href="art/icon-180.png">
+<!-- launch screens for the home-screen app: the same picture as the opening screen, shown by the phone while Settle starts -->
+<link rel="apple-touch-startup-image" media="(device-width: 440px) and (device-height: 956px) and (-webkit-device-pixel-ratio: 3) and (orientation: portrait)" href="art/launch/launch-1320x2868.jpg">
+<link rel="apple-touch-startup-image" media="(device-width: 430px) and (device-height: 932px) and (-webkit-device-pixel-ratio: 3) and (orientation: portrait)" href="art/launch/launch-1290x2796.jpg">
+<link rel="apple-touch-startup-image" media="(device-width: 428px) and (device-height: 926px) and (-webkit-device-pixel-ratio: 3) and (orientation: portrait)" href="art/launch/launch-1284x2778.jpg">
+<link rel="apple-touch-startup-image" media="(device-width: 420px) and (device-height: 912px) and (-webkit-device-pixel-ratio: 3) and (orientation: portrait)" href="art/launch/launch-1260x2736.jpg">
+<link rel="apple-touch-startup-image" media="(device-width: 414px) and (device-height: 896px) and (-webkit-device-pixel-ratio: 3) and (orientation: portrait)" href="art/launch/launch-1242x2688.jpg">
+<link rel="apple-touch-startup-image" media="(device-width: 414px) and (device-height: 896px) and (-webkit-device-pixel-ratio: 2) and (orientation: portrait)" href="art/launch/launch-828x1792.jpg">
+<link rel="apple-touch-startup-image" media="(device-width: 402px) and (device-height: 874px) and (-webkit-device-pixel-ratio: 3) and (orientation: portrait)" href="art/launch/launch-1206x2622.jpg">
+<link rel="apple-touch-startup-image" media="(device-width: 393px) and (device-height: 852px) and (-webkit-device-pixel-ratio: 3) and (orientation: portrait)" href="art/launch/launch-1179x2556.jpg">
+<link rel="apple-touch-startup-image" media="(device-width: 390px) and (device-height: 844px) and (-webkit-device-pixel-ratio: 3) and (orientation: portrait)" href="art/launch/launch-1170x2532.jpg">
+<link rel="apple-touch-startup-image" media="(device-width: 375px) and (device-height: 812px) and (-webkit-device-pixel-ratio: 3) and (orientation: portrait)" href="art/launch/launch-1125x2436.jpg">
+<link rel="apple-touch-startup-image" media="(device-width: 414px) and (device-height: 736px) and (-webkit-device-pixel-ratio: 3) and (orientation: portrait)" href="art/launch/launch-1242x2208.jpg">
+<link rel="apple-touch-startup-image" media="(device-width: 375px) and (device-height: 667px) and (-webkit-device-pixel-ratio: 2) and (orientation: portrait)" href="art/launch/launch-750x1334.jpg">
 <link rel="manifest" href="manifest.webmanifest">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="mobile-web-app-capable" content="yes">
@@ -252,7 +269,6 @@ dialog::backdrop { background:rgba(18,26,44,.5); }
 #splash b { display:block; font:400 clamp(76px, 17vw, 156px)/.95 var(--display); letter-spacing:-.035em; color:var(--brand); }
 #splash span { display:block; margin-top:16px; font:500 clamp(16px, 2.2vw, 20px)/1.4 var(--sans); color:var(--ink); }
 #splash.out { opacity:0; transition:opacity .45s ease; }
-#splash.still .sw { animation:none !important; opacity:1 !important; }
 .intro:not(.fok) #splash .sw { opacity:0; animation:none; }
 @media (prefers-reduced-motion: no-preference) {
   #splash .sw { animation:rise .8s cubic-bezier(.2,.7,.2,1) both; }
@@ -1633,7 +1649,7 @@ function renderAll() { render(); }
 /* walkthrough on the first visit */
 const TOURS = {
   home:[{el:"#wgrid .wcard", t:"Your watchlist", b:"Each card is a stock you follow. The big word is Settle's call for the next trading session. <b>Buy</b> means buying straight away has usually done better than waiting. <b>Wait</b> means waiting a few days has usually got a lower price. The small label under it says how sure the call is."},
-        {el:".top", phone:true, t:"Keep Settle on your phone", b:"Add it to your home screen and it opens like an app. <b>iPhone:</b> tap Share in Safari, then Add to Home Screen. <b>Android:</b> open the browser menu, then Add to Home screen."},
+        {el:".top", phone:true, t:"Keep Settle on your phone", b:() => installHow()},
         {el:"#wgrid .wfoot", t:"The two numbers to check", b:"<b>Low already in</b> is the chance the stock has already hit its lowest point after its news, so a further dip would likely stop above it. <b>Bad case</b> is a fall that only about 1 in 10 similar cases went beyond in four weeks. Stocks without recent news show their week against the market instead."},
         {el:"#addBox", t:"Build your list", b:"Search for any of about 500 large US stocks, or tap a popular one to add it. Tap Edit to remove stocks."},
         {el:".views", t:"Three ways to look", b:"<b>All stocks</b> ranks every stock, and the star adds one to your list. <b>Compare</b> lines up two to four stocks on timing, risk and how much to put in."}],
@@ -1643,9 +1659,23 @@ const TOURS = {
          {el:'#tiles [data-sheet="size"]', t:"How much to put in", b:"Enter your budget and pick how much risk you can take. Settle suggests an amount small enough that a bad month stays within the loss you chose. You can add up to three stocks to one plan."},
          {el:".snav", t:"Getting around", b:"Your watchlist runs along the top, so you can jump between stocks or swipe sideways. All stocks and Compare are here too, and the star adds or removes this stock."}]};
 let STEPS = TOURS.home, tourAt = -1;
+/* add-to-home-screen steps for the browser in hand; null where it cannot be done (desktops, apps' built-in browsers,
+   or Settle already opened from the home screen), so the step is left out of the walkthrough */
+function installHow() {
+  const ua = navigator.userAgent, ios = /iPhone|iPad|iPod/.test(ua) || (/Macintosh/.test(ua) && navigator.maxTouchPoints > 1);
+  if (matchMedia("(display-mode: standalone)").matches || navigator.standalone) return null;
+  if (/FBAN|FBAV|Instagram|LinkedInApp|Line\/|Twitter|TikTok|musical_ly|Snapchat|; wv\)/.test(ua)) return null;
+  const lead = "Add Settle to your home screen and it opens like an app, full screen. ";
+  if (ios) return lead + (/CriOS|FxiOS|EdgiOS/.test(ua) ? "Tap <b>Share</b> (the square with an arrow) next to the address bar, then <b>Add to Home Screen</b>."
+                                                   : "Tap <b>Share</b> (the square with an arrow) at the bottom of Safari, scroll down, tap <b>Add to Home Screen</b>, then <b>Add</b>.");
+  if (/Android/.test(ua)) return lead + (/SamsungBrowser/.test(ua) ? "Tap the <b>menu</b> (three lines) at the bottom, then <b>Add page to</b>, then <b>Home screen</b>."
+                                       : /Firefox/.test(ua) ? "Tap the <b>menu</b> (three dots), then <b>Add to Home screen</b>."
+                                       : "Tap the <b>menu</b> (three dots) at the top right, then <b>Add to Home screen</b> or <b>Install app</b>.");
+  return null;
+}
 const installable = () => matchMedia("(pointer: coarse)").matches && innerWidth < 880 && !matchMedia("(display-mode: standalone)").matches && !navigator.standalone;
 let tourKind = "home";
-function startTour(which) { if (which === "stock" && !stockOf(route())) which = "home"; tourKind = which || (stockOf(route()) ? "stock" : "home"); STEPS = TOURS[tourKind].filter(st => !st.phone || installable()); if (tourKind === "home" && route()) location.hash = ""; tourAt = 0; showStep(); }
+function startTour(which) { if (which === "stock" && !stockOf(route())) which = "home"; tourKind = which || (stockOf(route()) ? "stock" : "home"); STEPS = TOURS[tourKind].filter(st => !st.phone || (installable() && installHow())); if (tourKind === "home" && route()) location.hash = ""; tourAt = 0; showStep(); }
 function endTour() { document.body.style.paddingBottom = ""; if (tourAt < 0) return; document.querySelector(".spot")?.classList.remove("spot"); $("#tour").hidden = true; tourAt = -1; store.set(tourKind === "stock" ? "toured_stock" : "toured", true); }
 /* scroll so the highlighted part and the card both fit on screen, with the card beside the part, never on top of it.
    Only a part taller than the screen allows can sit partly under the card, and then its top is kept in view */
@@ -1672,7 +1702,7 @@ function showStep() {
   if (!el) { tourAt++; return showStep(); }
   el.classList.add("spot");
   const card = $("#tour"); card.hidden = false;
-  card.innerHTML = `<small>${tourAt + 1} of ${STEPS.length}</small><h3>${st.t}</h3><p>${st.b}</p>
+  card.innerHTML = `<small>${tourAt + 1} of ${STEPS.length}</small><h3>${st.t}</h3><p>${typeof st.b === "function" ? st.b() : st.b}</p>
     <div class="row"><button class="lk" type="button" id="tSkip">${tourAt === STEPS.length - 1 ? "" : "Skip"}</button>${tourAt ? `<button class="lk" type="button" id="tBack">Back</button>` : ""}<button class="go" type="button" id="tNext">${tourAt === STEPS.length - 1 ? "Start" : "Next"}</button></div>`;
   placeTour(el, card);
   $("#tNext").onclick = () => { tourAt++; tourAt >= STEPS.length ? endTour() : showStep(); };
@@ -1777,8 +1807,6 @@ function refreshAll() {
     refreshAll().finally(() => { busy = false; ptr.classList.remove("spin"); reset(); });
   });
 })();
-/* the opening screen shows on every load and refresh. When the page is put away it goes up at once, so the picture the
-   phone keeps of the app (and shows first when the app is opened again) is the opening screen, not the old page */
 const sleep = ms => new Promise(r => setTimeout(r, ms));
 function endIntro() {
   const sp = $("#splash"); if (!root.classList.contains("intro")) return Promise.resolve();
@@ -1789,21 +1817,9 @@ const fontReady = new Promise(r => { if (root.classList.contains("fok")) return 
   const o = new MutationObserver(() => { if (root.classList.contains("fok")) { o.disconnect(); r(); } }); o.observe(root, {attributes:true, attributeFilter:["class"]}); });
 const firstVisit = !store.get("toured", false);
 const boardP = fetch("data/predictions.json?" + Date.now()).then(r => r.json());
-let hidAt = 0;
-function coverUp() { if (tourAt >= 0 || root.classList.contains("intro")) return; hidAt = Date.now(); const sp = $("#splash"); sp.classList.remove("out"); sp.classList.add("still"); root.classList.add("intro"); void sp.offsetHeight; }
-function uncover() {                                                   // lift it once fresh prices are drawn underneath (at most 2.5 s)
-  if (!hidAt) return; hidAt = 0;
-  Promise.all([sleep(650), Promise.race([DATA ? liveTick() : Promise.resolve(), sleep(2500)])]).then(endIntro).then(() => $("#splash").classList.remove("still"));
-}
-document.addEventListener("visibilitychange", () => document.visibilityState === "hidden" ? coverUp() : uncover());
-/* on phones the app loses focus a moment before it is hidden, and the phone takes its picture in between, so cover up
-   then (the earliest signal there is). Desktops lose focus all the time to other windows, so this is phones only */
-const phone = matchMedia("(pointer: coarse)").matches;
-addEventListener("blur", () => { if (phone) coverUp(); });
-addEventListener("focus", () => { if (phone && document.visibilityState === "visible") uncover(); });
-document.addEventListener("freeze", coverUp);
-addEventListener("pagehide", coverUp);
-addEventListener("pageshow", e => { if (e.persisted) { if (!hidAt) coverUp(); uncover(); } });
+const left = () => { try { localStorage.setItem("settle_left", Date.now()); } catch (e) {} };
+document.addEventListener("visibilitychange", () => { if (document.visibilityState === "hidden") left(); });
+addEventListener("pagehide", left);
 let gotLive; const liveP = new Promise(r => gotLive = r);          // the opening screen stays until live prices are in, so nothing changes under the reader's eyes
 const introP = root.classList.contains("intro") ? Promise.all([fontReady.then(() => sleep(firstVisit ? 1200 : 750)), Promise.race([liveP, sleep(4000)])]).then(endIntro) : Promise.resolve();
 introP.then(() => { if (firstVisit) setTimeout(() => startTour(stockOf(route()) ? "stock" : "home"), 250);
