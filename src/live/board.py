@@ -282,6 +282,9 @@ for w in WL["stocks"]:
     reg_now = fred_row(f.index[-1], fred_csv)
     out = predict_all(f, i0, ev, sr, reg_now.get("vix"), ev.get("vix"))
     item.update({"status": "event", "event_class": cls, "event_headline": hl, **out})
+    if hl and len(news) and "url" in news:
+        hit = news[news.headline == hl]
+        if len(hit): item["event_url"] = str(hit.url.iloc[0])          # so the page can link the headline to the story
     e_ = item.get("entry") or {}
     if e_.get("signal") not in ("BUY", "WAIT"):
         price_call(item, news_day=True)                         # first day after news: the full call needs a second close

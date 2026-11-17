@@ -585,51 +585,51 @@ This project avoids all five, so its accuracy for direction sits close to 50%, w
 ## Live board
 
 <!-- LIVE-BOARD:START -->
-_Updated 2026-11-17 10:41 UTC. Research only, not financial advice._
+_Updated 2026-11-17 16:05 UTC. Research only, not financial advice._
 
 516 stocks checked; 381 have company news in the last 15 trading days. The 40 most recent calls are listed below; the page shows all of them.
 
 | Stock | Price | Event (day 0) | Day | Signal | Expected further dip | Most likely timing of the 20-day low | 1-in-10 worst point (20 days) | Risk vs normal | Balanced size |
 |---|---|---|---|---|---|---|---|---|---|
-| SO | 94.64 | price or volume shock (2026-11-13) | 1 | BUY | 2.5% | in 11+ days (43%) | -3.9% | 0.88x | 9% |
-| AMAT | 350.25 | earnings guidance (2026-11-12) | 2 | BUY (high drop risk) | 5.9% | in 11+ days (40%) | -20.1% | 0.82x | 20% |
-| CRWV | 49.88 | price or volume shock (2026-11-12) | 2 | BUY (high drop risk) | 11.0% | in 11+ days (41%) | -25.9% | 0.81x | 0% |
-| CSCO | 94.52 | earnings guidance (2026-11-12) | 2 | BUY | 4.2% | in 11+ days (39%) | -8.5% | 0.86x | 25% |
-| GPN | 89.82 | price or volume shock (2026-11-12) | 2 | WAIT | 5.0% | in 11+ days (43%) | -11.2% | 0.85x | 4% |
-| NBIS | 107.13 | earnings guidance (2026-11-12) | 2 | BUY (high drop risk) | 11.8% | in 11+ days (40%) | -26.8% | 0.86x | 10% |
-| XEL | 81.21 | price or volume shock (2026-11-12) | 2 | BUY | 3.1% | in 11+ days (43%) | -3.9% | 0.79x | 6% |
+| SO | 94.64 | price or volume shock (2026-11-13) | 1 | WAIT | 3.0% | in 11+ days (43%) | -3.9% | 0.88x | 9% |
+| AMAT | 350.25 | earnings guidance (2026-11-12) | 2 | BUY (high drop risk) | 6.0% | in 11+ days (39%) | -20.1% | 0.82x | 20% |
+| CRWV | 49.88 | price or volume shock (2026-11-12) | 2 | BUY (high drop risk) | 11.1% | in 11+ days (41%) | -25.9% | 0.81x | 0% |
+| CSCO | 94.52 | earnings guidance (2026-11-12) | 2 | BUY | 4.3% | in 11+ days (39%) | -8.5% | 0.86x | 25% |
+| GPN | 89.82 | price or volume shock (2026-11-12) | 2 | WAIT | 5.2% | in 11+ days (43%) | -11.2% | 0.85x | 4% |
+| NBIS | 107.13 | earnings guidance (2026-11-12) | 2 | BUY (high drop risk) | 12.0% | in 11+ days (40%) | -26.8% | 0.86x | 10% |
+| XEL | 81.21 | price or volume shock (2026-11-12) | 2 | WAIT | 3.6% | in 11+ days (43%) | -3.9% | 0.79x | 6% |
 | SE | 71.63 | earnings guidance (2026-11-10) | 4 | BUY (high drop risk) | 5.2% | in 11+ days (34%) | -15.0% | 1.13x | 17% |
-| AKAM | 84.15 | price or volume shock (2026-11-10) | 4 | BUY (high drop risk) | 6.2% | in 11+ days (37%) | -17.9% | 0.84x | 0% |
-| CHTR | 138.95 | price or volume shock (2026-11-10) | 4 | WAIT (high drop risk) | 6.0% | already passed (46%) | -13.8% | 0.83x | 0% |
-| CLX | 110.17 | price or volume shock (2026-11-10) | 4 | WAIT | 3.9% | already passed (57%) | -8.7% | 0.79x | 0% |
-| FOXA | 67.95 | price or volume shock (2026-11-10) | 4 | WAIT | 4.4% | already passed (43%) | -8.3% | 0.70x | 0% |
-| TDG | 1203.21 | earnings guidance (2026-11-10) | 4 | WAIT | 3.2% | already passed (37%) | -8.8% | 0.90x | 12% |
-| AXON | 306.44 | price or volume shock (2026-11-09) | 5 | BUY (high drop risk) | 6.2% | already passed (39%) | -18.9% | 0.87x | 19% |
-| CEG | 277.82 | earnings guidance (2026-11-09) | 5 | WAIT | 4.6% | already passed (63%) | -13.8% | 0.88x | 4% |
-| FERG | 253.20 | earnings guidance (2026-11-09) | 5 | WAIT | 3.0% | already passed (40%) | -7.3% | 1.01x | 17% |
-| KKR | 95.47 | earnings guidance (2026-11-09) | 5 | BUY | 3.8% | already passed (32%) | -11.0% | 0.92x | 20% |
-| MPWR | 1314.00 | price or volume shock (2026-11-09) | 5 | BUY (high drop risk) | 5.1% | in 11+ days (32%) | -17.4% | 0.91x | 9% |
-| NRG | 93.99 | earnings guidance (2026-11-09) | 5 | BUY (high drop risk) | 5.6% | in 11+ days (34%) | -15.4% | 0.85x | 1% |
-| OXY | 57.36 | earnings guidance (2026-11-09) | 5 | BUY | 3.3% | in 11+ days (33%) | -7.4% | 0.83x | 4% |
-| RKLB | 57.37 | earnings guidance (2026-11-09) | 5 | BUY (high drop risk) | 6.9% | in 11+ days (32%) | -22.2% | 0.96x | 6% |
+| AKAM | 84.15 | price or volume shock (2026-11-10) | 4 | BUY (high drop risk) | 6.2% | in 11+ days (36%) | -17.9% | 0.84x | 0% |
+| CHTR | 138.95 | price or volume shock (2026-11-10) | 4 | WAIT (high drop risk) | 6.2% | already passed (45%) | -13.8% | 0.83x | 0% |
+| CLX | 110.17 | price or volume shock (2026-11-10) | 4 | WAIT | 4.2% | already passed (56%) | -8.7% | 0.79x | 0% |
+| FOXA | 67.95 | price or volume shock (2026-11-10) | 4 | WAIT | 4.9% | already passed (42%) | -8.3% | 0.70x | 0% |
+| TDG | 1203.21 | earnings guidance (2026-11-10) | 4 | WAIT | 3.5% | already passed (36%) | -8.8% | 0.90x | 12% |
+| AXON | 306.44 | price or volume shock (2026-11-09) | 5 | BUY (high drop risk) | 6.2% | already passed (38%) | -18.9% | 0.87x | 19% |
+| CEG | 277.82 | earnings guidance (2026-11-09) | 5 | WAIT | 4.6% | already passed (62%) | -13.8% | 0.88x | 4% |
+| FERG | 253.20 | earnings guidance (2026-11-09) | 5 | WAIT | 3.2% | already passed (39%) | -7.3% | 1.01x | 17% |
+| KKR | 95.47 | earnings guidance (2026-11-09) | 5 | BUY | 3.9% | already passed (32%) | -11.0% | 0.92x | 20% |
+| MPWR | 1314.00 | price or volume shock (2026-11-09) | 5 | BUY (high drop risk) | 5.2% | in 11+ days (32%) | -17.4% | 0.91x | 9% |
+| NRG | 93.99 | earnings guidance (2026-11-09) | 5 | BUY (high drop risk) | 5.6% | in 11+ days (33%) | -15.4% | 0.85x | 1% |
+| OXY | 57.36 | earnings guidance (2026-11-09) | 5 | BUY | 3.6% | in 11+ days (33%) | -7.4% | 0.83x | 4% |
+| RKLB | 57.37 | earnings guidance (2026-11-09) | 5 | BUY (high drop risk) | 7.0% | in 11+ days (32%) | -22.2% | 0.96x | 6% |
 | SKYD | 7.04 | earnings guidance (2026-11-09) | 5 | BUY | 6.0% | in 11+ days (27%) | -14.1% | 0.64x | 2% |
-| TTWO | 213.47 | earnings guidance (2026-11-09) | 5 | BUY | 4.6% | in 11+ days (31%) | -7.7% | 0.86x | 6% |
-| BEN | 35.01 | earnings guidance (2026-11-06) | 6 | WAIT | 2.5% | in 11+ days (29%) | -8.3% | 1.20x | 11% |
-| HUM | 461.25 | earnings guidance (2026-11-06) | 6 | WAIT | 4.5% | already passed (84%) | -11.4% | 0.95x | 0% |
-| MRNA | 215.27 | earnings guidance (2026-11-06) | 6 | BUY (high drop risk) | 10.0% | in 11+ days (31%) | -19.4% | 0.19x | 21% |
-| PPL | 35.80 | earnings guidance (2026-11-06) | 6 | BUY | 2.1% | already passed (50%) | -3.4% | 1.02x | 0% |
-| TDY | 627.95 | price or volume shock (2026-11-06) | 6 | BUY | 2.5% | in 11+ days (35%) | -7.7% | 1.10x | 13% |
-| TECH | 72.79 | earnings guidance (2026-11-06) | 6 | WAIT | 2.2% | already passed (48%) | -1.9% | 0.76x | 0% |
+| TTWO | 213.47 | earnings guidance (2026-11-09) | 5 | BUY | 4.8% | in 11+ days (31%) | -7.7% | 0.86x | 6% |
+| BEN | 35.01 | earnings guidance (2026-11-06) | 6 | WAIT | 2.6% | in 11+ days (29%) | -8.3% | 1.20x | 11% |
+| HUM | 461.25 | earnings guidance (2026-11-06) | 6 | WAIT | 4.7% | already passed (83%) | -11.4% | 0.95x | 0% |
+| MRNA | 215.27 | earnings guidance (2026-11-06) | 6 | BUY (high drop risk) | 9.8% | in 11+ days (31%) | -19.4% | 0.19x | 21% |
+| PPL | 35.80 | earnings guidance (2026-11-06) | 6 | WAIT | 2.5% | already passed (49%) | -3.4% | 1.02x | 0% |
+| TDY | 627.95 | price or volume shock (2026-11-06) | 6 | WAIT | 2.6% | in 11+ days (35%) | -7.7% | 1.10x | 13% |
+| TECH | 72.79 | earnings guidance (2026-11-06) | 6 | WAIT | 2.5% | already passed (47%) | -1.9% | 0.76x | 0% |
 | VST | 130.16 | earnings guidance (2026-11-06) | 6 | BUY (high drop risk) | 4.6% | in 11+ days (30%) | -14.3% | 0.93x | 0% |
 | BABA | 90.62 | price or volume shock (2026-11-05) | 7 | BUY | 4.8% | in 6-10 days (24%) | -18.5% | 1.11x | 10% |
-| GRAB | 3.21 | price or volume shock (2026-11-05) | 7 | WAIT (high drop risk) | 4.0% | already passed (39%) | -16.1% | 0.91x | 5% |
-| ABNB | 186.19 | earnings guidance (2026-11-05) | 7 | WAIT | 3.6% | already passed (73%) | -10.6% | 0.95x | 25% |
-| ADI | 383.17 | price or volume shock (2026-11-05) | 7 | BUY | 3.7% | already passed (67%) | -17.2% | 1.36x | 11% |
-| AEE | 114.25 | earnings guidance (2026-11-05) | 7 | BUY | 1.8% | already passed (47%) | -4.5% | 1.18x | 0% |
-| APD | 313.90 | earnings guidance (2026-11-05) | 7 | WAIT | 2.5% | already passed (65%) | -6.4% | 1.35x | 0% |
-| BDX | 216.47 | earnings guidance (2026-11-05) | 7 | BUY | 2.7% | already passed (52%) | -7.7% | 1.03x | 0% |
-| CAH | 283.85 | earnings guidance (2026-11-05) | 7 | BUY | 2.5% | already passed (76%) | -8.6% | 1.12x | 0% |
-| CI | 300.16 | earnings guidance (2026-11-05) | 7 | BUY | 2.7% | already passed (50%) | -8.0% | 1.14x | 0% |
+| GRAB | 3.21 | price or volume shock (2026-11-05) | 7 | WAIT (high drop risk) | 4.1% | already passed (38%) | -16.1% | 0.91x | 5% |
+| ABNB | 186.19 | earnings guidance (2026-11-05) | 7 | WAIT | 3.8% | already passed (73%) | -10.6% | 0.95x | 25% |
+| ADI | 383.17 | price or volume shock (2026-11-05) | 7 | BUY | 3.8% | already passed (67%) | -17.2% | 1.36x | 11% |
+| AEE | 114.25 | earnings guidance (2026-11-05) | 7 | WAIT | 2.1% | already passed (46%) | -4.5% | 1.18x | 0% |
+| APD | 313.90 | earnings guidance (2026-11-05) | 7 | WAIT | 2.6% | already passed (65%) | -6.4% | 1.35x | 0% |
+| BDX | 216.47 | earnings guidance (2026-11-05) | 7 | WAIT | 3.0% | already passed (51%) | -7.7% | 1.03x | 0% |
+| CAH | 283.85 | earnings guidance (2026-11-05) | 7 | WAIT | 2.9% | already passed (76%) | -8.6% | 1.12x | 0% |
+| CI | 300.16 | earnings guidance (2026-11-05) | 7 | WAIT | 3.0% | already passed (50%) | -8.0% | 1.14x | 0% |
 | CMI | 432.72 | earnings guidance (2026-11-05) | 7 | BUY | 3.1% | in 11+ days (29%) | -12.8% | 1.28x | 18% |
 <!-- LIVE-BOARD:END -->
 
@@ -642,7 +642,7 @@ The board covers the S&P 500 and the Nasdaq-100 (about 500 stocks, listed in `un
 5. Publish `docs/data/predictions.json`, which drives the page, and update the table above.
 6. Log each prediction in `docs/data/forward_log.csv` and score it once its 20-day outcome is known. This gives a forward test that cannot be affected by look-ahead.
 
-The page opens on a board that lists every stock with its call, today's move, a risk bar on a shared scale and the chance that its low has already passed, and it can be sorted, searched and compared side by side. Each stock page puts the price, the call and the chart on one screen, with the reason for the move, the after-hours price, today's volume and the S&P 500's move underneath. Six tiles summarise the rest (the next session, when the low may come, risk, the stock today, sizing and news), and each opens in full with a tap. Prices refresh every 15 minutes during trading hours and hourly before the open and after the close. That job (`src/live/quotes.py`) runs in the public repository, where GitHub Actions minutes are free, and needs no private data.
+The page opens on a board that lists every stock with its call, today's move, a risk bar on a shared scale and the chance that its low has already passed, and it can be sorted, searched and compared side by side. Each stock page puts the price, the call and the chart on one screen, with the reason for the move, the after-hours price, today's volume and the S&P 500's move underneath. Six tiles summarise the rest (the next session, when the low may come, risk, the stock today, sizing and news), and each opens in full with a tap. While the market is open, the page asks a small Cloudflare Worker (`deploy/live-worker.js`) for the latest prices every 15 seconds, and every price-based number on the page (distance to the expected low and the bad case, the likely range, the levels to watch) is worked out again from that price. The forecasts themselves are made from closing prices, three times per trading day. As a fallback, and for the full list of stocks, `src/live/quotes.py` refreshes every 5 minutes during trading hours and hourly outside them; it runs in the public repository, where GitHub Actions minutes are free, and needs no private data.
 
 ## Reproducing the results
 
@@ -686,7 +686,7 @@ Download the WRDS files listed in `docs/WRDS_GUIDE.md` into `data/raw/wrds/`, th
 ├── scripts/            run_pipeline.sh (whole pipeline) and train_live_models.sh (live models, parity, first board)
 ├── models/live/        trained live models and the odds tables behind each call
 ├── docs/               the live page (index.html), its data, fonts, artwork and the README figures
-├── deploy/             the quotes workflow for the public repository
+├── deploy/             the quotes workflow for the public repository and the live-price worker
 ├── watchlist.json      hand-picked stocks with headline aliases
 ├── universe.json       the S&P 500 and Nasdaq-100
 └── requirements*.txt

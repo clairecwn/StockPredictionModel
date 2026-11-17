@@ -11,7 +11,11 @@
 <link rel="preload" href="fonts/gloock-latin-400-normal.woff2" as="font" type="font/woff2" crossorigin>
 <script>try { const t = localStorage.getItem("theme"); if (t) document.documentElement.dataset.theme = t;
 } catch (e) {}
-document.documentElement.classList.add("intro");</script>
+document.documentElement.classList.add("intro");
+(function () { const r = document.documentElement, ok = () => r.classList.add("fok"); setTimeout(ok, 900);
+  try { document.fonts.load('400 1em "Gloock"').then(ok, ok); } catch (e) { ok(); } })();</script>
+<link rel="preload" href="fonts/gloock-latin-400-normal.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="preload" href="art/klint-bg.jpg" as="image">
 <link rel="apple-touch-icon" href="art/icon-180.png">
 <link rel="manifest" href="manifest.webmanifest">
 <meta name="apple-mobile-web-app-capable" content="yes">
@@ -243,6 +247,8 @@ dialog::backdrop { background:rgba(18,26,44,.5); }
 #splash b { display:block; font:400 clamp(76px, 17vw, 156px)/.95 var(--display); letter-spacing:-.035em; color:var(--brand); }
 #splash span { display:block; margin-top:16px; font:500 clamp(16px, 2.2vw, 20px)/1.4 var(--sans); color:var(--ink); }
 #splash.out { opacity:0; transition:opacity .45s ease; }
+.intro:not(.fok) #splash .sw { opacity:0; animation:none; }
+#splash.fadein { animation:fin .25s ease both; } @keyframes fin { from { opacity:0; } }
 @media (prefers-reduced-motion: no-preference) {
   #splash .sw { animation:rise .8s cubic-bezier(.2,.7,.2,1) both; }
   @keyframes rise { from { opacity:0; transform:translateY(12px); } }
@@ -334,14 +340,25 @@ body:has(.cmpbar:not([hidden])) .plan { display:none; }
 .badge b { display:block; font:400 34px/1 var(--display); }
 .badge small { display:block; font-size:13px; margin-top:4px; opacity:.85; }
 .badge.BUY { background:var(--buy-2); color:var(--buy); } .badge.WAIT { background:var(--wait-2); color:var(--wait); }
-.status { display:flex; align-items:center; gap:8px; margin-top:8px; color:var(--mute); font-size:14px; }
-.status i { width:8px; height:8px; border-radius:50%; background:#AEB8C8; flex:none; }
+.status { display:flex; align-items:flex-start; gap:8px; margin-top:8px; color:var(--mute); font-size:14px; }
+.status i { width:8px; height:8px; border-radius:50%; background:#AEB8C8; flex:none; margin-top:.45em; }
 .status.on i { background:var(--buy); box-shadow:0 0 0 4px var(--buy-2); }
 .sleft .chartsec { margin-top:16px; }
 .chead { justify-content:flex-end; }
 .chead .ranges { margin-left:0; }
 .why { margin-top:14px; padding:12px 14px; border-radius:14px; background:var(--soft); }
 .why p + p { margin-top:4px; font-size:14.5px; }
+.why a.hl { color:inherit; text-decoration:underline; text-decoration-color:color-mix(in srgb, var(--mute) 45%, transparent); text-underline-offset:3px; }
+/* pull to refresh */
+#ptr { position:fixed; left:50%; top:calc(env(safe-area-inset-top) + 4px); z-index:60; width:40px; height:40px; margin-left:-20px; border-radius:50%;
+  background:var(--raise); box-shadow:0 2px 10px rgba(24,35,58,.18); display:grid; place-items:center; color:var(--brand);
+  transform:translateY(-70px); opacity:0; pointer-events:none; }
+#ptr.back { transition:transform .25s ease, opacity .25s ease; }
+#ptr.spin svg { animation:ptrspin .8s linear infinite; } @keyframes ptrspin { to { transform:rotate(360deg); } }
+#toast { position:fixed; left:50%; bottom:calc(env(safe-area-inset-bottom) + 20px); z-index:60; transform:translate(-50%, 20px); opacity:0;
+  background:var(--ink); color:var(--sheet); padding:9px 16px; border-radius:999px; font-size:14px; font-weight:600; pointer-events:none; transition:opacity .2s, transform .2s; }
+#toast.on { opacity:1; transform:translate(-50%, 0); }
+@media (pointer: coarse) { html { overscroll-behavior-y:none; } }
 .quick { display:grid; grid-template-columns:repeat(3, minmax(0,1fr)); gap:8px; margin:10px 0 0; }
 .qc { padding:9px 12px; border-radius:12px; background:var(--soft); }
 .qc dt { color:var(--mute); font-size:13.5px; display:flex; align-items:center; gap:5px; }
@@ -481,9 +498,10 @@ body.on-stock .plan { bottom:16px; }
 .cb-top { display:flex; align-items:baseline; justify-content:space-between; gap:10px; }
 .cb-word { font:400 54px/1 var(--display); color:var(--brand); }
 .callband.BUY .cb-word { color:var(--buy); } .callband.WAIT .cb-word { color:var(--wait); } .callband.QUIET .cb-word { font-size:36px; }
-.cb-for { color:var(--mute); font-size:14px; font-weight:600; }
+.cb-for { color:var(--mute); font-size:14px; font-weight:600; white-space:nowrap; flex:none; }
+.cb-stamp { display:block; margin-top:8px; color:var(--mute); font-size:12.5px; }
 .cb-str, .str { font-weight:600; font-size:14px; color:var(--mute); }
-.cb-str { margin-left:10px; } .cb-top > span:first-child { display:flex; align-items:baseline; flex-wrap:wrap; }
+.cb-str { margin-left:10px; } .cb-top > span:first-child { display:flex; align-items:baseline; flex-wrap:wrap; min-width:0; flex:1; }
 .str { margin:-4px 0 10px; }
 .inlk { border:0; background:none; padding:0; font:inherit; color:var(--brand); font-weight:600; text-decoration:underline; text-underline-offset:3px; cursor:pointer; }
 .own { margin-top:14px; font-size:14.5px; color:var(--mute); } .own b { color:var(--ink); }
@@ -569,6 +587,8 @@ body.tray { padding-bottom:84px; }
 </style>
 </head>
 <body>
+<div id="ptr" aria-hidden="true"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M20 12a8 8 0 1 1-2.34-5.66"/><path d="M20 4v5h-5"/></svg></div>
+<div id="toast" role="status" aria-live="polite"></div>
 <div id="splash" aria-hidden="true"><div class="sw"><b>Settle</b></div></div>
 <header class="top">
   <a class="brand" href="./" aria-label="Settle home"><b>Settle</b></a>
@@ -627,8 +647,8 @@ const TIPS = {
   volume:"The number of shares traded today. The number in brackets compares it with an average day, so 2x means twice as busy as usual.",
   atr:"How far the price usually moves between its low and its high in one day, based on the last two weeks. If a stock usually moves 3% a day, a 1% dip is ordinary.",
   cap:"The value of the whole company: the share price multiplied by the number of shares.",
-  low:"How much further the price may fall, from today, before it reaches its lowest point in the next four weeks.",
-  bad:"How far the price could fall in a rough month. In the past, only about 1 in 10 similar stocks fell further than this.",
+  low:"How much further the price may fall, from the latest price, before it reaches its lowest point in the next four weeks. It shows Reached once the price has already fallen that far.",
+  bad:"How far the price could fall in a rough month, from the latest price. In the past, only about 1 in 10 similar stocks fell further than this.",
   day:"How many trading days have passed since the news. Settle follows each stock for 20 trading days, which is about four weeks.",
   trend:"The overall direction of the price. Bullish means it has been rising: it is above its 50-day and 200-day averages and has done better than the market over three months. Bearish means the opposite on all three. Mixed means the signs disagree.",
   str:"How often similar past cases went the way of the call. Slight lean means close to a coin flip, mild lean means a small but steady edge, and clearer call is kept for the most one-sided cases.",
@@ -659,6 +679,29 @@ const day = d => d ? new Date(String(d).slice(0, 10) + "T12:00:00Z").toLocaleDat
 const an = x => /^(8|11|18|80|8\d)$/.test(fmt(x, 0)) ? "an" : "a";
 const tip = k => `<button class="i" type="button" data-tip="${k}" aria-label="What is this?">i</button>`;
 const when = iso => { const d = new Date(iso); return d.toLocaleString([], {weekday:"short", hour:"numeric", minute:"2-digit"}); };
+const TZ = (() => { try {
+  const z = Intl.DateTimeFormat().resolvedOptions().timeZone;
+  const M = {"Asia/Singapore":"SGT", "Asia/Kuala_Lumpur":"MYT", "Asia/Hong_Kong":"HKT", "Asia/Taipei":"Taiwan time", "Asia/Tokyo":"JST", "Asia/Seoul":"KST",
+    "Asia/Jakarta":"WIB", "Asia/Manila":"PHT", "Asia/Kolkata":"IST", "Australia/Sydney":"Sydney time", "Europe/London":"UK time",
+    "America/New_York":"ET", "America/Chicago":"CT", "America/Denver":"MT", "America/Los_Angeles":"PT"};
+  if (M[z]) return M[z];
+  const p = new Intl.DateTimeFormat("en-US", {timeZoneName:"short"}).formatToParts(new Date()).find(x => x.type === "timeZoneName");
+  return p ? p.value : ""; } catch (e) { return ""; } })();
+const sameDay = t => new Date(t).toDateString() === new Date().toDateString();
+const clock = t => new Date(t).toLocaleTimeString([], {hour:"numeric", minute:"2-digit"}) + (TZ ? " " + TZ : "");
+const clockD = t => (sameDay(t) ? "" : new Date(t).toLocaleDateString([], {weekday:"short"}) + " ") + clock(t);
+/* New York trading hours: pre-market 4:00, open 9:30 to 16:00, after hours to 20:00, on weekdays that are not NYSE holidays */
+const HOLIDAYS = new Set(["2026-11-26", "2026-12-25", "2027-01-01", "2027-01-18", "2027-02-15", "2027-03-26", "2027-05-31", "2027-06-18",
+  "2027-07-05", "2027-09-06", "2027-11-25", "2027-12-24"]);
+const nyOff = ms => Date.parse(new Date(ms).toLocaleString("en-US", {timeZone:"America/New_York"})) - Date.parse(new Date(ms).toLocaleString("en-US", {timeZone:"UTC"}));
+const nyAt = (w, h, m) => { const g = Date.UTC(w.getUTCFullYear(), w.getUTCMonth(), w.getUTCDate(), h, m); return g - nyOff(g - nyOff(g)); };
+function market(now = Date.now()) {
+  const w = new Date(now + nyOff(now)), trading = d => d.getUTCDay() % 6 !== 0 && !HOLIDAYS.has(d.toISOString().slice(0, 10));
+  const mins = w.getUTCHours() * 60 + w.getUTCMinutes(), today = trading(w);
+  const sess = today && mins >= 570 && mins < 960 ? "open" : today && mins >= 240 && mins < 570 ? "pre" : today && mins >= 960 && mins < 1200 ? "post" : "closed";
+  let d = w; if (!today || mins >= 570) { do { d = new Date(d.getTime() + 864e5); } while (!trading(d)); }
+  return {sess, nextOpen:nyAt(d, 9, 30), closeAt:today ? nyAt(w, 16, 0) : null};
+}
 const dur = ms => { const m = Math.max(0, Math.round(ms / 60000)), h = Math.floor(m / 60); return h >= 24 ? `${Math.floor(h / 24)} d ${h % 24} h` : h ? `${h} h ${m % 60} min` : `${m} min`; };
 const nyDay = iso => new Date(iso).toLocaleDateString("en-GB", {weekday:"long", day:"numeric", month:"short", timeZone:"America/New_York"});
 const store = { get(k, v) { try { const x = localStorage.getItem(k); return x == null ? v : JSON.parse(x); } catch (e) { return v; } },
@@ -754,6 +797,17 @@ function nowPx(s) {
   return {px:s.price, chg:s.chg_1d_pct, q:null, live:false};
 }
 
+/* the latest traded price, including pre-market and after-hours trades */
+function lastPx(s) {
+  const n = nowPx(s), e = n.q?.ext || Q?.quotes?.[s.ticker]?.ext;
+  return sess() !== "open" && e?.price && (!n.q?.time || Date.parse(e.time) >= Date.parse(n.q.time)) ? e.price : n.px;
+}
+/* how far a forecast level (set from the last close) sits below the latest price */
+function fromNow(s, pctBelowClose) {
+  if (pctBelowClose == null) return null;
+  const r = 100 * (s.price * (1 - pctBelowClose / 100) / lastPx(s) - 1);
+  return r >= -0.05 ? "Reached" : "−" + fmt(-r) + "%";
+}
 /* chart */
 const RANGES = {"1D":0, "1M":21, "3M":63, "6M":126, "1Y":252};
 function series(s) {
@@ -831,7 +885,7 @@ function drawChart(s) {
   $("#clegend").innerHTML = isDay ? `<span>Prices about 15 minutes behind the market</span>` : "";
   const sv = box.querySelector("svg"), xh = sv.querySelector("#xh"), xd = sv.querySelector("#xd"), ct = $("#ctip");
   const vAvg = V ? V.reduce((a, b) => a + b, 0) / V.length : 0; let hideT = null;
-  const move = e => { clearTimeout(hideT); const r = sv.getBoundingClientRect(), mx = (e.clientX - r.left) * W / r.width;
+  const move = e => { clearTimeout(hideT); chartTouch = Date.now(); const r = sv.getBoundingClientRect(), mx = (e.clientX - r.left) * W / r.width;
     const i = Math.max(0, Math.min(C.length - 1, Math.round((mx - x0) / (x1 - x0) * (C.length - 1))));
     xh.setAttribute("x1", x(i)); xh.setAttribute("x2", x(i)); xh.setAttribute("opacity", ".35"); xd.setAttribute("cx", x(i)); xd.setAttribute("cy", y(C[i])); xd.setAttribute("opacity", "1");
     const ch = i > 0 ? 100 * (C[i] / C[i - 1] - 1) : null;
@@ -849,9 +903,9 @@ function whenLow(s) {
   const d = s.entry?.days_to_low;
   if (!d && dipQ(s) != null) { const dq = dipQ(s), px = nowPx(s).px;
     return `<section><h2>When the low may come</h2><p>The timing of the low is forecast after company news, when stocks tend to slide for a while and then settle. ${esc(s.ticker)} has had none lately, so Settle forecasts how deep the dip may go instead, from its recent moves, swings and trading volume.</p>
-      <dl class="facts"><div><dt>Expected dip ${tip("dipq")}</dt><dd>About −${fmt(dq)}%</dd><small>Near $${fmt(px * (1 - dq / 100), 2)}, if the market stays flat.</small></div>
+      <dl class="facts"><div><dt>Expected dip ${tip("dipq")}</dt><dd>${fromNow(s, dq)}</dd><small>Near $${fmt(s.price * (1 - dq / 100), 2)}, if the market stays flat.</small></div>
       ${s.outlook?.bad_case_pct != null ? `<div><dt>Bad case ${tip("bad")}</dt><dd>−${fmt(-s.outlook.bad_case_pct)}%</dd><small>Only about 1 in 10 four-week stretches in its history fell further.</small></div>` : ""}</dl></section>`; }
-  if (!d && dipW(s) != null) return `<section><h2>When the low may come</h2><p>The timing of the low appears after the next close, with the full call. For now, the news models expect ${esc(s.ticker)} to fall about ${fmt(dipW(s))}% more before its low, near $${fmt(nowPx(s).px * (1 - dipW(s) / 100), 2)}.</p></section>`;
+  if (!d && dipW(s) != null) return `<section><h2>When the low may come</h2><p>The timing of the low appears after the next close, with the full call. For now, the news models expect ${esc(s.ticker)} to bottom out near $${fmt(s.price * (1 - dipW(s) / 100), 2)}${fromNow(s, dipW(s)) === "Reached" ? ", which it has already reached" : `, about ${fromNow(s, dipW(s)).slice(1)} below the latest price`}.</p></section>`;
   if (!d) return `<section><h2>When the low may come</h2><p>${s.decision_day === 0 ? "This appears after the next close, together with the buy or wait call." : "Four weeks have passed since the news."}</p></section>`;
   const P = d.probs, L = ["Already passed", "In 1 to 2 days", "In 3 to 5 days", "In 6 to 10 days", "In 11+ days"], LO = [0, 1, 3, 6, 11];
   const keep = P.map((p, i) => i).filter(i => LO[i] <= d.days_left), top = keep.reduce((a, i) => P[i] > P[a] ? i : a, keep[0]);
@@ -894,8 +948,8 @@ function todayFacts(s) {
   </dl></section>`;
 }
 function forWhen() {
-  if (Q?.session === "open" || (!Q?.session && Q?.market_open)) return "Settle's call for today";
-  return Q?.next_open_utc ? `Settle's call for ${nyDay(Q.next_open_utc)}` : "Settle's call";
+  const m = market();
+  return m.sess === "open" ? "Settle's call for today" : `Settle's call for ${nyDay(new Date(m.nextOpen).toISOString())}`;
 }
 /* daily swing in %, from the volatility forecast when there is news, otherwise from the stock's own recent history */
 function daySd(s) {
@@ -920,23 +974,23 @@ function levels(s, px) {
 function nextSession(s) {
   const n = nowPx(s), q = n.q || Q?.quotes?.[s.ticker], ext = q?.ext, px = n.px;
   if (px == null) return "";
-  const sess = Q?.session || (Q?.market_open ? "open" : "closed"), isOpen = sess === "open", now = Date.now();
+  const m = market(), isOpen = m.sess === "open", now = Date.now();
   const base = ext?.price ?? px, sd = daySd(s);
   let line;
-  if (isOpen && Q?.close_utc) line = `The market is open and closes in <b>${dur(Date.parse(Q.close_utc) - now)}</b> (${when(Q.close_utc)} your time).`;
-  else if (Q?.next_open_utc) line = `The market opens in <b>${dur(Date.parse(Q.next_open_utc) - now)}</b> (${when(Q.next_open_utc)} your time).`;
-  else line = "These numbers are for the next session.";
+  if (isOpen) line = `The market is open until <b>${clock(m.closeAt)}</b>, which is in ${dur(m.closeAt - now)}.`;
+  else if (m.sess === "pre") line = `Pre-market trading has started. The market opens at <b>${clock(m.nextOpen)}</b>, in ${dur(m.nextOpen - now)}.`;
+  else line = `The market is closed for now. It opens at <b>${clockD(m.nextOpen)}</b>, in ${dur(m.nextOpen - now)}.`;
   const st = [];
   if (isOpen) {
     const qq = s.quote || {}, h = q?.high, l = q?.low, pc = q?.prev_close ?? qq.prev_close;
-    if (h && l && pc && qq.atr_pct) { const used = 100 * (h - l) / pc / qq.atr_pct;
+    if (h && l && pc && qq.atr_pct) { const used = 100 * (100 * (h - l) / pc) / qq.atr_pct;
       st.push(`<div class="stat"><dt>Day's range used ${tip("usedRange")}</dt><dd>${fmt(used, 0)}%</dd><small>It has moved ${fmt(100 * (h - l) / pc)}% from low to high so far, against about ${fmt(qq.atr_pct)}% on a normal day.</small></div>`); }
   } else if (ext) {
-    st.push(`<div class="stat"><dt>${ext.session === "pre-market" ? "Pre-market" : "After hours"} ${tip("ext")}</dt><dd>${fmt(ext.price, 2)} <span class="${ext.change_pct >= 0 ? "up" : "down"}" style="font-size:17px">${ext.change_pct >= 0 ? "+" : "−"}${fmt(Math.abs(ext.change_pct), 2)}%</span></dd><small>Compared with the last close. Last trade at ${when(ext.time)} your time.</small></div>`);
+    st.push(`<div class="stat"><dt>${ext.session === "pre-market" ? "Pre-market" : "After hours"} ${tip("ext")}</dt><dd>${fmt(ext.price, 2)} <span class="${ext.change_pct >= 0 ? "up" : "down"}" style="font-size:17px">${ext.change_pct >= 0 ? "+" : "−"}${fmt(Math.abs(ext.change_pct), 2)}%</span></dd><small>Compared with the last close. Last trade at ${clockD(ext.time)}.</small></div>`);
   } else {
     st.push(`<div class="stat"><dt>Since the close ${tip("ext")}</dt><dd class="sm">No trades yet</dd><small>Early trading starts at 4:00 AM New York time and will show here.</small></div>`);
   }
-  if (sd) { const f = isOpen && Q?.close_utc ? Math.sqrt(Math.max(0.05, Math.min(1, (Date.parse(Q.close_utc) - now) / 23400000))) : 1;
+  if (sd) { const f = isOpen ? Math.sqrt(Math.max(0.05, Math.min(1, (m.closeAt - now) / 23400000))) : 1;
     st.push(`<div class="stat"><dt>${isOpen ? "Likely range to the close" : "Likely range"} ${tip("nrange")}</dt><dd class="rg">${fmt(base * (1 - f * sd / 100), 2)} to ${fmt(base * (1 + f * sd / 100), 2)}</dd><small>About ${fmt(f * sd)}% either way${ext && !isOpen ? ` from the ${ext.session === "after hours" ? "after-hours" : ext.session} price` : ""}. The price stays in this range on about two days out of three.</small></div>`); }
   const d = s.entry?.days_to_low;
   if (d) {
@@ -951,9 +1005,9 @@ function nextSession(s) {
     const t = s.stats, tw = {bullish:"Bullish", bearish:"Bearish", mixed:"Mixed"}[t.trend];
     st.push(`<div class="stat"><dt>Trend ${tip("trend")}</dt><dd class="${t.trend === "bullish" ? "up" : t.trend === "bearish" ? "down" : ""}">${tw}</dd><small>It is ${t.ret_3m_pct >= 0 ? "up" : "down"} ${fmt(Math.abs(t.ret_3m_pct))}% over three months, while the market ${t.mkt_3m_pct >= 0 ? "rose" : "fell"} ${fmt(Math.abs(t.mkt_3m_pct))}%.</small></div>`);
   }
-  const L = levels(s, px).concat([{k:"Now", v:px, now:true}]).sort((a, b) => b.v - a.v);
+  const lp = lastPx(s), L = levels(s, lp).concat([{k:lp !== px ? (ext?.session === "after hours" ? "Now, after hours" : "Now, pre-market") : "Now", v:lp, now:true}]).sort((a, b) => b.v - a.v);
   const ladder = L.length > 1 ? `<div><h3 style="display:flex;align-items:center;gap:6px;margin:0 0 8px;font-size:16px">Price levels to watch ${tip("levels")}</h3><ul class="ladder">
-    ${L.map(x => `<li class="${x.now ? "now" : x.c || ""}"><i></i><span>${x.k}</span><b>${fmt(x.v, 2)}</b><em>${x.now ? "" : (x.v >= px ? "+" : "−") + fmt(Math.abs(100 * (x.v / px - 1))) + "%"}</em></li>`).join("")}</ul></div>` : "";
+    ${L.map(x => `<li class="${x.now ? "now" : x.c || ""}"><i></i><span>${x.k}</span><b>${fmt(x.v, 2)}</b><em>${x.now ? "" : (x.v >= lp ? "+" : "−") + fmt(Math.abs(100 * (x.v / lp - 1))) + "%"}</em></li>`).join("")}</ul></div>` : "";
   return `<section class="next" id="nextBox"><div><h2>${isOpen ? "The rest of today" : "Before the next open"}</h2><p class="when-line">${line}</p><dl class="stats">${st.join("")}</dl></div>${ladder}</section>`;
 }
 
@@ -990,7 +1044,7 @@ function render() {
   else if (v === "all") renderBoard(); else if (v === "compare") renderCompare(); else renderHome();
   renderPlan();
 }
-addEventListener("hashchange", () => { if (stockOf(route()) && !PATHS) loadQuotes(); editing = false; render(); scrollTo(0, 0); });
+addEventListener("hashchange", () => { editing = false; render(); scrollTo(0, 0); if (DATA) liveTick(); });
 /* with hundreds of stocks the board file holds only summaries; chart history and news load when a stock is opened */
 const FULL = {};
 function ensureFull(s) {
@@ -1059,7 +1113,7 @@ function renderBoard() {
       <span class="rl"><b>${p0 != null ? fmt(100 * p0, 0) + "%" : "–"}</b><small>${p0 != null ? "low already in" : live(s) ? "after next close" : "call from price"}</small></span></a>
       <button class="star${on ? " on" : ""}" type="button" data-star="${esc(s.ticker)}" aria-pressed="${on}" aria-label="${on ? "Remove " + esc(s.ticker) + " from" : "Add " + esc(s.ticker) + " to"} your watchlist">${STAR(on)}</button></li>`; }).join("");
   el.innerHTML = navHTML("all") + `<section class="board" id="boardBox">
-    <div class="bhead"><div><h1>All stocks</h1><p class="mute">${nNews} of ${L.length} stocks have had company news in the last three weeks.${upd ? ` Forecasts updated ${upd.toLocaleString([], {weekday:"short", hour:"numeric", minute:"2-digit"})} your time.` : ""}</p></div>
+    <div class="bhead"><div><h1>All stocks</h1><p class="mute">${nNews} of ${L.length} stocks have had company news in the last three weeks.${upd ? ` Forecasts updated ${clockD(upd)}.` : ""}</p></div>
       ${L.length > 12 ? `<input class="find" id="find" type="search" placeholder="Search by name or ticker" aria-label="Search stocks" value="${esc(query)}">` : ""}</div>
     <div class="sorts" id="sortBox" role="group" aria-label="Sort the list">${Object.entries(SORTS).map(([k, v]) => `<button type="button" data-sort="${k}" aria-pressed="${k === SORT}">${v}</button>`).join("")}</div>
     <div class="rhead"><span>Stock</span><span>Call</span><span>Price</span><span>How far it could fall in four weeks ${tip("riskbar")}</span><span>Low ${tip("bottom")}</span><span></span></div>
@@ -1120,18 +1174,38 @@ const KIND_N = {earnings_guidance:"an earnings report", analyst:"an analyst's ch
   legal_regulatory:"legal or regulatory news", accounting_fraud:"an accounting issue", activist_short:"an activist or short-seller campaign",
   credit_distress:"credit news", operational:"operational news", politics_policy:"policy news", ma_strategy:"deal news", capital:"a capital raise",
   other:"a large price or volume move"};
-const sess = () => Q?.session || (Q?.market_open ? "open" : "closed");
+const sess = () => market().sess;
 function statusLine(s) {
-  const n = nowPx(s), now = Date.now();
-  const tail = sess() === "open" && Q?.close_utc ? ` The market closes in ${dur(Date.parse(Q.close_utc) - now)}.`
-             : Q?.next_open_utc ? ` The market opens in ${dur(Date.parse(Q.next_open_utc) - now)}.` : "";
-  const head = n.live && sess() === "open" ? "Live, about 15 minutes behind the market." : `Closing price from ${day(n.q?.session_date || s.price_date)}.`;
-  return `<p class="status${n.live && sess() === "open" ? " on" : ""}"><i></i>${head}${tail}${s.stale ? " Prices could not be refreshed at the last update." : ""}</p>`;
+  const n = nowPx(s), m = market(), now = Date.now(), t = n.q?.time && Date.parse(n.q.time);
+  const on = m.sess === "open" && n.live && t && now - t < 5 * 60e3;
+  const head = m.sess === "open" && n.live && t ? `${on ? "Live price" : "Last price"} at ${clock(t)}.` : `Closing price from ${day(n.q?.session_date || s.price_date)}.`;
+  const tail = m.sess === "open" ? ` The market closes in ${dur(m.closeAt - now)}.` : ` The market opens in ${dur(m.nextOpen - now)}.`;
+  return `<p class="status${on ? " on" : ""}"><i></i><span>${head}${tail}${s.stale ? " Prices could not be refreshed at the last update." : ""}</span></p>`;
 }
-function whyHTML(s) {
-  if (live(s)) { const mv = s.car_0_1_pct;
-    return `<div class="why"><p><b>Why it moved:</b> ${KIND_N[s.event_class] || "company news"} on ${day(s.day0)}. The stock ${mv >= 0 ? "rose" : "fell"} ${fmt(Math.abs(mv))}% more than the market.</p>
-      ${s.event_headline ? `<p class="mute">${esc(s.event_headline)}</p>` : ""}</div>`; }
+const KIND_WHY = {
+  earnings_guidance:"An earnings report changes what investors expect the company to make, so the price often keeps adjusting for a few days.",
+  analyst:"When an analyst changes their rating or price target, other investors often rethink what the stock is worth.",
+  leadership:"A change at the top can change where the company is heading, and investors tend to wait for details before settling on a price.",
+  legal_regulatory:"Lawsuits, investigations and new rules can lead to fines or limits on the business. The full cost is often unclear at first, so the price can keep moving as details come out.",
+  accounting_fraud:"Questions about a company's accounts make its numbers harder to trust, which tends to weigh on the price until they are cleared up.",
+  activist_short:"An activist investor or short seller is making a public case about the company, and the price can swing while others decide who is right.",
+  credit_distress:"News about debt or credit ratings changes how risky the company looks to lenders and shareholders.",
+  operational:"News about products, supply or day-to-day operations can change how much the company is expected to sell.",
+  politics_policy:"Government decisions, such as tariffs or export rules, can change where and how the company is able to sell.",
+  ma_strategy:"A deal or a big change in strategy reshapes the company, so investors reprice it as they learn the terms.",
+  capital:"Raising money by selling new shares or debt spreads the company's value more thinly, which often weighs on the price.",
+  other:"Company news can change what investors expect, and the price adjusts as they react."};
+function newsLink(s) {
+  if (s.event_url) return s.event_url;
+  const h = (s.headlines || []).find(x => x.headline === s.event_headline);
+  return h?.url || null;
+}
+function whyHTML(s, full) {
+  if (live(s)) { const mv = s.car_0_1_pct, sd = daySd(s), r = sd ? Math.abs(mv) / sd : null, url = newsLink(s), n = (s.headlines || []).length || s.news_n;
+    const size = r == null ? "" : ` That is ${r < 0.5 ? "a small move" : r < 1.5 ? "an ordinary move" : r < 3 ? "a large move" : "a very large move"} for ${esc(s.name || s.ticker)}, which usually moves about ${fmt(sd)}% in a day.`;
+    const hl = s.event_headline ? `<p class="mute">The headline: ${url ? `<a class="hl" href="${esc(url)}" target="_blank" rel="noopener">“${esc(s.event_headline)}”</a>` : `“${esc(s.event_headline)}”`}${n > 1 ? ` <button type="button" class="inlk" data-sheet="news">See all ${n} stories</button>` : ""}</p>` : "";
+    return `<div class="why"><p><b>Why it moved:</b> ${KIND_N[s.event_class] || "company news"} on ${day(s.day0)}, and the stock ${mv >= 0 ? "rose" : "fell"} ${fmt(Math.abs(mv))}% more than the market.${size}</p>
+      ${full ? `<p class="mute">${KIND_WHY[s.event_class] || KIND_WHY.other}</p>` : ""}${hl}</div>`; }
   if (s.preview) return `<div class="why"><p><b>Coming up:</b> an earnings report on ${day(s.preview.report_date)}. Moves after a report are usually larger than on a normal day.</p></div>`;
   if (s.status === "no price data") return `<div class="why"><p>Prices could not be loaded at the last update. Settle will try again at the next one.</p></div>`;
   const t = s.stats || {}, r5 = rel5(s), bits = [];
@@ -1144,7 +1218,7 @@ function whyHTML(s) {
 function quickChips(s) {
   const n = nowPx(s), q = n.q || Q?.quotes?.[s.ticker], qq = s.quote || {}, out = [];
   if (sess() === "open" && q?.high && q?.low && q?.prev_close && qq.atr_pct) {
-    out.push(`<div class="qc"><dt>Day's move used ${tip("usedRange")}</dt><dd>${fmt(100 * (q.high - q.low) / q.prev_close / qq.atr_pct, 0)}%</dd></div>`);
+    out.push(`<div class="qc"><dt>Day's move used ${tip("usedRange")}</dt><dd>${fmt(100 * (100 * (q.high - q.low) / q.prev_close) / qq.atr_pct, 0)}%</dd></div>`);
   } else if (q?.ext) {
     out.push(`<div class="qc"><dt>${q.ext.session === "pre-market" ? "Pre-market" : "After hours"} ${tip("ext")}</dt><dd class="${q.ext.change_pct >= 0 ? "up" : "down"}">${q.ext.change_pct >= 0 ? "+" : "−"}${fmt(Math.abs(q.ext.change_pct), 2)}%</dd></div>`);
   } else {
@@ -1165,13 +1239,14 @@ function callHTML(s) {
   const st = stateOf(s);
   if (live(s)) {
     const e = s.entry || {}, g = sig(s), dip = e.expected_further_dip_pct, bad = badOf(s, "recommended"), d = e.days_to_low;
-    const txt = g === "BUY" ? `In similar cases, buying straight away beat waiting. The price may still dip about ${fmt(dip)}% first.`
-              : g === "WAIT" ? `In similar cases, waiting a few days got a better price. The price may dip about ${fmt(dip)}% before its low.`
-              : s.decision_day === 0 ? `The full call comes after the next close, once the market has reacted for two days.${callOf(s) ? ` Until then, ${esc(s.ticker)} ${leanWord(callOf(s)).toLowerCase()}, because large stocks that ${callOf(s).when} over a week have tended to ${callOf(s).g === "BUY" ? "do better than" : "trail"} the market the next week.` : ""}${dipW(s) != null ? ` The news models expect it to fall about ${fmt(dipW(s))}% more before its low.` : ""}`
+    const fd = fromNow(s, dip), more = fd && fd !== "Reached" ? fd.slice(1) : null;
+    const txt = g === "BUY" ? `In similar cases, buying straight away beat waiting. ${more ? `The price may still dip about ${more} first.` : "The price has already fallen about as far as expected."}`
+              : g === "WAIT" ? `In similar cases, waiting a few days got a better price. ${more ? `The price may dip about ${more} more before its low.` : "The price has already fallen about as far as expected, so the low may be close."}`
+              : s.decision_day === 0 ? `The full call comes after the next close, once the market has reacted for two days.${callOf(s) ? ` Until then, ${esc(s.ticker)} ${leanWord(callOf(s)).toLowerCase()}, because large stocks that ${callOf(s).when} over a week have tended to ${callOf(s).g === "BUY" ? "do better than" : "trail"} the market the next week.` : ""}${dipW(s) != null ? (fromNow(s, dipW(s)) === "Reached" ? " It has already fallen as far as the news models expected." : ` The news models expect it to fall about ${fromNow(s, dipW(s)).slice(1)} more before its low.`) : ""}`
               : `Four weeks have passed since the news, so the call has ended.`;
     return `<p>${txt}${g ? " " + oddsLine(callOf(s)) : ""}</p>
-      <dl class="keys">${dip != null ? `<div><dt>Expected low ${tip("low")}</dt><dd>−${fmt(dip)}%</dd></div>` : dipW(s) != null ? `<div><dt>Expected low ${tip("low")}</dt><dd>−${fmt(dipW(s))}%</dd></div>` : `<div><dt>Swings ahead ${tip("swings")}</dt><dd>${swings(s.risk?.vol_ratio_2_20?.pred).replace(" than normal", "").replace(" for this stock", "")}</dd></div>`}
-        ${bad != null ? `<div><dt>Bad case ${tip("bad")}</dt><dd>−${fmt(-bad)}%</dd></div>` : ""}
+      <dl class="keys">${dip != null ? `<div><dt>Expected low ${tip("low")}</dt><dd>${fromNow(s, dip)}</dd></div>` : dipW(s) != null ? `<div><dt>Expected low ${tip("low")}</dt><dd>${fromNow(s, dipW(s))}</dd></div>` : `<div><dt>Swings ahead ${tip("swings")}</dt><dd>${swings(s.risk?.vol_ratio_2_20?.pred).replace(" than normal", "").replace(" for this stock", "")}</dd></div>`}
+        ${bad != null ? `<div><dt>Bad case ${tip("bad")}</dt><dd>${fromNow(s, -bad)}</dd></div>` : ""}
         <div><dt>Day ${tip("day")}</dt><dd>${s.decision_day} of 20</dd></div></dl>
       ${s.warning_big_drop ? `<p class="alarm"><b>Higher chance of a sharp drop.</b> In past cases like this, ${WARN.flagged} in 100 went on to one of the biggest falls, compared with ${WARN.other} in 100 for other stocks. A smaller position is safer.</p>` : ""}${ownHTML(s)}`;
   }
@@ -1180,8 +1255,8 @@ function callHTML(s) {
   const txt = ctxt + (pv ? `${esc(s.ticker)} reports earnings on ${day(pv.report_date)}. Over the two days after, it is expected to move about ${fmt(pv.typical_move_pct)}% more than the market${pv.usual_move_pct != null ? `, compared with ${fmt(pv.usual_move_pct)}% after a typical report` : ""}. It could go either way.`
             : c ? `` : `The risks and sizing come from the stock's own history.`);
   return `<p>${txt}</p><dl class="keys">${pv ? `<div><dt>Expected move</dt><dd>±${fmt(pv.typical_move_pct)}%</dd></div><div><dt>Large move, 1 in 10</dt><dd>±${fmt(pv.upper_move_pct)}%</dd></div>`
-      : `${r5 != null ? `<div><dt>Week vs market ${tip("rel5")}</dt><dd>${r5 >= 0 ? "+" : "−"}${fmt(Math.abs(r5))}%</dd></div>` : ""}${dq != null ? `<div><dt>Expected dip ${tip("dipq")}</dt><dd>−${fmt(dq)}%</dd></div>` : ""}`}
-    ${o ? `<div><dt>Bad case ${tip("bad")}</dt><dd>−${fmt(-o.bad_case_pct)}%</dd></div>` : ""}</dl>${ownHTML(s)}`;
+      : `${r5 != null ? `<div><dt>Week vs market ${tip("rel5")}</dt><dd>${r5 >= 0 ? "+" : "−"}${fmt(Math.abs(r5))}%</dd></div>` : ""}${dq != null ? `<div><dt>Expected dip ${tip("dipq")}</dt><dd>${fromNow(s, dq)}</dd></div>` : ""}`}
+    ${o ? `<div><dt>Bad case ${tip("bad")}</dt><dd>${fromNow(s, -o.bad_case_pct)}</dd></div>` : ""}</dl>${ownHTML(s)}`;
 }
 function sizeHTML(s) {
   const amt = (weightOf(s, tier) || 0) * budget, inPlan = plan.includes(s.ticker);
@@ -1215,8 +1290,8 @@ function tileSum(s, k) {
     if (d) { const L = ["already in", "in 1 to 2 days", "in 3 to 5 days", "in 6 to 10 days", "in 11+ days"], LO = [0, 1, 3, 6, 11];
       const keep = d.probs.map((p, i) => i).filter(i => LO[i] <= d.days_left), top = keep.reduce((a, i) => d.probs[i] > d.probs[a] ? i : a, keep[0]);
       return {t:"The low", v:`${fmt(100 * d.probs[0], 0)}% already in`, s:top === 0 ? "most likely already passed" : `most likely ${L[top]}`}; }
-    if (dipQ(s) != null) return {t:"The low", v:`Dip to −${fmt(dipQ(s))}%`, s:"expected in the next four weeks"};
-    if (dipW(s) != null) return {t:"The low", v:`Dip to −${fmt(dipW(s))}%`, s:"expected before the low"};
+    const dv = dipQ(s) ?? dipW(s);
+    if (dv != null) { const f = fromNow(s, dv); return {t:"The low", v:f === "Reached" ? "Dip reached" : `Dip to ${f}`, s:dipQ(s) != null ? "expected in the next four weeks" : "expected before the low"}; }
     return {t:"The low", v:"After the next close", s:"needs two closes"}; }
   if (k === "risk") { if (live(s)) return {t:"Risk, four weeks", v:swings(s.risk?.vol_ratio_2_20?.pred).replace("Normal for this stock", "Normal") + " swings", s:volWord(s.risk?.abn_volume_2_20?.pred).replace("Normal for this stock", "normal").replace(" than normal", "").toLowerCase() + " trading"};
     return {t:"Risk, four weeks", v:s.outlook ? `About ±${fmt(s.outlook.vol_20d_pct, 0)}%` : "–", s:"typical move"}; }
@@ -1243,10 +1318,11 @@ function renderStock(s) {
              || (live(s) && s.decision_day === 0 ? "The call comes after the next close, once the market has reacted for two days."
              : s.preview ? `Earnings are due on ${day(s.preview.report_date)}. The direction cannot be known in advance.`
              : live(s) ? "Four weeks have passed since the news, so the call has ended." : "No company news in the last three weeks, so there is no call.");
-  const keys = [dip != null ? ["Expected low", "−" + fmt(dip) + "%"] : c?.basis === "price" && r5 != null ? ["Week vs market", (r5 >= 0 ? "+" : "−") + fmt(Math.abs(r5)) + "%"] : null,
-                bad != null ? ["Bad case", "−" + fmt(bad) + "%"] : null,
-                p0 != null ? ["Low already in", fmt(100 * p0, 0) + "%"] : dq != null ? ["Expected dip", "−" + fmt(dq) + "%"] : dw != null ? ["Expected dip", "−" + fmt(dw) + "%"] : null].filter(Boolean);
-  const forDay = sess() === "open" ? "for today" : Q?.next_open_utc ? "for " + new Date(Q.next_open_utc).toLocaleDateString("en-GB", {weekday:"short", day:"numeric", month:"short", timeZone:"America/New_York"}) : "";
+  const keys = [dip != null ? ["Expected low", fromNow(s, dip)] : c?.basis === "price" && r5 != null ? ["Week vs market", (r5 >= 0 ? "+" : "−") + fmt(Math.abs(r5)) + "%"] : null,
+                bad != null ? ["Bad case", fromNow(s, bad)] : null,
+                p0 != null ? ["Low already in", fmt(100 * p0, 0) + "%"] : dq != null ? ["Expected dip", fromNow(s, dq)] : dw != null ? ["Expected dip", fromNow(s, dw)] : null].filter(Boolean);
+  const stamp = DATA?.generated_utc ? `Forecast updated ${clockD(DATA.generated_utc)}, from the close on ${day(s.price_date)}.` : "";
+  const forDay = sess() === "open" ? "for today" : "for " + new Date(market().nextOpen).toLocaleDateString("en-GB", {weekday:"short", day:"numeric", month:"short", timeZone:"America/New_York"});
   el.innerHTML = `<div class="snav"><a href="#" class="back">${CH}Watchlist</a>
     ${W.length > 1 || (W.length && !on) ? `<nav class="wstrip" id="wstrip" aria-label="Your watchlist">${W.map(x => { const sx = stateOf(x), nx = nowPx(x);
       return `<a class="ws${x.ticker === s.ticker ? " on" : ""}" href="#${esc(x.ticker)}"${x.ticker === s.ticker ? ' aria-current="page"' : ""}><i class="dot ${sx.cls}" aria-hidden="true"></i><b>${esc(x.ticker)}</b><span class="${(nx.chg ?? 0) >= 0 ? "up" : "down"}">${sign(nx.chg)}</span></a>`; }).join("")}</nav>` : ""}
@@ -1260,13 +1336,14 @@ function renderStock(s) {
         <span class="cb-top"><span><span class="cb-word">${st.word}</span>${c ? `<span class="cb-str">${strWord(c)}</span>` : ""}</span><span class="cb-for">${forDay}</span></span>
         <span class="cb-text">${short}</span>
         ${keys.length ? `<span class="cb-keys">${keys.map(([a, b]) => `<span><small>${a}</small><b>${b}</b></span>`).join("")}</span>` : ""}
+        ${stamp ? `<span class="cb-stamp">${stamp}</span>` : ""}
         <span class="cb-more">Why, and how sure</span></button>
       ${s.warning_big_drop ? `<button class="alarm wide" type="button" data-sheet="call"><b>Higher chance of a sharp drop.</b> A smaller position is safer.</button>` : ""}
       ${chartHTML(s)}
       ${whyHTML(s)}
       ${quickChips(s)}
     </div><div class="sright">
-      <div class="call ${st.cls}" id="callBox"><small>${forWhen()}</small><p class="word ${st.cls}">${st.word}</p>${c ? `<p class="str">${c.watch ? leanWord(c) + ", until the full call" : STR[c.str] + (c.basis === "price" ? ", from price" : "")} ${tip("str")}</p>` : ""}${callHTML(s)}</div>
+      <div class="call ${st.cls}" id="callBox"><small>${forWhen()}</small><p class="word ${st.cls}">${st.word}</p>${c ? `<p class="str">${c.watch ? leanWord(c) + ", until the full call" : STR[c.str] + (c.basis === "price" ? ", from price" : "")} ${tip("str")}</p>` : ""}${callHTML(s)}${stamp ? `<p class="cb-stamp">${stamp}</p>` : ""}</div>
       <div class="tiles" id="tiles">${tilesHTML(s)}</div>
     </div></div>`;
   drawChart(s); bindTiles(); fitChart(s);
@@ -1299,8 +1376,8 @@ const sheet = $("#sheetDlg");
 let sheetKey = null;
 function openSheet(k, keep) {
   const s = stockOf(sel); sheetKey = k;
-  $("#bsTitle").textContent = k === "call" ? `${TITLE.call}: ${stateOf(s).word}` : TITLE[k];
-  const body = k === "call" ? `<div class="call-in">${whyHTML(s)}${callHTML(s)}</div>` : k === "next" ? stripH2(nextSession(s).replace('class="next"', 'class="next in"'))
+  $("#bsTitle").textContent = k === "call" ? `${TITLE.call}: ${stateOf(s).word}` : k === "next" && sess() === "open" ? "The rest of today" : TITLE[k];
+  const body = k === "call" ? `<div class="call-in">${whyHTML(s, true)}${callHTML(s)}</div>` : k === "next" ? stripH2(nextSession(s).replace('class="next"', 'class="next in"'))
              : k === "low" ? stripH2(whenLow(s)) : k === "risk" ? stripH2(ahead(s)) : k === "today" ? stripH2(todayFacts(s)) : k === "size" ? (weightOf(s, "recommended") != null ? sizeHTML(s) : "<p>Sizing is not available for this stock.</p>") : newsHTML(s);
   $("#bsBody").innerHTML = body;
   $("#bsBody").querySelectorAll("[data-sheet]").forEach(b => b.onclick = () => openSheet(b.dataset.sheet));
@@ -1390,11 +1467,87 @@ function showStep() {
   $("#tSkip").onclick = endTour; $("#tNext").focus();
 }
 
-/* data: board twice a day, quotes every few minutes */
-function loadQuotes() {
-  if (stockOf(route())) fetch("data/paths.json?" + Date.now()).then(r => r.ok ? r.json() : null).then(p => { if (p) PATHS = p; }).catch(() => {});
-  return fetch("data/quotes.json?" + Date.now()).then(r => r.ok ? r.json() : null).then(q => { if (q) { Q = q; if (DATA && !sheet.open) render(); } }).catch(() => {});
+/* data: forecasts a few times a day; prices from the live service every 15 seconds while the market is open,
+   with quotes.json (refreshed every few minutes by GitHub Actions) as the fallback and for the full list */
+const LIVE_API = "https://settle-live.clairecwn05.workers.dev/";                       // address of the Cloudflare Worker in deploy/live-worker.js
+let chartTouch = 0, liveSeen = {};
+function mergeQuote(t, v) {
+  Q = Q || {quotes:{}}; Q.quotes = Q.quotes || {};
+  const o = Q.quotes[t];
+  if (o && o.time && v.time && Date.parse(v.time) < Date.parse(o.time)) return;      // keep whichever is newer
+  const clean = Object.fromEntries(Object.entries(v).filter(([, x]) => x != null && !(Array.isArray(x) && !x.length)));
+  Q.quotes[t] = {...o, ...clean, ext:v.ext !== undefined ? v.ext : o?.ext};
 }
+function loadQuotes() {
+  const pp = fetch("data/paths.json?" + Date.now()).then(r => r.ok ? r.json() : null).then(p => {
+    if (!p) return; PATHS = PATHS || {};
+    for (const [t, v] of Object.entries(p)) if (!(Date.now() - (liveSeen[t] || 0) < 120e3)) PATHS[t] = v; }).catch(() => {});
+  const qp = fetch("data/quotes.json?" + Date.now()).then(r => r.ok ? r.json() : null).then(q => {
+    if (!q) return; const keep = Q?.quotes; Q = {...q, quotes:keep || {}};
+    for (const [t, v] of Object.entries(q.quotes || {})) mergeQuote(t, v); }).catch(() => {});
+  return Promise.all([pp, qp]).then(refreshView);
+}
+let liveN = 0;
+function liveSyms() {
+  const v = document.body.dataset.view, all = liveN++ % 4 === 0;          // the open stock every time, the watchlist strip every fourth time
+  const base = v === "stock" ? [sel, ...(all ? (watch || []).slice(0, 12) : [])] : v === "compare" ? picks || [] : v === "home" ? watch || [] : [];
+  return [...new Set([...base, "SPY"])].filter(Boolean).slice(0, 20);
+}
+function liveTick() {
+  if (!LIVE_API || !DATA) return Promise.resolve();
+  return fetch(LIVE_API + "?s=" + liveSyms().map(encodeURIComponent).join(",")).then(r => r.ok ? r.json() : null).then(j => {
+    if (!j?.quotes) return;
+    PATHS = PATHS || {};
+    for (const [t, v] of Object.entries(j.quotes)) { mergeQuote(t, v); liveSeen[t] = Date.now(); if (v.path?.length > 1) PATHS[t] = v.path; }
+    refreshView();
+  }).catch(() => {});
+}
+/* redraw with the new numbers, unless the reader is in the middle of something */
+function refreshView() {
+  if (!DATA || tourAt >= 0 || Date.now() - chartTouch < 4000) return;
+  if (document.activeElement?.matches?.("input, select, textarea") || !$("#pop").hidden) return;
+  const y = scrollY; render();
+  if (sheet.open && sheetKey && sheetKey !== "size") openSheet(sheetKey, true);
+  requestAnimationFrame(() => { if (Math.abs(scrollY - y) > 2) scrollTo(0, y); });
+}
+function tickGap() { const m = sess(); return !LIVE_API ? 60e3 : m === "open" ? (document.body.dataset.view === "stock" ? 15e3 : 30e3) : m === "closed" ? 300e3 : 60e3; }
+(function loop() { setTimeout(() => { if (document.visibilityState === "visible" && DATA) liveTick(); loop(); }, tickGap()); })();
+setInterval(() => { if (document.visibilityState === "visible" && DATA) loadQuotes(); }, 120e3);
+document.addEventListener("visibilitychange", () => { if (document.visibilityState === "visible" && DATA) { liveTick(); loadQuotes(); } });
+function loadBoard() {
+  return fetch("data/predictions.json?" + Date.now()).then(r => r.json()).then(x => {
+    if (!x?.stocks) return;
+    const changed = !DATA || x.generated_utc !== DATA.generated_utc;
+    if (changed) { for (const k in FULL) delete FULL[k]; DATA = x; }
+    return changed;
+  });
+}
+function toast(msg) { const t = $("#toast"); t.textContent = msg; t.classList.add("on"); clearTimeout(t._h); t._h = setTimeout(() => t.classList.remove("on"), 1800); }
+function refreshAll() {
+  return Promise.all([loadBoard().catch(() => {}), loadQuotes(), sleep(500)]).then(() => liveTick()).then(() => {
+    renderAll(); toast(`Updated at ${clock(Date.now())}`); });
+}
+/* pull down from the top of the page to refresh, on phones and tablets */
+(function () {
+  if (!matchMedia("(pointer: coarse)").matches) return;
+  const ptr = $("#ptr"); let y0 = null, d = 0, busy = false;
+  const blocked = t => sheet.open || $("#howDlg").open || tourAt >= 0 || root.classList.contains("intro") || t.closest?.("#cbox, .wstrip, input, .ranges");
+  const reset = () => { ptr.classList.add("back"); ptr.style.transform = ""; ptr.style.opacity = ""; setTimeout(() => ptr.classList.remove("back"), 260); };
+  addEventListener("touchstart", e => { y0 = busy || scrollY > 0 || blocked(e.target) ? null : e.touches[0].clientY; d = 0; }, {passive:true});
+  addEventListener("touchmove", e => {
+    if (y0 == null) return;
+    d = e.touches[0].clientY - y0;
+    if (d <= 0 || scrollY > 0) { y0 = null; reset(); return; }
+    if (e.cancelable) e.preventDefault();
+    ptr.style.transform = `translateY(${Math.min(110, d * 0.55) - 70}px) rotate(${d * 2}deg)`; ptr.style.opacity = Math.min(1, d / 120);
+  }, {passive:false});
+  addEventListener("touchend", () => {
+    if (y0 == null) return; y0 = null;
+    if (d < 110) { reset(); return; }
+    busy = true; ptr.style.transform = "translateY(0)"; ptr.classList.add("spin");
+    refreshAll().finally(() => { busy = false; ptr.classList.remove("spin"); reset(); });
+  });
+})();
 const SEEN = "settle_seen", GAP = 3 * 3600e3, sleep = ms => new Promise(r => setTimeout(r, ms));
 const markSeen = () => { try { localStorage.setItem(SEEN, Date.now()); } catch (e) {} };
 const lastSeen = () => { try { return +localStorage.getItem(SEEN) || 0; } catch (e) { return 0; } };
@@ -1403,22 +1556,24 @@ function endIntro() {
   sp.classList.add("out");
   return sleep(matchMedia("(prefers-reduced-motion: reduce)").matches ? 0 : 450).then(() => { root.classList.remove("intro"); sp.classList.remove("out"); markSeen(); });
 }
-function replayIntro() { if (root.classList.contains("intro") || tourAt >= 0) return; root.classList.add("intro"); sleep(1100).then(endIntro); }
+function replayIntro() { if (root.classList.contains("intro") || tourAt >= 0) return; const sp = $("#splash"); sp.classList.add("fadein"); root.classList.add("intro");
+  sleep(1100).then(endIntro).then(() => sp.classList.remove("fadein")); }
+const fontReady = new Promise(r => { if (root.classList.contains("fok")) return r();
+  const o = new MutationObserver(() => { if (root.classList.contains("fok")) { o.disconnect(); r(); } }); o.observe(root, {attributes:true, attributeFilter:["class"]}); });
 document.addEventListener("visibilitychange", () => { if (document.visibilityState === "hidden") markSeen(); else if (Date.now() - lastSeen() > GAP) replayIntro(); else markSeen(); });
 addEventListener("pagehide", markSeen);
 setInterval(() => { if (document.visibilityState === "visible" && !root.classList.contains("intro")) markSeen(); }, 60000);
 const firstVisit = !store.get("toured", false);
 const boardP = fetch("data/predictions.json?" + Date.now()).then(r => r.json());
-const introP = root.classList.contains("intro") ? Promise.all([sleep(firstVisit ? 1200 : 700), Promise.race([boardP.catch(() => {}), sleep(4000)])]).then(endIntro) : (markSeen(), Promise.resolve());
+const introP = root.classList.contains("intro") ? Promise.all([fontReady.then(() => sleep(firstVisit ? 1200 : 750)), Promise.race([boardP.catch(() => {}), sleep(4000)])]).then(endIntro) : (markSeen(), Promise.resolve());
 introP.then(() => { if (firstVisit) setTimeout(() => startTour(stockOf(route()) ? "stock" : "home"), 250);
   else if (stockOf(route()) && !store.get("toured_stock", false)) setTimeout(() => startTour("stock"), 400); });
 boardP.then(d => {
   DATA = d;
   sel = (d.stocks.find(live) || d.stocks[0] || {}).ticker;
   renderAll(); renderSkill();
-  loadQuotes();
-  setInterval(() => { if (document.visibilityState === "visible") loadQuotes(); }, 60000);
-  setInterval(() => fetch("data/predictions.json?" + Date.now()).then(r => r.json()).then(x => { if (x.generated_utc !== DATA.generated_utc && !sheet.open) { DATA = x; renderAll(); } }).catch(() => {}), 600000);
+  loadQuotes().then(liveTick);
+  setInterval(() => { if (document.visibilityState === "visible" && !sheet.open) loadBoard().then(ch => { if (ch) renderAll(); }).catch(() => {}); }, 300e3);
   let rt, lw = innerWidth, lh = innerHeight; addEventListener("resize", () => { clearTimeout(rt); rt = setTimeout(() => { if (Math.abs(innerWidth - lw) > 30 || Math.abs(innerHeight - lh) > 40) { lw = innerWidth; lh = innerHeight; render(); } }, 200); });
 }).catch(() => { $("#detail").innerHTML = `<p style="padding:40px 0">Today's board could not be loaded. Refresh the page to try again.</p>`; });
 </script>
