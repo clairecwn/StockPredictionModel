@@ -17,6 +17,7 @@ os.environ.setdefault("LIVE_FEATS", "1")
 from config import ROOT, PUBLIC, MODELS
 from live_engine import yahoo_frames, fred_row, detect_event, event_features, calendar_features, earnings_preview, predict_all
 from sizing_lib import shrunk_corr
+from drivers import explain
 
 WL = json.loads((ROOT / "watchlist.json").read_text())
 # hand-picked stocks (with headline aliases) first, then the S&P 500 and Nasdaq-100 from universe.json
@@ -28,15 +29,15 @@ CORE = _have
 def _model_json(n):
     p = MODELS / n
     return json.loads(p.read_text()) if p.exists() else None
-# Past odds behind each call: entry_odds.json from the entry engine's test years, quiet_rule.json from Experiment 16.
+# Past odds behind each call: entry_odds.json from the entry engine's test years, quiet_rule.json from Experiment 13.
 ODDS, QRULE = _model_json("entry_odds.json"), _model_json("quiet_rule.json")
-try:                                                            # Experiment 16: how far a stock without news may dip in 20 days
+try:                                                            # Experiment 13: how far a stock without news may dip in 20 days
     import joblib
     QDIP = joblib.load(MODELS / "quiet_dip.joblib") if (MODELS / "quiet_dip.joblib").exists() else None
 except Exception:
     QDIP = None
 def quiet_features(f):
-    """The live dip model's inputs, built the same way as in src/experiments/16_quiet_days.py, from the last day of the frame."""
+    """The live dip model's inputs, built the same way as in src/experiments/13_quiet_days.py, from the last day of the frame."""
     r, m = f.ret.values.astype(float), f.mkt.values.astype(float); ar = r - m; v = f.vol.values.astype(float)
     lpx = np.cumsum(np.log1p(np.clip(np.nan_to_num(r), -0.95, 10))); px = np.exp(lpx - lpx.max())
     sd = lambda x: float(np.nanstd(x, ddof=1))
@@ -51,7 +52,7 @@ def quiet_features(f):
          "mkt_vol20": sd(m[-20:]) * np.sqrt(252), "vol_chg": np.log(np.nanmean(v[-20:]) / np.nanmean(v[-250:]))}
     return x, max(sd60, 0.003)
 def price_call(item, news_day=False):
-    """Buy-or-wait lean from price alone (experiment 16): last week's move against the market, with the past odds.
+    """Buy-or-wait lean from price alone (experiment 13): last week's move against the market, with the past odds.
     The rule was tested on days without news, so on a news day it is only shown as a slight lean until the full call."""
     z = item.get("stats", {}).get("rel_5d_z")
     if not QRULE or z is None or not np.isfinite(z):
@@ -252,6 +253,9 @@ for w in WL["stocks"]:
                 x, sd60 = quiet_features(f)
                 pred = float(QDIP["model"].predict(pd.DataFrame([x])[QDIP["features"]])[0])
                 item["outlook"]["dip_pct"] = max(0.0, -pred * sd60 * np.sqrt(20) * 100)   # expected deepest fall against the market
+                Xq = pd.DataFrame([x])[QDIP["features"]]
+                from live_engine import contributions
+                item["why"] = {"kind": "dip", "items": explain(contributions(QDIP["model"], Xq), quiet=True)}
             except Exception as e:
                 print(f"quiet dip failed for {t}: {e}")
         price_call(item)
@@ -286,6 +290,12 @@ for w in WL["stocks"]:
         hit = news[news.headline == hl]
         if len(hit): item["event_url"] = str(hit.url.iloc[0])          # so the page can link the headline to the story
     e_ = item.get("entry") or {}
+    if e_.get("drivers"):
+        item["why"] = {"kind": "call", "items": explain(e_.pop("drivers"), cls)}
+    elif item.get("risk", {}).get("trough_2_20", {}).get("drivers"):
+        item["why"] = {"kind": "dip", "items": explain(item["risk"]["trough_2_20"]["drivers"], cls)}
+    for r_ in item.get("risk", {}).values():
+        r_.pop("drivers", None)
     if e_.get("signal") not in ("BUY", "WAIT"):
         price_call(item, news_day=True)                         # first day after news: the full call needs a second close
     if ODDS and e_.get("signal") in ("BUY", "WAIT") and e_.get("expected_next5_sd") is not None:

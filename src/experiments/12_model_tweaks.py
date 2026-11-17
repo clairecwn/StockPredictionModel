@@ -1,4 +1,4 @@
-"""Experiment 15 (one overnight batch, three questions), same method as experiments 6 to 14: purged walk-forward folds,
+"""Experiment 12 (one overnight batch, three questions), same method as experiments 5 to 11: purged walk-forward folds,
 monthly paired t-test of rank correlations against the current live model, Holm correction across every test in the
 batch, and a change is kept only if p_holm < 0.05 and the gain also holds from 2021 on.
 
@@ -12,8 +12,8 @@ C. Did the group move? The share of the day 0-1 move that the stock's closest pe
    the year before) also made. Industry-wide news may fade or persist differently from firm-specific news. If it helps,
    the live board would use sector funds instead, which needs its own parity check.
 
-Run: LIVE_FEATS=1 caffeinate -i python src/experiments/15_model_tweaks.py      (quick check first: EXP_TEST=1)
-Output: results/experiments/15_model_tweaks_live.md   (progress is printed as it goes; about 2 to 3 hours)
+Run: LIVE_FEATS=1 caffeinate -i python src/experiments/12_model_tweaks.py      (quick check first: EXP_TEST=1)
+Output: results/experiments/12_model_tweaks_live.md   (progress is printed as it goes; about 2 to 3 hours)
 """
 import sys
 from pathlib import Path
@@ -107,8 +107,8 @@ T["p_raw"] = 1 - norm.cdf(T.t)
 o = T.p_raw.sort_values().index; k = len(T)
 T.loc[o, "p_holm"] = np.minimum(1, np.maximum.accumulate(T.p_raw[o].values * (k - np.arange(k))))
 T["keep"] = (T.p_holm < 0.05) & (T.gain_2021_on > 0)
-txt = ("# Experiment 15: averaging and tuning, volatility forecast into the drop models, peer reaction ("
+txt = ("# Experiment 12: averaging and tuning, volatility forecast into the drop models, peer reaction ("
        + ("live" if LIVE else "research") + " features)\n\nEach row compares one change with the current live model on the same folds. "
        "Kept only if p_holm < 0.05 and the gain holds from 2021 on.\n\n```\n" + T.round(4).to_string(index=False) + "\n```\n"
        + f"\nTotal time {(time.time() - T0) / 60:.0f} minutes.\n")
-(OUT / ("15_model_tweaks" + ("_live" if LIVE else "") + ("_TEST" if TEST else "") + ".md")).write_text(txt); print("\n" + txt)
+(OUT / ("12_model_tweaks" + ("_live" if LIVE else "") + ("_TEST" if TEST else "") + ".md")).write_text(txt); print("\n" + txt)

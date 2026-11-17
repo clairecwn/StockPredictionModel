@@ -1,23 +1,23 @@
-"""Experiments 6 and 7: do spillovers from linked companies, liquidity changes or stock splits add out-of-sample skill?
+"""Experiment 5: do spillovers from linked companies, liquidity changes or stock splits add out-of-sample skill?
 
-Part A (experiment 6), same method as 01_feature_ablation: LightGBM on the current features (base) vs base + one group, purged
+Part A, same method as 01_feature_ablation: LightGBM on the current features (base) vs base + one group, purged
 walk-forward folds, Spearman rank correlation month by month, paired t-test of the monthly differences, Holm-adjusted.
   liquidity   turn_chg, amihud_chg, spread_chg, zero_ret_60, pre_abvol_5
   splits      split_250, rsplit_250, split_now
   contagion   peer_scandal_30, peer_scandal_car, cm_scandal_30
   comention   cm_n, cm_pre20, cm_car_01, cm_event, cm_conflict          (headlines cover 2010-2023 only)
-Part B (experiment 7), customer-supplier links exist only from late 2020, so a model cannot learn them from earlier
+Part B, customer-supplier links exist only from late 2020, so a model cannot learn them from earlier
 folds. Instead we ask whether each new feature explains what the base model gets wrong: for events from 2021 on,
 the Spearman correlation between the feature and the base model's out-of-sample error is computed month by month and
 tested across months (Holm-adjusted). This is run for every new feature, so the two parts can be compared.
-Run: python src/experiments/06_spillovers.py          (quick check: EXP_TEST=1)
-Output: results/experiments/06_spillovers.md
+Run: python src/experiments/05_spillovers.py          (quick check: EXP_TEST=1)
+Output: results/experiments/05_spillovers.md
 """
 import sys
 from pathlib import Path
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "lib"))
 import os, warnings; warnings.filterwarnings("ignore")
-os.environ["EXP_NO_LIQ"] = "1"          # base = the model before experiment 6
+os.environ["EXP_NO_LIQ"] = "1"          # base = the model before experiment 5
 import numpy as np, pandas as pd
 from scipy.stats import spearmanr, norm
 from sklearn.metrics import roc_auc_score
@@ -93,10 +93,10 @@ for t in TARGETS:
 
 A = holm(pd.DataFrame(rows))
 B = holm(pd.DataFrame(resid_rows), "t_resid").sort_values("p_holm")
-txt = ("# Experiments 6 and 7: spillovers, liquidity and splits (" + ("live features" if LIVE else "all research features") + " as base)\n\n"
+txt = ("# Experiment 5: spillovers, liquidity and splits (" + ("live features" if LIVE else "all research features") + " as base)\n\n"
        "## Part A: ablation\n\nA group is kept only if p_holm < 0.05 and the gain also holds from 2021 on.\n\n```\n"
        + A.round(4).to_string(index=False) + "\n```\n\n"
        "## Part B: does the feature explain the base model's error (2021 on)?\n\n"
        "mean_rho is the average monthly rank correlation between the feature and (actual minus predicted). "
        "Two-sided, Holm-adjusted across all rows.\n\n```\n" + B.round(4).to_string(index=False) + "\n```\n")
-(OUT / ("06_spillovers" + ("_live" if LIVE else "") + ("_TEST" if TEST else "") + ".md")).write_text(txt); print("\n" + txt)
+(OUT / ("05_spillovers" + ("_live" if LIVE else "") + ("_TEST" if TEST else "") + ".md")).write_text(txt); print("\n" + txt)

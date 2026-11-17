@@ -1,4 +1,4 @@
-"""Experiment 14: how do the live risk models compare with the standard textbook forecasts on the same events and folds?
+"""Experiment 11: how do the live risk models compare with the standard textbook forecasts on the same events and folds?
 Volatility: the HAR model (Corsi 2009) is the usual benchmark: tomorrow's volatility from last day's, last week's and last
 month's. Here it is written in ratio form, so it predicts the same target as the live model (volatility over days 2 to 20
 relative to the stock's normal level) from the day 0-1 shock, the last 5 days and the last 20 days. A simpler benchmark,
@@ -7,7 +7,7 @@ Volume: persistence of abnormal volume (the week before the event and days 0-1),
 Trough: a linear model on the same live features (the README's ridge column), plus a volatility-only rule.
 Every forecast is out of sample on the same purged walk-forward folds. The gain of the live model over each benchmark is
 tested with a monthly paired t-test of rank correlations.
-Run: LIVE_FEATS=1 python src/experiments/14_benchmarks.py   (quick: EXP_TEST=1)   Output: results/experiments/14_benchmarks.md
+Run: LIVE_FEATS=1 python src/experiments/11_benchmarks.py   (quick: EXP_TEST=1)   Output: results/experiments/11_benchmarks.md
 """
 import sys
 from pathlib import Path
@@ -67,7 +67,7 @@ for t, bench in BENCH.items():
                      "gain_2021_on": d[d.index.year >= 2021].mean(), "share_months_better": (d > 0).mean()})
         print(f"   vs {name:28s} {rows[-1]['benchmark_rho']:.4f}  (live better in {rows[-1]['share_months_better']:.0%} of months, t = {rows[-1]['t']:.1f})", flush=True)
 T = pd.DataFrame(rows)
-txt = ("# Experiment 14: live risk models against standard benchmarks (" + ("live" if LIVE else "research") + " features)\n\n"
+txt = ("# Experiment 11: live risk models against standard benchmarks (" + ("live" if LIVE else "research") + " features)\n\n"
        "Rank correlations are pooled over all test years; the t-test is on the monthly difference (live minus benchmark).\n\n```\n"
        + T.round(4).to_string(index=False) + "\n```\n")
-(OUT / ("14_benchmarks" + ("_live" if LIVE else "") + ("_TEST" if TEST else "") + ".md")).write_text(txt); print("\n" + txt)
+(OUT / ("11_benchmarks" + ("_live" if LIVE else "") + ("_TEST" if TEST else "") + ".md")).write_text(txt); print("\n" + txt)

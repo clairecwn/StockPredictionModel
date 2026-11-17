@@ -1,4 +1,4 @@
-"""Step 7 (experiments 6 and 7): spillover, liquidity and split features, keyed by (permno, day0). Run after 05_peer_features.
+"""Step 7 (experiment 5): spillover, liquidity and split features, keyed by (permno, day0). Run after 05_peer_features.
 
 Everything below is known by the close of day 1, the same information cutoff as car_0_1 and the peer features.
 

@@ -1,4 +1,4 @@
-"""Step 9 (experiment 11): investor attention from Wikipedia page views (free, daily, from July 2015).
+"""Step 9 (experiment 8): investor attention from Wikipedia page views (free, daily, from July 2015).
 
 Da, Engelberg and Gao (2011) found that a jump in retail attention (Google searches) predicts higher prices over the
 next two weeks and a reversal later. Wikipedia page views are a free, daily, downloadable measure of the same thing.

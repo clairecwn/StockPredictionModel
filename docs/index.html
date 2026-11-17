@@ -253,7 +253,6 @@ dialog::backdrop { background:rgba(18,26,44,.5); }
 #splash span { display:block; margin-top:16px; font:500 clamp(16px, 2.2vw, 20px)/1.4 var(--sans); color:var(--ink); }
 #splash.out { opacity:0; transition:opacity .45s ease; }
 .intro:not(.fok) #splash .sw { opacity:0; animation:none; }
-#splash.fadein { animation:fin .25s ease both; } @keyframes fin { from { opacity:0; } }
 @media (prefers-reduced-motion: no-preference) {
   #splash .sw { animation:rise .8s cubic-bezier(.2,.7,.2,1) both; }
   @keyframes rise { from { opacity:0; transform:translateY(12px); } }
@@ -506,6 +505,71 @@ body.on-stock .plan { bottom:16px; }
 .cb-str { margin-left:10px; } .cb-top > span:first-child { display:flex; align-items:baseline; flex-wrap:wrap; min-width:0; flex:1; }
 .str { margin:-4px 0 10px; }
 .inlk { border:0; background:none; padding:0; font:inherit; color:var(--brand); font-weight:600; text-decoration:underline; text-underline-offset:3px; cursor:pointer; }
+.whybox { margin-top:18px; padding-top:14px; border-top:1px solid var(--line); }
+.whybox h3 { font-size:15px; margin:0 0 10px; }
+.whylist { list-style:none; margin:0; padding:0; display:grid; gap:10px; }
+.whylist li { display:grid; grid-template-columns:minmax(0,1fr) 96px; gap:12px; align-items:center; font-size:14.5px; line-height:1.35; }
+.whylist li i { justify-self:end; }
+.wb { display:inline-block; height:8px; border-radius:4px; vertical-align:middle; }
+.wb.buy { background:var(--buy); } .wb.wait { background:var(--wait); } .wb.deep { background:var(--brand); } .wb.soft { background:color-mix(in srgb, var(--brand) 35%, var(--sheet)); }
+.whykey { display:flex; gap:16px; margin:10px 0 0; color:var(--mute); font-size:12.5px; }
+.whykey .wb { width:10px; margin-right:6px; }
+/* research page */
+.research { max-width:980px; }
+.rhero h1 { font:400 clamp(30px, 4.2vw, 46px)/1.08 var(--display); letter-spacing:-.02em; margin:4px 0 10px; max-width:18ch; }
+.rhero > p { color:var(--mute); font-size:17px; max-width:56ch; margin:0 0 18px; }
+.rstats { display:grid; grid-template-columns:repeat(4, minmax(0, 1fr)); gap:10px; margin:0; }
+.rstats div { background:var(--soft); border-radius:14px; padding:12px 14px; }
+.rstats dt { color:var(--mute); font-size:13px; } .rstats dd { margin:2px 0 0; font-size:22px; font-weight:700; }
+.rsec { display:grid; grid-template-columns:200px minmax(0, 1fr); gap:24px; padding:26px 0; border-top:1px solid var(--line); }
+.rsec:first-of-type { margin-top:26px; }
+.rsec h2 { font:400 24px/1.15 var(--display); margin:0; }
+.rlead { margin:0 0 14px; max-width:62ch; }
+.rnote { color:var(--mute); font-size:14px; margin:12px 0 0; }
+.steps { list-style:none; counter-reset:st; margin:0; padding:0; display:grid; grid-template-columns:repeat(4, minmax(0, 1fr)); gap:12px; }
+.steps li { counter-increment:st; border:1px solid var(--line); border-radius:14px; padding:14px; background:var(--raise); }
+.steps li::before { content:counter(st); display:grid; place-items:center; width:26px; height:26px; border-radius:50%; background:var(--brand); color:var(--on-brand); font-weight:700; font-size:13px; margin-bottom:10px; }
+.steps b { display:block; margin-bottom:4px; } .steps span { color:var(--mute); font-size:14px; line-height:1.45; display:block; }
+.tl { display:grid; gap:8px; }
+.tlrow { display:grid; grid-template-columns:100px minmax(0, 1fr); gap:10px; align-items:center; font-size:13.5px; }
+.tlname { color:var(--mute); }
+.tlbar { position:relative; height:14px; border-radius:7px; background:var(--soft); overflow:hidden; }
+.tlbar i { position:absolute; top:0; bottom:0; }
+.tr { background:color-mix(in srgb, var(--brand) 30%, var(--sheet)); } .te { background:var(--brand); }
+.gap { background:repeating-linear-gradient(135deg, var(--line) 0 3px, transparent 3px 6px); }
+.tlaxis { display:flex; justify-content:space-between; margin-left:110px; color:var(--mute); font-size:12px; }
+.tlkey { display:flex; gap:16px; flex-wrap:wrap; color:var(--mute); font-size:13px; margin:10px 0 0; }
+.tlkey i { display:inline-block; width:14px; height:10px; border-radius:3px; margin-right:6px; vertical-align:-1px; }
+.tlkey i.dbo, .tlkey i.dbs { width:10px; height:10px; border-radius:50%; position:static; }
+.db { display:grid; gap:16px; }
+.dbk { margin:0 0 6px; font-weight:600; }
+.dbline { position:relative; height:12px; border-radius:6px; background:var(--soft); }
+.dbline i { position:absolute; top:50%; }
+.dbl { height:4px; margin-top:-2px; background:color-mix(in srgb, var(--brand) 45%, var(--sheet)); }
+.dbo, .dbs { width:14px; height:14px; margin:-7px 0 0 -7px; border-radius:50%; }
+.dbo { background:var(--raise); border:2px solid color-mix(in srgb, var(--brand) 45%, var(--sheet)); box-sizing:border-box; }
+.dbs { background:var(--brand); }
+.dbv { margin:6px 0 0; color:var(--mute); font-size:13.5px; } .dbv b { color:var(--ink); }
+.promises { display:grid; grid-template-columns:repeat(3, minmax(0, 1fr)); gap:18px; }
+.promises figure { margin:0; }
+.dots { display:grid; grid-template-columns:repeat(10, 1fr); gap:3px; max-width:170px; margin-bottom:10px; }
+.dots i { aspect-ratio:1; border-radius:50%; background:var(--line); }
+.dots i.on { background:var(--brand); }
+.promises figcaption { font-size:14px; color:var(--mute); line-height:1.45; } .promises figcaption b { color:var(--ink); }
+.kd { display:grid; grid-template-columns:1fr 1fr; gap:18px; }
+.kd h3 { font-size:15px; margin:0 0 8px; } .kd ul { margin:0; padding-left:18px; } .kd li { margin:4px 0; font-size:14.5px; }
+.kd div:last-child li { color:var(--mute); }
+.kdnote { grid-column:2; }
+.rend { border-top:1px solid var(--line); padding-top:20px; margin:0 0 6px; }
+.rend a { color:var(--brand); font-weight:600; }
+@media (max-width:880px) {
+  .rsec { grid-template-columns:1fr; gap:12px; padding:20px 0; }
+  .rstats { grid-template-columns:1fr 1fr; } .steps { grid-template-columns:1fr 1fr; }
+  .promises { grid-template-columns:1fr; } .promises figure { display:grid; grid-template-columns:110px minmax(0,1fr); gap:14px; align-items:center; }
+  .dots { max-width:110px; margin:0; gap:2px; }
+  .tlrow { grid-template-columns:96px minmax(0, 1fr); } .tlaxis { margin-left:106px; } .tlaxis span:nth-child(even) { visibility:hidden; }
+  .kdnote { grid-column:1; }
+}
 .own { margin-top:14px; font-size:14.5px; color:var(--mute); } .own b { color:var(--ink); }
 
 .navb { flex:none; display:inline-flex; align-items:center; padding:6px 13px; border-radius:999px; border:1px solid var(--line); background:var(--raise); color:var(--brand); font-weight:600; font-size:14px; text-decoration:none; }
@@ -536,7 +600,7 @@ body.tray { padding-bottom:84px; }
 }
 @media (min-width:1500px) { .tiles { grid-template-columns:repeat(3, minmax(0,1fr)); } .tile { min-height:84px; } }
 @media (max-width:880px) {
-  .views { width:100%; } .views a { flex:1; text-align:center; padding:8px 6px; }
+  .views { width:100%; } .views a { flex:1; text-align:center; padding:8px 4px; font-size:14.5px; }
   .hhead h1, .bhead h1 { font-size:29px; }
   .wgrid { grid-template-columns:1fr; gap:10px; margin-top:14px; }
   .wlink { padding:12px 14px 10px; gap:6px; } .wcall { font-size:30px; } .wt span { display:inline; margin-left:6px; } .wfoot { padding-top:8px; font-size:13.5px; }
@@ -1040,7 +1104,7 @@ function boardOrder() {
               low:(a, b) => (lowIn(b) ?? -1) - (lowIn(a) ?? -1)}[SORT];
   return [...DATA.stocks].sort(by || (() => 0));
 }
-const VIEWS = {"": "home", "ALL": "all", "COMPARE": "compare"};
+const VIEWS = {"": "home", "ALL": "all", "COMPARE": "compare", "RESEARCH": "research"};
 const route = () => decodeURIComponent(location.hash.slice(1)).toUpperCase();
 function render() {
   if (!watch) { watch = POPULAR.slice(0, 7).filter(stockOf); store.set("watch", watch); }
@@ -1049,10 +1113,10 @@ function render() {
   const t = route(), v = VIEWS[t], s = v === undefined && stockOf(t);
   document.body.dataset.view = s ? "stock" : v || "home";
   if (s) { sel = s.ticker; ensureFull(s).then(() => { if (route() === s.ticker) renderStock(stockOf(s.ticker)); }); }
-  else if (v === "all") renderBoard(); else if (v === "compare") renderCompare(); else renderHome();
+  else if (v === "all") renderBoard(); else if (v === "compare") renderCompare(); else if (v === "research") renderResearch(); else renderHome();
   renderPlan();
 }
-addEventListener("hashchange", () => { editing = false; render(); scrollTo(0, 0); if (DATA) liveTick(); });
+addEventListener("hashchange", () => { editing = false; if (sheet.open) sheet.close(); render(); scrollTo(0, 0); if (DATA) liveTick(); });
 /* with hundreds of stocks the board file holds only summaries; chart history and news load when a stock is opened */
 const FULL = {};
 function ensureFull(s) {
@@ -1060,7 +1124,7 @@ function ensureFull(s) {
   return fetch(`data/stocks/${encodeURIComponent(s.ticker)}.json?${DATA.generated_utc || ""}`).then(r => r.ok ? r.json() : null)
     .then(x => { FULL[s.ticker] = true; if (x) Object.assign(s, x); }).catch(() => { FULL[s.ticker] = true; });
 }
-const navHTML = v => `<nav class="views" aria-label="Views">${[["home", "#", "Watchlist"], ["all", "#all", "All stocks"], ["compare", "#compare", "Compare"]]
+const navHTML = v => `<nav class="views" aria-label="Views">${[["home", "#", "Watchlist"], ["all", "#all", "All stocks"], ["compare", "#compare", "Compare"], ["research", "#research", "Research"]]
   .map(([k, h, l]) => `<a href="${h}"${k === v ? ' aria-current="page"' : ""}>${l}</a>`).join("")}</nav>`;
 function spark(s, w = 120, h = 36) {
   let c = s.spark || s.hist?.c?.slice(-60).filter((_, i) => i % 2 === 0) || s.closes; if (!c || c.length < 2) return "";
@@ -1136,6 +1200,68 @@ function renderBoard() {
 function renderCmpBar() {}
 
 /* compare: the same measure lined up for each stock */
+/* research: how Settle was built and tested */
+const REPO = "https://github.com/clairecwn/StockPredictionModel";
+let FWD = null;
+function dots(n, label) {
+  return `<div class="dots" role="img" aria-label="${n} in 100 ${label}">${Array.from({length:100}, (_, i) => `<i${i < n ? ' class="on"' : ""}></i>`).join("")}</div>`;
+}
+function renderResearch() {
+  const el = $("#detail");
+  if (!FWD) fetch("data/forward_scores.json?" + Date.now()).then(r => r.ok ? r.json() : null).then(x => { FWD = x || {}; if (route() === "RESEARCH") renderResearch(); }).catch(() => { FWD = {}; });
+  const yrs = [2001, 2026], at = y => (100 * (y - yrs[0]) / (yrs[1] - yrs[0])).toFixed(2) + "%";
+  const folds = [[2006, 2011], [2011, 2016], [2016, 2021], [2021, 2026]];          // test blocks run to the end of the year before b
+  const tl = folds.map(([a, b]) => `<div class="tlrow"><span class="tlname">${a} to ${b - 1}</span><span class="tlbar">
+      <i class="tr" style="left:0;width:${at(a - 0.33)}"></i>
+      <i class="gap" style="left:${at(a - 0.33)};width:calc(${at(a)} - ${at(a - 0.33)})"></i>
+      <i class="te" style="left:${at(a)};width:calc(${at(b)} - ${at(a)})"></i></span></div>`).join("");
+  const bench = [["How bumpy the next four weeks get", "the standard volatility model (HAR)", 0.33, 0.51],
+                 ["How busy trading gets", "recent trading volume", 0.61, 0.66],
+                 ["How deep the dip goes", "a simple linear model", 0.16, 0.20]];
+  const X = v => (100 * v / 0.7).toFixed(1) + "%";
+  const db = bench.map(([k, b, v0, v1]) => `<div class="dbrow"><p class="dbk">${k}</p><div class="dbline"><i class="dbl" style="left:${X(v0)};width:calc(${X(v1)} - ${X(v0)})"></i>
+      <i class="dbo" style="left:${X(v0)}"></i><i class="dbs" style="left:${X(v1)}"></i></div><p class="dbv"><b>${fmt(v1, 2)}</b> against ${fmt(v0, 2)} for ${b}</p></div>`).join("");
+  const f = FWD || {}, logged = f.n_logged;
+  const live = f.too_early === false && f.n_scored
+    ? `<p>${f.n_scored} forecasts have been checked so far. Rows on the same stock overlap, so treat early numbers with care.</p>`
+    : `<p>Every forecast since 17 Nov 2026 is saved before its outcome is known${logged ? `, ${logged.toLocaleString()} so far` : ""}. The first ones can be checked around 16 Dec, once 20 trading days have passed.</p>`;
+  el.innerHTML = navHTML("research") + `<article class="research">
+    <header class="rhero"><h1>After company news, buy now or wait?</h1>
+      <p>Settle learns from how stocks behaved after past news, and only keeps what still works on years it has never seen.</p>
+      <dl class="rstats"><div><dt>Company events</dt><dd>317,041</dd></div><div><dt>US companies</dt><dd>3,400</dd></div><div><dt>Years of data</dt><dd>2001 to 2025</dd></div><div><dt>Experiments</dt><dd>13</dd></div></dl></header>
+
+    <section class="rsec"><h2>How it learns</h2><ol class="steps">
+      <li><b>Find the news</b><span>Earnings, analyst changes, lawsuits, leadership changes and eight other kinds, matched to each stock's prices.</span></li>
+      <li><b>Measure the real move</b><span>Each move is compared with what the market alone would explain, so only the company's own part counts.</span></li>
+      <li><b>Learn what followed</b><span>LightGBM models learn how far prices fell, how jumpy they got and when the low came.</span></li>
+      <li><b>Turn it into advice</b><span>A buy or wait call, a bad case, and an amount to put in that keeps a bad month within your limit.</span></li></ol></section>
+
+    <section class="rsec"><h2>How it is tested</h2><div>
+      <p class="rlead">Each model learns only from earlier years and is scored on later years it has never seen, with a gap of about four months between them so nothing leaks across.</p>
+      <div class="tl">${tl}<div class="tlaxis"><span>2001</span><span>2006</span><span>2011</span><span>2016</span><span>2021</span><span>2026</span></div></div>
+      <p class="tlkey"><span><i class="tr"></i>Learns from</span><span><i class="gap"></i>Gap</span><span><i class="te"></i>Scored on</span></p></div></section>
+
+    <section class="rsec"><h2>How it compares</h2><div>
+      <p class="rlead">Scored against the usual models on the same unseen years. Each score is a rank correlation: 0 is no better than chance and 1 is a perfect ranking.</p>
+      <div class="db">${db}</div>
+      <p class="tlkey"><span><i class="dbo"></i>Usual model</span><span><i class="dbs"></i>Settle</span></p>
+      <p class="rnote">The volatility model beat the usual one in 99% of the months tested.</p></div></section>
+
+    <section class="rsec"><h2>Does it keep its promises?</h2><div class="promises">
+      <figure>${dots(9, "fell past the bad case")}<figcaption><b>9 in 100</b> fell past the bad case from 2021 to 2025. It is set so that only 10 in 100 should.</figcaption></figure>
+      <figure>${dots(53, "picked the right window for the low")}<figcaption><b>53 in 100</b> times the most likely window for the low was right, against 49 for a guess from the days since the news.</figcaption></figure>
+      <figure>${dots(51, "called the direction right")}<figcaption><b>51 in 100</b> called the direction right over four weeks. Close to a coin flip, which is why Settle leans on risk, not direction.</figcaption></figure></div></section>
+
+    <section class="rsec"><h2>Live record</h2><div>${live}</div></section>
+
+    <section class="rsec"><h2>Kept and dropped</h2><div class="kd">
+      <div><h3>Kept</h3><ul><li>When the next earnings report is due</li><li>How busy trading was before the news</li><li>How calm or wild a stock was against its own normal</li><li>Large one-day jumps in the past month</li><li>A model for when the low comes</li><li>A price-only rule for stocks without news</li></ul></div>
+      <div><h3>Dropped</h3><ul><li>A second model to judge the first</li><li>Insider trades</li><li>Wikipedia page views</li><li>The tone of headlines</li><li>Moves in related companies</li><li>Fine-tuning settings in each test window</li></ul></div></div>
+      <p class="rnote kdnote">Each idea had to beat the model without it, pass a check against lucky results, and still hold from 2021 on.</p></section>
+
+    <p class="rend">The code, every experiment and the full results are on <a href="${REPO}" target="_blank" rel="noopener">GitHub</a>.</p>
+  </article>`;
+}
 function renderCompare() {
   picks = picks.filter(stockOf).slice(0, 4); store.set("cmp", picks);
   const el = $("#detail"), S = picks.map(stockOf), opts = [...new Set([...watch, ...picks])];
@@ -1187,7 +1313,7 @@ const sess = () => market().sess;
 function statusLine(s) {
   const n = nowPx(s), m = market(), now = Date.now(), t = n.q?.time && Date.parse(n.q.time);
   const on = m.sess === "open" && n.live && t && now - t < 5 * 60e3;
-  const head = m.sess === "open" && n.live && t ? `${on ? "Live price" : "Last price"} at ${clock(t)}.` : `Closing price from ${day(n.q?.session_date || s.price_date)}.`;
+  const head = m.sess === "open" ? (on ? "Live price." : "Price delayed.") : `Closing price from ${day(n.q?.session_date || s.price_date)}.`;
   const tail = m.sess === "open" ? ` The market closes in ${dur(m.closeAt - now)}.` : ` The market opens in ${dur(m.nextOpen - now)}.`;
   return `<p class="status${on ? " on" : ""}"><i></i><span>${head}${tail}${s.stale ? " Prices could not be refreshed at the last update." : ""}</span></p>`;
 }
@@ -1243,6 +1369,16 @@ function quickChips(s) {
 function ownHTML(s) {
   if (weightOf(s, "recommended") == null) return "";
   return `<p class="own"><b>Already own it?</b> ${s.warning_big_drop ? "A sharp fall is more likely than usual, so hold less. " : ""}Keep it within the amount under <button type="button" class="inlk" data-sheet="size">How much to put in</button>, so a bad month stays within your loss limit.</p>`;
+}
+/* the inputs that moved this stock's forecast most, straight from the model (LightGBM contributions) */
+function whyBars(s) {
+  const w = s.why; if (!w?.items?.length) return "";
+  const call = w.kind === "call", mx = Math.max(...w.items.map(x => Math.abs(x.c))) || 1;
+  const side = c => call ? (c > 0 ? "buy" : "wait") : (c < 0 ? "deep" : "soft");
+  const rows = w.items.map(x => `<li><span>${esc(x.text)}</span><i class="wb ${side(x.c)}" style="width:${Math.max(8, Math.round(100 * Math.abs(x.c) / mx))}%"></i></li>`).join("");
+  const key = call ? `<span><i class="wb buy"></i>Towards buy</span><span><i class="wb wait"></i>Towards wait</span>`
+                   : `<span><i class="wb deep"></i>Deeper dip</span><span><i class="wb soft"></i>Smaller dip</span>`;
+  return `<div class="whybox"><h3>${call ? "What pushed this call" : "What shapes the expected dip"}</h3><ul class="whylist">${rows}</ul><p class="whykey">${key}</p></div>`;
 }
 function callHTML(s) {
   const st = stateOf(s);
@@ -1330,7 +1466,7 @@ function renderStock(s) {
   const keys = [dip != null ? ["Expected low", fromNow(s, dip)] : c?.basis === "price" && r5 != null ? ["Week vs market", (r5 >= 0 ? "+" : "−") + fmt(Math.abs(r5)) + "%"] : null,
                 bad != null ? ["Bad case", fromNow(s, bad)] : null,
                 p0 != null ? ["Low already in", fmt(100 * p0, 0) + "%"] : dq != null ? ["Expected dip", fromNow(s, dq)] : dw != null ? ["Expected dip", fromNow(s, dw)] : null].filter(Boolean);
-  const stamp = DATA?.generated_utc ? `Forecast updated ${clockD(DATA.generated_utc)}, from the close on ${day(s.price_date)}.` : "";
+  const stamp = forecastStamp();
   const forDay = sess() === "open" ? "for today" : "for " + new Date(market().nextOpen).toLocaleDateString("en-GB", {weekday:"short", day:"numeric", month:"short", timeZone:"America/New_York"});
   el.innerHTML = `<div class="snav"><a href="#" class="back">${CH}Watchlist</a>
     ${W.length > 1 || (W.length && !on) ? `<nav class="wstrip" id="wstrip" aria-label="Your watchlist">${W.map(x => { const sx = stateOf(x), nx = nowPx(x);
@@ -1386,7 +1522,7 @@ let sheetKey = null;
 function openSheet(k, keep) {
   const s = stockOf(sel); sheetKey = k;
   $("#bsTitle").textContent = k === "call" ? `${TITLE.call}: ${stateOf(s).word}` : k === "next" && sess() === "open" ? "The rest of today" : TITLE[k];
-  const body = k === "call" ? `<div class="call-in">${whyHTML(s, true)}${callHTML(s)}</div>` : k === "next" ? stripH2(nextSession(s).replace('class="next"', 'class="next in"'))
+  const body = k === "call" ? `<div class="call-in">${whyHTML(s, true)}${callHTML(s)}${whyBars(s)}</div>` : k === "next" ? stripH2(nextSession(s).replace('class="next"', 'class="next in"'))
              : k === "low" ? stripH2(whenLow(s)) : k === "risk" ? stripH2(ahead(s)) : k === "today" ? stripH2(todayFacts(s)) : k === "size" ? (weightOf(s, "recommended") != null ? sizeHTML(s) : "<p>Sizing is not available for this stock.</p>") : newsHTML(s);
   $("#bsBody").innerHTML = body;
   $("#bsBody").querySelectorAll("[data-sheet]").forEach(b => b.onclick = () => openSheet(b.dataset.sheet));
@@ -1508,8 +1644,7 @@ function liveTick() {
     if (!j?.quotes) return;
     PATHS = PATHS || {};
     for (const [t, v] of Object.entries(j.quotes)) { mergeQuote(t, v); liveSeen[t] = Date.now(); if (v.path?.length > 1) PATHS[t] = v.path; }
-    if (Object.keys(j.quotes).length) stampUpdated();
-    refreshView();
+    stampUpdated(); refreshView();
   }).catch(() => {});
 }
 /* redraw with the new numbers, unless the reader is in the middle of something */
@@ -1522,7 +1657,7 @@ function refreshView() {
   if (sheet.open && sheetKey && sheetKey !== "size") openSheet(sheetKey, true);
   requestAnimationFrame(() => { if (Math.abs(scrollY - y) > 2) scrollTo(0, y); });
 }
-function tickGap() { const m = sess(); return !LIVE_API ? 60e3 : m === "open" ? (document.body.dataset.view === "stock" ? 15e3 : 30e3) : m === "closed" ? 300e3 : 60e3; }
+function tickGap() { return LIVE_API ? 15e3 : 60e3; }
 (function loop() { setTimeout(() => { if (document.visibilityState === "visible" && DATA) liveTick(); loop(); }, tickGap()); })();
 setInterval(() => { if (document.visibilityState === "visible" && DATA) loadQuotes(); }, 120e3);
 document.addEventListener("visibilitychange", () => { if (document.visibilityState === "visible" && DATA) { liveTick(); loadQuotes(); } });
@@ -1534,7 +1669,16 @@ function loadBoard() {
     return changed;
   });
 }
-/* "Updated 12:24 AM SGT" under the name: when this device last got fresh numbers */
+/* forecasts are rebuilt after each US close (the board runs at 21:37 UTC on trading days and takes about ten minutes) */
+function nextForecast(now = Date.now()) {
+  for (let d = 0; d < 8; d++) {
+    const t = new Date(now + d * 864e5); t.setUTCHours(21, 50, 0, 0);
+    if (t > now && t.getUTCDay() % 6 !== 0 && !HOLIDAYS.has(t.toISOString().slice(0, 10))) return t.getTime();
+  }
+  return null;
+}
+function forecastStamp() { const t = nextForecast(); return t ? `Next forecast ${clockD(t)}` : ""; }
+/* "Updated 12:24 AM SGT" under the name: the time of the last price check: when this device last got fresh numbers */
 let updAt = 0;
 function stampUpdated(flash) {
   updAt = Date.now(); const u = $("#upd"); if (!u) return;
@@ -1566,25 +1710,20 @@ function refreshAll() {
     refreshAll().finally(() => { busy = false; ptr.classList.remove("spin"); reset(); });
   });
 })();
-const SEEN = "settle_seen", GAP = 3 * 3600e3, sleep = ms => new Promise(r => setTimeout(r, ms));
-const markSeen = () => { try { localStorage.setItem(SEEN, Date.now()); } catch (e) {} };
-const lastSeen = () => { try { return +localStorage.getItem(SEEN) || 0; } catch (e) { return 0; } };
+/* the opening screen shows on every load and refresh. It never replays when someone switches back to an open tab:
+   the phone shows the old page before any code runs, so covering it afterwards is what made the page flash */
+const sleep = ms => new Promise(r => setTimeout(r, ms));
 function endIntro() {
   const sp = $("#splash"); if (!root.classList.contains("intro")) return Promise.resolve();
   sp.classList.add("out");
-  return sleep(matchMedia("(prefers-reduced-motion: reduce)").matches ? 0 : 450).then(() => { root.classList.remove("intro"); sp.classList.remove("out"); markSeen();
+  return sleep(matchMedia("(prefers-reduced-motion: reduce)").matches ? 0 : 450).then(() => { root.classList.remove("intro"); sp.classList.remove("out");
     if (pendingRefresh) { pendingRefresh = false; requestAnimationFrame(refreshView); } });
 }
-function replayIntro() { if (root.classList.contains("intro") || tourAt >= 0) return; const sp = $("#splash"); sp.classList.add("fadein"); root.classList.add("intro");
-  sleep(1100).then(endIntro).then(() => sp.classList.remove("fadein")); }
 const fontReady = new Promise(r => { if (root.classList.contains("fok")) return r();
   const o = new MutationObserver(() => { if (root.classList.contains("fok")) { o.disconnect(); r(); } }); o.observe(root, {attributes:true, attributeFilter:["class"]}); });
-document.addEventListener("visibilitychange", () => { if (document.visibilityState === "hidden") markSeen(); else if (Date.now() - lastSeen() > GAP) replayIntro(); else markSeen(); });
-addEventListener("pagehide", markSeen);
-setInterval(() => { if (document.visibilityState === "visible" && !root.classList.contains("intro")) markSeen(); }, 60000);
 const firstVisit = !store.get("toured", false);
 const boardP = fetch("data/predictions.json?" + Date.now()).then(r => r.json());
-const introP = root.classList.contains("intro") ? Promise.all([fontReady.then(() => sleep(firstVisit ? 1200 : 750)), Promise.race([boardP.catch(() => {}), sleep(4000)])]).then(endIntro) : (markSeen(), Promise.resolve());
+const introP = root.classList.contains("intro") ? Promise.all([fontReady.then(() => sleep(firstVisit ? 1200 : 750)), Promise.race([boardP.catch(() => {}), sleep(4000)])]).then(endIntro) : Promise.resolve();
 introP.then(() => { if (firstVisit) setTimeout(() => startTour(stockOf(route()) ? "stock" : "home"), 250);
   else if (stockOf(route()) && !store.get("toured_stock", false)) setTimeout(() => startTour("stock"), 400); });
 boardP.then(d => {

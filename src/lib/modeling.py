@@ -1,6 +1,6 @@
 """Shared data loading, cleaning filters, features, target transforms, folds and model factories (v2).
 
-Used by 17_train_risk_models.py, 18_buy_timing.py and predict_one.py.
+Used by 17_train_risk_models.py, 18_buy_timing.py and the experiments.
 
 v2 changes (each one is reported in results/report.md so its effect can be checked):
   universe  price >= $5 on the day before the event and not in the smallest 20% of firms that year  (tradeable stocks)
@@ -86,7 +86,7 @@ if xc.exists() and os.environ.get("EXP_ABLATION") != "1":
     x = pd.read_parquet(xc).drop_duplicates(["permno", "day0"])[["permno", "day0"] + CAL_F]
     x["permno"] = x.permno.astype(ev.permno.dtype); x["day0"] = pd.to_datetime(x.day0)
     ev = ev.merge(x, on=["permno", "day0"], how="left")
-# experiment 6 (06_spillovers): pre-event liquidity and trading activity (07_spillover_features). Splits, scandal contagion, news co-mentions and
+# experiment 5 (05_spillovers): pre-event liquidity and trading activity (07_spillover_features). Splits, scandal contagion, news co-mentions and
 # customer-supplier links failed the test and are not used.
 LIQ_F = ["turn_chg", "amihud_chg", "zero_ret_60", "pre_abvol_5", "spread_chg"]
 xl = PROC / "spillover_features.parquet"
@@ -105,7 +105,7 @@ if xs.exists() and HAVE_SENT:
     ev["sestm_x_attn"] = ev.sestm_react_01 / np.log1p(ev.get("analyst_cov", pd.Series(0, index=ev.index)).fillna(0) + 1)   # tone where few analysts watch
     SENT = SENT + [c for c in ("txt_novelty", "txt_dispersion", "lex_uncertain", "lex_litig", "lex_fear", "lex_anger", "lex_excite",
                                "ana_trough", "ana_logvr", "ana_drift5", "ana_sim") if c in ev] + ["sestm_react_01", "sestm_drift_01", "sestm_react_pre", "sestm_n", "sestm_x_car", "sestm_gap", "sestm_x_attn"]
-# experiment 12 (12_price_patterns): price patterns. Passed for volatility and volume with both feature sets.
+# experiment 9 (09_price_patterns): price patterns. Passed for volatility and volume with both feature sets.
 PP_F = ["intra_01", "ovn_01", "ovn_share", "max_20", "min_20", "skew_60", "rev_5", "seas_5y"]
 xp = PROC / "price_patterns.parquet"
 if xp.exists() and os.environ.get("EXP_NO_PP") != "1":
@@ -114,7 +114,7 @@ if xp.exists() and os.environ.get("EXP_NO_PP") != "1":
     ev = ev.merge(x, on=["permno", "day0"], how="left")
 else:
     PP_F = []
-# experiment 8 (08_frictions_volatility_insiders): gaps between long-run, recent and range-based volatility. vol_ratio_2_20 is scaled by vol_pre,
+# experiment 6 (06_frictions_volatility_insiders): gaps between long-run, recent and range-based volatility. vol_ratio_2_20 is scaled by vol_pre,
 # so these tell the model how far the last 60 days sat from the stock's normal level (mean reversion).
 VOLGAP_F = ["lv_long", "lv_5", "lv_20", "lv_range"]
 if os.environ.get("EXP_NO_VOLGAP") != "1":

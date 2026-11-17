@@ -1,6 +1,6 @@
-"""Experiment 9b: is the drift that survives in high-friction stocks real and tradeable after costs?
+"""Experiment 7: is the drift that survives in high-friction stocks real and tradeable after costs?
 
-08_frictions_volatility_insiders found the out-of-sample drift forecast ranks stocks better where arbitrage is costly, with a gross long-short spread
+06_frictions_volatility_insiders found the out-of-sample drift forecast ranks stocks better where arbitrage is costly, with a gross long-short spread
 of about 2.5% over 60 days in the most frictional fifth. Three things could make that an illusion, and each is checked:
   1. Overlap. A 60-day return overlaps the next two months, so monthly t-statistics are too large. Here every t uses
      Newey-West standard errors with lags covering the holding period.
@@ -10,8 +10,8 @@ of about 2.5% over 60 days in the most frictional fifth. Three things could make
   3. Time. Results are split into 2006-2015, 2016-2025 and 2021-2025, because many anomalies faded after publication.
 A long-only version (buy the top fifth, compared with the average stock in the same friction fifth) is also reported,
 since a small account usually cannot short.
-Run: python src/experiments/09_frictions_after_costs.py      (live features: LIVE_FEATS=1)
-Output: results/experiments/09_frictions_after_costs[_live].md
+Run: python src/experiments/07_frictions_after_costs.py      (live features: LIVE_FEATS=1)
+Output: results/experiments/07_frictions_after_costs[_live].md
 """
 import sys
 from pathlib import Path
@@ -68,8 +68,8 @@ for t, h in H.items():
                          "long_only_net_pct": 100 * S.long_only_net.mean(), "t_long_only_nw": nw_t(S.long_only_net, lags)})
     print(t, "done", flush=True)
 T = pd.DataFrame(rows)
-txt = ("# Experiment 9b: friction fifths after overlap, costs and time (" + ("live" if LIVE else "research") + " features)\n\n"
+txt = ("# Experiment 7: friction fifths after overlap, costs and time (" + ("live" if LIVE else "research") + " features)\n\n"
        "Returns are per holding period (20 or 60 trading days), in %, factor-adjusted. t uses Newey-West errors.\n"
        "A result counts only if net_pct > 0 with t_net_nw > 2 in BOTH 2016-2025 and 2021-2025.\n\n```\n"
        + T.round(3).to_string(index=False) + "\n```\n")
-(OUT / ("09_frictions_after_costs" + ("_live" if LIVE else "") + ".md")).write_text(txt); print("\n" + txt)
+(OUT / ("07_frictions_after_costs" + ("_live" if LIVE else "") + ".md")).write_text(txt); print("\n" + txt)

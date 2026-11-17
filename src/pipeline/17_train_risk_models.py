@@ -277,8 +277,9 @@ for t in TARGETS:
     last = list(best_params[t].values())[-1] if best_params[t] else {}
     m = gbm(**last).fit(X[ok], ym[ok])
     qlo = gbm_quantile(0.1, **last).fit(X[ok], ym[ok]); qhi = gbm_quantile(0.9, **last).fit(X[ok], ym[ok])
-    joblib.dump({"model": m, "q_lo": qlo, "q_hi": qhi, "cqr": float(cqr[t]), "feats": FEATS, "version": 2,
-                 "return_target": t in RET_T}, MODELS / f"{t}.joblib")
+    if not (LIVE and t in ("drift_1_5", "drift_1_60")):                 # the live board does not use these two
+        joblib.dump({"model": m, "q_lo": qlo, "q_hi": qhi, "cqr": float(cqr[t]), "feats": FEATS, "version": 2,
+                     "return_target": t in RET_T}, MODELS / f"{t}.joblib")
     if lgb is not None:
         smp = X[ok].sample(min(20000, int(ok.sum())), random_state=0)
         contrib = np.abs(m.predict(smp, pred_contrib=True)[:, :-1]).mean(0)

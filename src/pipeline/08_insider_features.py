@@ -1,4 +1,4 @@
-"""Step 8 (experiment 10): insider trading features from the SEC's free Form 3/4/5 data sets (2006 on).
+"""Step 8 (experiment 6): insider trading features from the SEC's free Form 3/4/5 data sets (2006 on).
 
 1. Download every quarterly file from the SEC (cached in data/raw/sec_insider/, so a rerun skips what it has).
    The SEC asks for a contact email in the User-Agent; it is read from SEC_CONTACT_EMAIL in .env.

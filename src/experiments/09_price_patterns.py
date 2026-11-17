@@ -1,12 +1,12 @@
-"""Experiment 12: do price patterns (10_price_pattern_features) add out-of-sample skill? Same method as experiments 1, 6 and 8: purged walk-forward,
+"""Experiment 9: do price patterns (10_price_pattern_features) add out-of-sample skill? Same method as experiments 1, 5 and 6: purged walk-forward,
 monthly paired t-test of rank correlations, Holm-adjusted across all target x group tests, gain must hold from 2021 on.
-Run: python src/experiments/12_price_patterns.py   (quick: EXP_TEST=1)     Output: results/experiments/12_price_patterns.md
+Run: python src/experiments/09_price_patterns.py   (quick: EXP_TEST=1)     Output: results/experiments/09_price_patterns.md
 """
 import sys
 from pathlib import Path
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "lib"))
 import os, warnings; warnings.filterwarnings("ignore")
-os.environ["EXP_NO_PP"] = "1"           # base = the model before experiment 12
+os.environ["EXP_NO_PP"] = "1"           # base = the model before experiment 9
 import numpy as np, pandas as pd
 from scipy.stats import spearmanr, norm
 from config import PROC, ROOT, LIVE
@@ -51,6 +51,6 @@ T = pd.DataFrame(rows)
 T["p_raw"] = 1 - norm.cdf(T.t)
 o = T.p_raw.sort_values().index; k = len(T)
 T.loc[o, "p_holm"] = np.minimum(1, np.maximum.accumulate(T.p_raw[o].values * (k - np.arange(k))))
-txt = ("# Experiment 12: price patterns (" + ("live" if LIVE else "research") + " features as base)\n\n"
+txt = ("# Experiment 9: price patterns (" + ("live" if LIVE else "research") + " features as base)\n\n"
        "A group is kept only if p_holm < 0.05 and the gain also holds from 2021 on.\n\n```\n" + T.round(4).to_string(index=False) + "\n```\n")
-(OUT / ("12_price_patterns" + ("_live" if LIVE else "") + ("_TEST" if TEST else "") + ".md")).write_text(txt); print("\n" + txt)
+(OUT / ("09_price_patterns" + ("_live" if LIVE else "") + ("_TEST" if TEST else "") + ".md")).write_text(txt); print("\n" + txt)

@@ -1,4 +1,4 @@
-"""Experiment 13: does company news that the market ignores at first matter later? And does the tone of a headline
+"""Experiment 10: does company news that the market ignores at first matter later? And does the tone of a headline
 (bullish or bearish words) tell us anything?
 
 A headline about a firm (FNSPID, 2009-2023) is "quiet" when the stock barely reacted on the news day and the day
@@ -12,7 +12,7 @@ so the comparison is within firm and within month:
   drift      abnormal return on days 2-21
 Results are given by news type and by tone. Tone counts bullish and bearish finance words in the headline
 (a short list in the spirit of Loughran and McDonald 2011). t-statistics are clustered by month.
-Run: python src/experiments/13_ignored_news.py      Output: results/experiments/13_ignored_news.md and models/live/quiet_news.json
+Run: python src/experiments/10_ignored_news.py      Output: results/experiments/10_ignored_news.md and results/experiments/10_ignored_news.json
 """
 import sys
 from pathlib import Path
@@ -138,13 +138,13 @@ RB = pd.DataFrame(R)
 txt_rb = ("\n## Robustness of the tone result\n\nFama-MacBeth slope of the day 2-21 drift on the sign of the headline tone, controlling for the "
           "day 0-1 move and the prior five days' return, so it is not short-term reversal of the move the words describe.\n\n```\n"
           + RB.round(4).to_string(index=False) + "\n```\n")
-txt = ("# Experiment 13: quiet news and headline tone (FNSPID headlines 2009-2023)\n\n"
+txt = ("# Experiment 10: quiet news and headline tone (FNSPID headlines 2009-2023)\n\n"
        "Differences are against the same firm's ordinary days in the same month. drift is in return units over days 2-21.\n\n"
        "## By kind and news type\n\n```\n" + T.round(4).to_string(index=False) + "\n```\n\n## Quiet news by tone\n\n```\n"
        + TT.round(4).to_string(index=False) + f"\n```\n\nbullish-minus-bearish drift, signed by tone: {spread.mean():.4%} per 20 days "
        f"(t = {spread.mean() / (spread.std() / np.sqrt(len(spread))):.2f}, {len(spread)} months)\n")
 txt += txt_rb
-(OUT / "13_ignored_news.md").write_text(txt); print(txt)
+(OUT / "10_ignored_news.md").write_text(txt); print(txt)
 json.dump({"by_type": T[T.kind == "quiet_news"].set_index("news_type")[["n", "p_shock_20", "p_shock_20_ordinary", "t_shock_20"]].round(4).to_dict("index")},
-          open(ROOT / "models" / "live" / "quiet_news.json", "w"), indent=1)
-print("saved models/live/quiet_news.json")
+          open(ROOT / "results" / "experiments" / "10_ignored_news.json", "w"), indent=1)
+print("saved results/experiments/10_ignored_news.json")

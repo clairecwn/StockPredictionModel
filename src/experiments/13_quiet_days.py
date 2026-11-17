@@ -1,4 +1,4 @@
-"""Experiment 16: can Settle give a buy-or-wait lean for stocks WITHOUT recent company news?
+"""Experiment 13: can Settle give a buy-or-wait lean for stocks WITHOUT recent company news?
 
 The live board only makes a call after news. This test asks whether price and volume alone carry a usable signal on
 quiet days (no event in the last 15 trading days, the same rule as the live board). Ideas from the literature:
@@ -16,8 +16,8 @@ Method: LightGBM, walk-forward over 2006-2010 / 2011-2015 / 2016-2020 / 2021-202
 years with a 40-day gap; monthly rank correlations with t-statistics; simple one-rule baselines for comparison.
 Kept only if the gain is clear, holds from 2021 on, and beats the simple reversal rule.
 
-Run: caffeinate -i python src/experiments/16_quiet_days.py      (quick check first: EXP_TEST=1)
-Output: results/experiments/16_quiet_days.md        (about 30-60 minutes; uses data/processed/crsp_daily.parquet)
+Run: caffeinate -i python src/experiments/13_quiet_days.py      (quick check first: EXP_TEST=1)
+Output: results/experiments/13_quiet_days.md        (about 30-60 minutes; uses data/processed/crsp_daily.parquet)
 """
 import sys
 from pathlib import Path
@@ -195,7 +195,7 @@ if not TEST:
                 ROOT / "models" / "live" / "quiet_dip.joblib")
     say("saved models/live/quiet_dip.joblib")
 
-txt = f"""# Experiment 16: a buy-or-wait lean for stocks without recent news
+txt = f"""# Experiment 13: a buy-or-wait lean for stocks without recent news
 
 {len(S):,} quiet decision days (no company event in the last 15 trading days), {S.permno.nunique():,} stocks, test years
 {FOLDS[0][0]}-{FOLDS[-1][1]}. IC = monthly rank correlation between forecast and outcome; t uses monthly values.
@@ -233,4 +233,4 @@ Saved to models/live/quiet_rule.json (full run only). The page uses the call in 
 
 Total time {(time.time() - T0) / 60:.0f} minutes.
 """
-(OUT / ("16_quiet_days" + ("_TEST" if TEST else "") + ".md")).write_text(txt); print("\n" + txt)
+(OUT / ("13_quiet_days" + ("_TEST" if TEST else "") + ".md")).write_text(txt); print("\n" + txt)

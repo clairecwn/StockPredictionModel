@@ -1,20 +1,38 @@
 # Event Reaction Model: Risk, Timing and Position Sizing After Company News
 
-This project studies how US stocks behave in the weeks after company-specific news, such as earnings announcements, analyst rating changes, leadership changes, legal and regulatory actions, accounting restatements and activist campaigns. It combines an event study, gradient-boosted models and conformal prediction to answer four practical questions about each event:
+This is a machine learning study of how US stocks behave in the weeks after company news. It started during a week of heavy headlines around Nvidia, with a simple question: when a company is hit by surprising news, what happens to its stock next, and is there a better time to buy than straight away?
 
-1. **Risk:** how volatile will the stock be, how heavy will trading be, and how far could it fall from here?
-2. **Timing:** is there a measurable advantage to buying now rather than waiting a few days?
-3. **Lows:** when the stock is at a new low, how likely is that low to hold?
-4. **Sizing:** what share of an account can be put into the stock while keeping the chance of a large loss within a stated limit?
+To answer it, models were trained on 317,041 news events across 3,400 US companies from 2001 to 2025, covering earnings reports, analyst changes, leadership changes, lawsuits, accounting issues, activist campaigns and more. Every model was tested only on years it had never seen.
 
-Every number is tested out of sample on years the models never saw during training or tuning. Results that do not survive these tests are reported as such rather than dropped. A live board applies the trained models to a watchlist each trading day:
+**What it found.** The direction of a stock after news is close to a coin flip, because markets price public news within a day or two. Risk is different. How much a stock will swing, how busily it will trade and how deep its dip may go can all be forecast, and better than the standard models used in finance. The bad cases hold as often as they promise, and position sizes built on them kept losses within their limits.
 
-**Live board:** https://clairecwn.github.io/StockPredictionModel/
+**Where this applies.** Forecasting risk after news is useful wherever someone has to act before the dust settles. Investors can size positions and set loss limits. Risk teams can plan for the swings that follow news. Options and volatility traders can price them, and market makers can prepare for the jump in trading.
 
-> This is a research project. Do not blindly take this as financial advice, do it at your own risk!
+**Settle** is the app that puts the models to work. For each stock, it shows a buy-or-wait call, how far the price may still fall, a bad case, and how much to put in so that a bad month stays within your loss limit. Live prices update throughout the day.
+
+**Try Settle:** https://clairecwn.github.io/StockPredictionModel/
+
+> This is a research project, not financial advice.
+
+## Approach
+
+Each choice below comes from how markets behave, and each one is tested the same way.
+
+1. **Measure only the company's own move.** A stock that falls 3% on a day the market falls 3% has not reacted to its news. Every return is turned into an abnormal return by removing what the market and five other standard risk factors explain (an event study, as in MacKinlay, 1997).
+2. **Use only what was known at the time.** Every input is fixed at the close of the day after the news. Earnings dates, prices and macro data are all lined up to the day they became public, so no forecast sees the future.
+3. **Forecast risk, not direction.** Public news is priced within a day or two, so the direction of the next four weeks is close to a coin flip (the models confirm this at 51%). Volatility and trading activity cluster in time, so they can be forecast. Settle is built around them.
+4. **Test on years the model has never seen.** Models are trained on earlier years and scored on later ones, with a 120-day gap so that no event's outcome leaks into training (purged walk-forward, López de Prado, 2018). The test years run from 2006 to 2025.
+5. **Beat the models finance already uses.** Each forecast is compared with the standard benchmark on the same events. The volatility forecast scores 0.51 against 0.33 for the HAR model, and wins in 99% of test months.
+6. **Make the bad case honest.** Bounds come from conformal prediction, which adjusts each range until it holds as often as it promises. A bad case meant to be passed 1 time in 10 was passed 9.4% of the time from 2021 to 2025.
+7. **Size the position from the risk.** The amount to put in is the largest that keeps the chance of losing more than your limit below a set level (a chance-constrained Kelly rule). In testing, losses beyond the limit happened in 2.7%, 2.5% and 1.4% of trades, against promises of 5%, 10% and 10%.
+8. **Keep only what holds up.** Thirteen experiments added new ideas one at a time. An idea was kept only if it beat the model without it, passed a Holm correction for testing many ideas at once, and still held from 2021 on. Most did not, and those results are reported below.
+9. **Keep score in public.** Every live forecast is saved before its outcome is known and checked four weeks later.
+
+The app shows the same reasoning for each stock: the call, the bad case, the amount to put in, and the inputs that pushed that call most (from LightGBM's per-forecast contributions).
 
 ## Contents
 
+1. [Approach](#approach)
 1. [Results at a glance](#results-at-a-glance)
 2. [Success metrics](#success-metrics)
 3. [Architecture](#architecture)
@@ -525,7 +543,7 @@ Second, does the tone of a headline tell us which way the stock will go? At firs
 
 ### Experiment: the risk models against standard benchmarks
 
-A placebo shows that a model has found something real, but not whether a simpler, well-known method would do just as well. This experiment (`src/experiments/14_benchmarks.py`) runs the standard methods on the same events and the same purged walk-forward folds as the live models.
+A placebo shows that a model has found something real, but not whether a simpler, well-known method would do just as well. This experiment (`src/experiments/11_benchmarks.py`) runs the standard methods on the same events and the same purged walk-forward folds as the live models.
 
 For volatility, the usual benchmark is the HAR model (Corsi, 2009), which forecasts from the volatility of the last day, week and month. Written in the same ratio form as the live target, it reaches a rank correlation of 0.33, or 0.36 when the stock's long-run level is added. For volume, the benchmarks assume trading stays as busy as it was just before the news. For the deepest drop, they use volatility alone or a linear model on the same features.
 
@@ -543,7 +561,7 @@ The live models beat every benchmark, and every gain holds from 2021 on. The mar
 
 ### Experiment: averaging, tuning, the volatility forecast and peer reactions
 
-This batch (`src/experiments/15_model_tweaks.py`) tested four common ways to squeeze more out of the same data, using the same rules as before: a change is kept only if its gain is significant after the Holm correction and still holds from 2021 on.
+This batch (`src/experiments/12_model_tweaks.py`) tested four common ways to squeeze more out of the same data, using the same rules as before: a change is kept only if its gain is significant after the Holm correction and still holds from 2021 on.
 
 | Change | Volatility | Volume | Deepest drop | 20-day drift |
 |---|---|---|---|---|
@@ -557,7 +575,7 @@ Averaging five models passed for volume and the deepest drop, but the gain is le
 
 ### Experiment: calls for stocks without recent news
 
-Most stocks on any given day have had no company news, so the news models have nothing to say about them. This test (`src/experiments/16_quiet_days.py`) asks whether price and volume alone carry a usable signal on those quiet days. It uses 1.27 million quiet stock-days from 2006 to 2026 (one every five trading days, stocks above $5 and outside the smallest 20% by market value) and the same walk-forward folds as the other models. The ideas come from the literature: short-term reversal (Jegadeesh 1990; Lehmann 1990), nearness to the 52-week high (George and Hwang 2004), momentum, RSI, moving-average gaps, and changes in volatility and volume.
+Most stocks on any given day have had no company news, so the news models have nothing to say about them. This test (`src/experiments/13_quiet_days.py`) asks whether price and volume alone carry a usable signal on those quiet days. It uses 1.27 million quiet stock-days from 2006 to 2026 (one every five trading days, stocks above $5 and outside the smallest 20% by market value) and the same walk-forward folds as the other models. The ideas come from the literature: short-term reversal (Jegadeesh 1990; Lehmann 1990), nearness to the 52-week high (George and Hwang 2004), momentum, RSI, moving-average gaps, and changes in volatility and volume.
 
 | Forecast | Target | Monthly rank correlation | t | From 2021 |
 |---|---|---|---|---|
@@ -585,7 +603,7 @@ This project avoids all five, so its accuracy for direction sits close to 50%, w
 ## Live board
 
 <!-- LIVE-BOARD:START -->
-_Updated 2026-11-17 16:36 UTC. Research only, not financial advice._
+_Updated 2026-11-17 17:23 UTC. Research only, not financial advice._
 
 516 stocks checked; 381 have company news in the last 15 trading days. The 40 most recent calls are listed below; the page shows all of them.
 
@@ -593,7 +611,7 @@ _Updated 2026-11-17 16:36 UTC. Research only, not financial advice._
 |---|---|---|---|---|---|---|---|---|---|
 | SO | 94.64 | price or volume shock (2026-11-13) | 1 | WAIT | 3.0% | in 11+ days (43%) | -3.9% | 0.88x | 9% |
 | AMAT | 350.25 | earnings guidance (2026-11-12) | 2 | BUY (high drop risk) | 6.0% | in 11+ days (39%) | -20.1% | 0.82x | 20% |
-| CRWV | 49.88 | price or volume shock (2026-11-12) | 2 | BUY (high drop risk) | 11.2% | in 11+ days (41%) | -25.9% | 0.81x | 0% |
+| CRWV | 49.88 | price or volume shock (2026-11-12) | 2 | BUY (high drop risk) | 11.1% | in 11+ days (41%) | -25.9% | 0.81x | 0% |
 | CSCO | 94.52 | earnings guidance (2026-11-12) | 2 | BUY | 4.3% | in 11+ days (39%) | -8.5% | 0.86x | 25% |
 | GPN | 89.82 | price or volume shock (2026-11-12) | 2 | WAIT | 5.2% | in 11+ days (43%) | -11.2% | 0.85x | 4% |
 | NBIS | 107.13 | earnings guidance (2026-11-12) | 2 | BUY (high drop risk) | 12.0% | in 11+ days (40%) | -26.8% | 0.86x | 10% |
@@ -679,9 +697,9 @@ Download the WRDS files listed in `docs/WRDS_GUIDE.md` into `data/raw/wrds/`, th
 
 ```
 ├── src/
-│   ├── lib/            shared code: paths, event rules, features, models, live rebuild, sizing maths
+│   ├── lib/            shared code: paths, event rules, features, models, live rebuild, sizing maths, plain-English input names
 │   ├── pipeline/       research pipeline on the WRDS data, numbered in run order (01 to 23)
-│   ├── experiments/    one file per experiment, numbered as in this README
+│   ├── experiments/    one file per experiment, numbered in the order they were run (01 to 13)
 │   └── live/           the daily board, live quotes, forward scoring and the parity check
 ├── scripts/            run_pipeline.sh (whole pipeline) and train_live_models.sh (live models, parity, first board)
 ├── models/live/        trained live models and the odds tables behind each call
@@ -722,6 +740,7 @@ Download the WRDS files listed in `docs/WRDS_GUIDE.md` into `data/raw/wrds/`, th
 - Lehmann, B. (1990). Fads, martingales, and market efficiency. *Quarterly Journal of Economics*.
 - Longin, F. and Solnik, B. (2001). Extreme correlation of international equity markets. *Journal of Finance*.
 - López de Prado, M. (2018). *Advances in Financial Machine Learning*. Wiley.
+- MacKinlay, A. C. (1997). Event studies in economics and finance. *Journal of Economic Literature*.
 - Martineau, C. (2022). Rest in peace post-earnings announcement drift. *Critical Finance Review*.
 - Romano, Y., Patterson, E. and Candès, E. (2019). Conformalized quantile regression. *NeurIPS*.
 - Shleifer, A. and Vishny, R. (1997). The limits of arbitrage. *Journal of Finance*.

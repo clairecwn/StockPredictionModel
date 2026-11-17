@@ -1,4 +1,4 @@
-"""Experiments 8-10, scored the same way as experiments 1 and 6 (purged walk-forward, monthly paired t, Holm).
+"""Experiment 6, scored the same way as experiments 1 and 5 (purged walk-forward, monthly paired t, Holm).
 
 8. Volatility mean reversion. vol_ratio_2_20 divides future volatility by vol_pre, the volatility of the last 60 days.
    When those 60 days were unusually calm or wild relative to the stock's normal level, the ratio should revert.
@@ -14,14 +14,14 @@
    gross long-short spread of the forecast against a round-trip cost of one bid-ask spread.
 10. Insider trading (needs data/processed/insider_features.parquet from 08_insider_features): routine vs opportunistic insiders
    (Cohen, Malloy and Pomorski 2012), purchases and sales filed by the close of day 1.
-Run: python src/experiments/08_frictions_volatility_insiders.py     (quick: EXP_TEST=1; skip parts: X06_SKIP=frictions,insider)
-Output: results/experiments/08_frictions_volatility_insiders.md
+Run: python src/experiments/06_frictions_volatility_insiders.py     (quick: EXP_TEST=1; skip parts: X06_SKIP=frictions,insider)
+Output: results/experiments/06_frictions_volatility_insiders.md
 """
 import sys
 from pathlib import Path
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "lib"))
 import os, warnings; warnings.filterwarnings("ignore")
-os.environ["EXP_NO_VOLGAP"] = "1"       # base = the model before experiment 8
+os.environ["EXP_NO_VOLGAP"] = "1"       # base = the model before experiment 6
 import numpy as np, pandas as pd
 from scipy.stats import spearmanr, norm
 from config import PROC, ROOT, LIVE
@@ -79,7 +79,7 @@ for t in TARGETS:
                      "share_months_better": (d > 0).mean()})
         print(f"   + {g:22s} {rows[-1]['with_group']:.4f} (t = {rows[-1]['t']:.2f})", flush=True)
 A = holm(pd.DataFrame(rows))
-txt = "# Experiments 8-10 (" + ("live" if LIVE else "research") + " features as base)\n\n## Ablation\n\n```\n" + A.round(4).to_string(index=False) + "\n```\n"
+txt = "# Experiment 6 (" + ("live" if LIVE else "research") + " features as base)\n\n## Ablation\n\n```\n" + A.round(4).to_string(index=False) + "\n```\n"
 
 if "frictions" not in SKIP and not TEST:
     pr = lambda c, sign=1: (sign * ev[c].astype(float)).groupby(month).rank(pct=True)
@@ -104,5 +104,5 @@ if "frictions" not in SKIP and not TEST:
             "forecast within the fifth (Holm, two-sided). continuation_rho: does the day 0-1 move continue (+) or reverse (-)? "
             "long_short_gross_pct: top minus bottom fifth of the forecast, before costs; compare with median_spread_pct, roughly "
             "the cost of one round trip.\n\n```\n" + Bt.round(4).to_string(index=False) + "\n```\n")
-(OUT / ("08_frictions_volatility_insiders" + ("_live" if LIVE else "") + ("_TEST" if TEST else "") + ".md")).write_text(txt)
+(OUT / ("06_frictions_volatility_insiders" + ("_live" if LIVE else "") + ("_TEST" if TEST else "") + ".md")).write_text(txt)
 print("\n" + txt)

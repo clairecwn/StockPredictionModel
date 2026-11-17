@@ -134,7 +134,7 @@ def event_features(f, i0, cls="other", headline="", log_mcap=np.nan, regime=None
     dv = p_all[i0 - 60:i0] * v_all[i0 - 60:i0]
     x["amihud"] = np.nanmean(np.abs(r_all[i0 - 60:i0]) / np.where(dv > 0, dv, np.nan)) * 1e6
     x["log_dollar_vol"] = np.log1p(np.nanmean(dv)); x["log_mcap"] = log_mcap
-    # experiment 6: pre-event liquidity and trading activity (same windows as 07_spillover_features; volume ratios equal turnover
+    # experiment 5: pre-event liquidity and trading activity (same windows as 07_spillover_features; volume ratios equal turnover
     # ratios while shares outstanding are unchanged)
     lg = lambda a: np.log(a) if np.isfinite(a) and a > 0 else np.nan
     v_now, v_base = np.nanmean(v_all[i0 - 20:i0]), np.nanmean(v_all[i0 - 250:i0 - 20])
@@ -151,7 +151,7 @@ def event_features(f, i0, cls="other", headline="", log_mcap=np.nan, regime=None
     x["yz_term"] = np.log(max(x["yz_vol_5"], 0.01) / max(x["yz_vol_60"], 0.01)) if np.isfinite(x["yz_vol_5"]) else np.nan
     pk1 = pk.iloc[i0 + 1] if d1 else pk.iloc[i0]
     x["range_shock_01"] = np.log(max(np.sqrt((pk.iloc[i0] + pk1) / 2 * 252), 0.01) / max(x["yz_vol_20"], 0.02))
-    # experiment 12: price patterns (same definitions as 10_price_pattern_features)
+    # experiment 9: price patterns (same definitions as 10_price_pattern_features)
     pre20, pre60 = r_all[i0 - 20:i0], r_all[i0 - 60:i0]
     x["max_20"], x["min_20"] = float(np.nanmax(pre20)), float(np.nanmin(pre20))
     sd60 = np.nanstd(pre60); x["skew_60"] = float(np.nanmean(((pre60 - np.nanmean(pre60)) / sd60) ** 3)) if sd60 > 0 else np.nan
@@ -312,6 +312,17 @@ def _load(name):
     p = MODELS / name
     return joblib.load(p) if p.exists() else None
 
+def contributions(model, X, top=6):
+    """The inputs that moved this one forecast most (LightGBM's per-prediction contributions, in the model's units).
+    Returns [(feature, contribution, value)], largest first."""
+    try:
+        c = model.predict(X, pred_contrib=True)[0][:-1]                # the last column is the starting value
+        order = np.argsort(-np.abs(c))[:top]
+        return [(str(X.columns[i]), float(c[i]), float(X.iloc[0, i])) for i in order if np.isfinite(c[i]) and abs(c[i]) > 0]
+    except Exception:
+        return []
+
+
 def predict_all(f, i0, ev, sr=None, vix_now=None, vix0=None):
     """All live outputs for one stock. Returns a dict that goes straight into predictions.json."""
     out = {"day0": str(f.index[i0].date()), "car_0_1_pct": 100 * ev["car_0_1"]}
@@ -332,6 +343,8 @@ def predict_all(f, i0, ev, sr=None, vix_now=None, vix0=None):
         if t in ("vol_ratio_2_20", "abn_volume_2_20"):
             p, lo_, hi_ = np.exp(p), np.exp(lo_), np.exp(hi_)
         risk[t] = {"pred": p, "lo80": lo_, "hi80": hi_}
+        if t == "trough_2_20":
+            risk[t]["drivers"] = contributions(mdl["model"], X)
     out["risk"] = risk
     eng = _load("entry_engine.joblib")
     if eng is not None and 1 <= k <= KMAX:
@@ -340,7 +353,8 @@ def predict_all(f, i0, ev, sr=None, vix_now=None, vix0=None):
         fwd = float(eng["fwd_reg"].predict(X)[0])
         dip = float(eng["dip_reg"].predict(X)[0]) * sd_day * np.sqrt(max(20 - k, 1))
         out["entry"] = {"signal": "BUY" if fwd > eng["fwd_threshold"] else "WAIT", "expected_next5_sd": fwd,
-                        "expected_further_dip_pct": 100 * max(dip, 0), "at_new_low": bool(dyn["above_low"] <= 0.25 * sd_day)}
+                        "expected_further_dip_pct": 100 * max(dip, 0), "at_new_low": bool(dyn["above_low"] <= 0.25 * sd_day),
+                        "drivers": contributions(eng["fwd_reg"], X)}
         if "ttl_clf" in eng:                                         # chance the 20-day low comes in each window of days
             m = eng["ttl_clf"]; pr = np.zeros(len(eng["ttl_labels"])); pr[m.classes_.astype(int)] = m.predict_proba(X)[0]
             if 20 - k < 11: pr[4] = 0.0                              # windows that run past day 20 cannot happen

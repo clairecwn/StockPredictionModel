@@ -1,4 +1,4 @@
-"""Step 10 (experiment 12): price-pattern features from CRSP daily data, all rebuildable live from Yahoo OHLC.
+"""Step 10 (experiment 9): price-pattern features from CRSP daily data, all rebuildable live from Yahoo OHLC.
 
   intra_01, ovn_01   log return of days 0-1 earned during trading hours (open to close) and overnight (close to next
                      open, including the opening gap). Institutions trade mostly during the day and retail investors

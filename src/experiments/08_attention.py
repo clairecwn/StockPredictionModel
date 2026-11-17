@@ -1,11 +1,11 @@
-"""Experiment 11: does investor attention (Wikipedia page views, 09_wikipedia_attention) add out-of-sample skill?
+"""Experiment 8: does investor attention (Wikipedia page views, 09_wikipedia_attention) add out-of-sample skill?
 
 Page views start in July 2015, so most training years have no attention data. Two tests, as for the customer links:
   A. ablation (base vs base + attention) on the purged walk-forward folds, scored month by month, Holm-adjusted;
   B. for events from 2017 on, whether each attention feature lines up with the base model's out-of-sample error.
 The economic question is whether high attention means faster pricing (less drift after the news, DellaVigna and
 Pollet 2009) or overreaction that later reverses (Da, Engelberg and Gao 2011).
-Run: python src/experiments/11_attention.py      Output: results/experiments/11_attention.md
+Run: python src/experiments/08_attention.py      Output: results/experiments/08_attention.md
 """
 import sys
 from pathlib import Path
@@ -58,7 +58,7 @@ def holm(T, two):
     o = T.p_raw.sort_values().index; k = len(T)
     T.loc[o, "p_holm"] = np.minimum(1, np.maximum.accumulate(T.p_raw[o].values * (k - np.arange(k)))); return T
 A, B = holm(pd.DataFrame(rowsA), False), holm(pd.DataFrame(rowsB), True)
-txt = ("# Experiment 11: Wikipedia attention (" + ("live" if LIVE else "research") + " features as base), scored on 2017 on\n\n"
+txt = ("# Experiment 8: Wikipedia attention (" + ("live" if LIVE else "research") + " features as base), scored on 2017 on\n\n"
        "## A. Ablation\n\n```\n" + A.round(4).to_string(index=False) + "\n```\n\n"
        "## B. Does the feature line up with the base model's error?\n\n```\n" + B.round(4).to_string(index=False) + "\n```\n")
-(OUT / ("11_attention" + ("_live" if LIVE else "") + ".md")).write_text(txt); print("\n" + txt)
+(OUT / ("08_attention" + ("_live" if LIVE else "") + ".md")).write_text(txt); print("\n" + txt)
