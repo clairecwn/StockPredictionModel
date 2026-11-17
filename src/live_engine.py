@@ -48,7 +48,9 @@ def alpaca_bars(symbols, years=6):
 def yahoo_frames(tickers, period="6y"):
     """Daily OHLCV for each ticker plus SPY as the market, from Yahoo Finance (split/dividend adjusted)."""
     import yfinance as yf
-    d = yf.download(list(tickers) + ["SPY"], period=period, auto_adjust=True, progress=False, group_by="ticker", threads=True)
+    ymap = {t: t.replace(".", "-") for t in list(tickers) + ["SPY"]}             # Yahoo writes BRK.B as BRK-B
+    d = yf.download(list(ymap.values()), period=period, auto_adjust=True, progress=False, group_by="ticker", threads=True)
+    d.columns = d.columns.set_levels([{v: k for k, v in ymap.items()}.get(x, x) for x in d.columns.levels[0]], level=0)
     missing = [t for t in list(tickers) + ["SPY"] if t not in d.columns.get_level_values(0) or d[t]["Close"].notna().sum() < 300]
     alp = alpaca_bars(missing) if missing else {}
     if missing:
@@ -70,7 +72,7 @@ def yahoo_frames(tickers, period="6y"):
                 break
             import time; time.sleep(3 * (attempt + 1))
             try:
-                x = yf.download(t, period=period, auto_adjust=True, progress=False)
+                x = yf.download(ymap[t], period=period, auto_adjust=True, progress=False)
                 if isinstance(x.columns, pd.MultiIndex):
                     x.columns = x.columns.get_level_values(0)
                 x = x.dropna(subset=["Close"])
@@ -304,6 +306,8 @@ def detect_event(f, headlines=None, earn_days=(), lookback=KMAX):
     return None
 
 # ---------------------------------------------------------------- predictions
+from functools import lru_cache
+@lru_cache(maxsize=None)                                   # each model file is read once per run, not once per stock
 def _load(name):
     p = MODELS / name
     return joblib.load(p) if p.exists() else None

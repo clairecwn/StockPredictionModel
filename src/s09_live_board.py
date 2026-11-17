@@ -1,6 +1,7 @@
 """Step 9: live board. For each stock in watchlist.json: find the most recent event (last 15 trading days), rebuild the
 features exactly as in training (see s08_parity.py), and write:
-  docs/data/predictions.json   everything the interactive page shows (signals, risk, sizing, headlines, correlations)
+  docs/data/predictions.json   the board: one summary per stock (signals, risk, sizing) and compact correlations
+  docs/data/stocks/<T>.json    everything else the page shows for one stock (price history, quote, headlines), loaded on demand
   docs/data/forward_log.csv    one row per stock per run, so live accuracy can be scored later (out of sample by construction)
   README.md                    the table between the LIVE-BOARD markers is replaced
 Models: models/live/ (trained with LIVE_FEATS=1 on features that free live data can rebuild).
@@ -15,7 +16,20 @@ from live_engine import yahoo_frames, fred_row, detect_event, event_features, ca
 from sizing_lib import shrunk_corr
 
 WL = json.loads((ROOT / "watchlist.json").read_text())
+# hand-picked stocks (with headline aliases) first, then the S&P 500 and Nasdaq-100 from universe.json
+_U = json.loads((ROOT / "universe.json").read_text())["stocks"] if (ROOT / "universe.json").exists() else []
+_have = {w["ticker"] for w in WL["stocks"]}
+WL["stocks"] += [u for u in _U if u["ticker"] not in _have]
+CORE = _have
 TICKERS = [w["ticker"] for w in WL["stocks"]]
+import time
+_last = [0.0]
+def fh(url, params):
+    """Finnhub's free plan allows 60 requests a minute; keep below that."""
+    wait = 1.1 - (time.time() - _last[0])
+    if wait > 0: time.sleep(wait)
+    _last[0] = time.time()
+    return requests.get(url, params=params, timeout=20)
 DOCS = ROOT / "docs" / "data"; DOCS.mkdir(parents=True, exist_ok=True)
 now = datetime.now(timezone.utc)
 ET = "America/New_York"
@@ -27,19 +41,30 @@ def relevant(headline, w):
     early = " ".join(headline.split()[:7])                                # the subject usually comes first; later = passing mention
     return any(re.search(r"(?<![A-Za-z])" + re.escape(n) + r"(?![A-Za-z])", early) for n in names if n)
 
+_CAL = None
+def _calendar(back=40, ahead=30):
+    """All earnings dates in the window from Finnhub's calendar, fetched a week at a time (one sweep for every stock)."""
+    global _CAL
+    if _CAL is not None: return _CAL
+    _CAL = {}
+    key = os.environ.get("FINNHUB_API_KEY")
+    if not key: return _CAL
+    d0 = pd.Timestamp(now - pd.Timedelta(days=back)).normalize()
+    while d0 < now + pd.Timedelta(days=ahead):
+        d1 = d0 + pd.Timedelta(days=6)
+        try:
+            r = fh("https://finnhub.io/api/v1/calendar/earnings", {"from": str(d0.date()), "to": str(d1.date()), "token": key})
+            for c in (r.json().get("earningsCalendar", []) if r.status_code == 200 else []):
+                if c.get("date") and c.get("symbol"): _CAL.setdefault(c["symbol"], set()).add(pd.Timestamp(c["date"]))
+        except Exception:
+            pass
+        d0 = d1 + pd.Timedelta(days=1)
+    return _CAL
+
 def earnings_days(t, back=40, ahead=30):
     """Earnings announcement dates from Finnhub's calendar. Returns (past dates as Timestamps, next upcoming date or None).
     Training dated earnings events to the announcement day, so after-close reports keep their own date here too."""
-    key = os.environ.get("FINNHUB_API_KEY")
-    if not key: return [], None
-    try:
-        r = requests.get("https://finnhub.io/api/v1/calendar/earnings", timeout=20,
-                         params={"from": str((now - pd.Timedelta(days=back)).date()), "to": str((now + pd.Timedelta(days=ahead)).date()),
-                                 "symbol": t, "token": key})
-        cal = r.json().get("earningsCalendar", []) if r.status_code == 200 else []
-    except Exception:
-        cal = []
-    ds = sorted({pd.Timestamp(c["date"]) for c in cal if c.get("date")})
+    ds = sorted(_calendar(back, ahead).get(t, set()))
     today = pd.Timestamp(now).tz_convert(ET).tz_localize(None).normalize()
     return [d for d in ds if d < today], next((d for d in ds if d >= today), None)
 
@@ -69,8 +94,7 @@ def finnhub(t, days=25):
     key = os.environ.get("FINNHUB_API_KEY")
     if not key: return pd.DataFrame(columns=["date", "day", "headline", "url"])
     try:
-        r = requests.get("https://finnhub.io/api/v1/company-news", timeout=20,
-                         params=dict(symbol=t, _from=str((now - pd.Timedelta(days=days)).date()), to=str(now.date()), token=key))
+        r = fh("https://finnhub.io/api/v1/company-news", dict(symbol=t, _from=str((now - pd.Timedelta(days=days)).date()), to=str(now.date()), token=key))
         d = pd.DataFrame(r.json()) if r.status_code == 200 else pd.DataFrame()
     except Exception:
         d = pd.DataFrame()
@@ -105,6 +129,9 @@ board, log_rows = [], []
 for w in WL["stocks"]:
     t = w["ticker"]; f = frames.get(t)
     item = {"ticker": t, "name": w.get("name", t)}
+    if w.get("sector"): item["sector"] = w["sector"]
+    if (f is None or len(f) < 300 or float(f.c.iloc[-1]) < 5) and t not in CORE:
+        continue                                                # new listings and stocks under $5 are outside what the models cover
     if f is None or len(f) < 300:
         if t in PREV:
             item = {**PREV[t], "stale": True}                  # shown as the last update, not logged as a new prediction
@@ -139,10 +166,6 @@ for w in WL["stocks"]:
         item["quote"] = {"open": float(f.o.iloc[-1]), "high": float(f.h.iloc[-1]), "low": float(f.l.iloc[-1]), "prev_close": float(f.c.iloc[-2]),
                          "volume": float(f.vol.iloc[-1]), "avg_volume_3m": float(np.nanmean(f.vol.values[-64:-1])),
                          "atr_pct": 100 * float(np.mean(tr) / f.c.iloc[-1])}
-        try:
-            item["quote"]["market_cap"] = float(__import__("yfinance").Ticker(t).fast_info["market_cap"])
-        except Exception:
-            pass
     except Exception as e:
         print(f"quote failed for {t}: {e}")
     tail = f.c.iloc[-45:]                                       # recent closes for the price chart on the page
@@ -204,6 +227,7 @@ for w in WL["stocks"]:
     reg_now = fred_row(f.index[-1], fred_csv)
     out = predict_all(f, i0, ev, sr, reg_now.get("vix"), ev.get("vix"))
     item.update({"status": "event", "event_class": cls, "event_headline": hl, **out})
+    if np.isfinite(cap): item.setdefault("quote", {})["market_cap"] = cap * 1e3
     board.append(item)
     log_rows.append({"run_utc": now.isoformat(timespec="minutes"), "price_date": item["price_date"], "ticker": t,
                      "day0": out["day0"], "cls": cls, "k": out["decision_day"],
@@ -214,8 +238,13 @@ for w in WL["stocks"]:
                      "w_recommended": out.get("sizing", {}).get("tiers", {}).get("recommended", {}).get("weight")})
 
 # correlations for splitting an account across several stocks (Ledoit-Wolf, last 250 trading days)
-R = pd.DataFrame({t: f.ret for t, f in frames.items()}).tail(250)
+on_board = [b["ticker"] for b in board]
+R = pd.DataFrame({t: frames[t].ret for t in on_board if t in frames}).tail(250).fillna(0.0)
 C = shrunk_corr(R.values) if R.shape[1] > 1 else np.eye(1)
+# The page needs correlations for any two or three stocks. A full matrix for 500 stocks is too large to download, so it
+# is stored as 12 factor loadings per stock: corr(i, j) is about loading_i . loading_j (the diagonal is 1 by definition).
+ev_, V_ = np.linalg.eigh(C); top = np.argsort(ev_)[::-1][:12]
+L_ = V_[:, top] * np.sqrt(np.clip(ev_[top], 0, None))
 skill = json.loads((MODELS / "skill.json").read_text()) if (MODELS / "skill.json").exists() else {}
 try:
     import joblib
@@ -225,7 +254,13 @@ try:
                                                                      "(0.50 = coin flip)")
 except Exception:
     pass
-payload = {"generated_utc": now.isoformat(timespec="minutes"), "tickers": list(R.columns), "corr": np.round(C, 3).tolist(),
+HEAVY = ("hist", "closes", "close_dates", "headlines", "quote")
+sd = DOCS / "stocks"; sd.mkdir(exist_ok=True)
+for b in board:
+    if "headlines" in b:
+        hl = b["headlines"] or []
+        b["news_n"], b["news_latest"] = len(hl), (hl[0]["date"] if hl else None)
+payload = {"generated_utc": now.isoformat(timespec="minutes"), "tickers": list(R.columns), "corr_f": np.round(L_, 3).tolist(),
            "disclaimer": "Research project. Directional guidance, not financial advice. Past patterns can fail.",
            "skill": skill,
            "stocks": board}
@@ -236,7 +271,11 @@ def clean(o):
     if isinstance(o, (np.integer,)): return int(o)
     if isinstance(o, np.bool_): return bool(o)
     return o
-(DOCS / "predictions.json").write_text(json.dumps(clean(payload), indent=1))
+for b in board:                                                   # full detail per stock, loaded when the stock is opened
+    if any(k in b for k in HEAVY) and not b.get("stale"):
+        (sd / f"{b['ticker']}.json").write_text(json.dumps(clean({k: b[k] for k in HEAVY if k in b}), separators=(",", ":")))
+payload["stocks"] = [{k: v for k, v in b.items() if k not in HEAVY} for b in board]
+(DOCS / "predictions.json").write_text(json.dumps(clean(payload), separators=(",", ":")))
 logf = DOCS / "forward_log.csv"
 # one row per stock per trading day (hourly reruns of the same closing data would otherwise count as many predictions);
 # rows from before this format are dropped, they repeat the first run
@@ -250,9 +289,9 @@ if len(new) or len(old):
 lines = [f"_Updated {now:%Y-%m-%d %H:%M} UTC. Research only, not financial advice._", "",
          "| Stock | Price | Event (day 0) | Day | Signal | Expected further dip | Most likely timing of the 20-day low | 1-in-10 worst point (20 days) | Risk vs normal | Balanced size |",
          "|---|---|---|---|---|---|---|---|---|---|"]
-for b in board:
-    if b.get("status") != "event":
-        lines.append(f"| {b['ticker']} | {b.get('price', float('nan')):.2f} | {b.get('status', '')} | | | | | | | |"); continue
+shown = sorted([b for b in board if b.get("status") == "event" and b.get("entry", {}).get("signal") in ("BUY", "WAIT")], key=lambda b: b["decision_day"])[:40]
+lines[1:1] = ["", f"{len(board)} stocks checked; {sum(b.get('status') == 'event' for b in board)} have company news in the last 15 trading days. The 40 most recent calls are listed below; the page shows all of them."]
+for b in shown:
     e, r, s = b.get("entry", {}), b["risk"], b.get("sizing", {}).get("tiers", {})
     dip = f"{e['expected_further_dip_pct']:.1f}%" if "expected_further_dip_pct" in e else ""
     vr = f"{r['vol_ratio_2_20']['pred']:.2f}x" if "vol_ratio_2_20" in r else ""
