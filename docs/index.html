@@ -252,6 +252,7 @@ dialog::backdrop { background:rgba(18,26,44,.5); }
 #splash b { display:block; font:400 clamp(76px, 17vw, 156px)/.95 var(--display); letter-spacing:-.035em; color:var(--brand); }
 #splash span { display:block; margin-top:16px; font:500 clamp(16px, 2.2vw, 20px)/1.4 var(--sans); color:var(--ink); }
 #splash.out { opacity:0; transition:opacity .45s ease; }
+#splash.still .sw { animation:none !important; opacity:1 !important; }
 .intro:not(.fok) #splash .sw { opacity:0; animation:none; }
 @media (prefers-reduced-motion: no-preference) {
   #splash .sw { animation:rise .8s cubic-bezier(.2,.7,.2,1) both; }
@@ -259,7 +260,7 @@ dialog::backdrop { background:rgba(18,26,44,.5); }
 }
 .dlg .it { padding:9px 0; border-top:1px solid var(--line); }
 .dlg dt { font-weight:600; } .dlg dd { margin:2px 0 0; color:var(--mute); }
-.spot { position:relative; z-index:41; border-radius:18px; box-shadow:0 0 0 4px var(--brand), 0 0 0 9999px rgba(18,26,44,.5); }
+.spot { position:relative; z-index:41; border-radius:18px; box-shadow:0 0 0 6px var(--sheet), 0 0 0 9px var(--brand), 0 0 0 9999px rgba(18,26,44,.5); }
 .tour { position:fixed; z-index:42; width:min(360px, calc(100% - 24px)); background:var(--sheet); color:var(--ink); border-radius:18px; padding:18px 18px 14px; box-shadow:0 12px 36px rgba(18,26,44,.25); }
 .tour[hidden] { display:none; }
 .tour small { color:var(--mute); }
@@ -500,11 +501,18 @@ body.on-stock .plan { bottom:16px; }
 .cb-word { font:400 54px/1 var(--display); color:var(--brand); }
 .callband.BUY .cb-word { color:var(--buy); } .callband.WAIT .cb-word { color:var(--wait); } .callband.QUIET .cb-word { font-size:36px; }
 .cb-for { color:var(--mute); font-size:14px; font-weight:600; white-space:nowrap; flex:none; }
-.cb-stamp { display:block; margin-top:8px; color:var(--mute); font-size:12.5px; }
+.cb-stamp { display:block; margin-top:8px; color:var(--mute); font-size:12.5px; } .cb-stamp b, .call .cb-stamp b { color:var(--ink); font-weight:600; }
 .cb-str, .str { font-weight:600; font-size:14px; color:var(--mute); }
 .cb-str { margin-left:10px; } .cb-top > span:first-child { display:flex; align-items:baseline; flex-wrap:wrap; min-width:0; flex:1; }
 .str { margin:-4px 0 10px; }
 .inlk { border:0; background:none; padding:0; font:inherit; color:var(--brand); font-weight:600; text-decoration:underline; text-underline-offset:3px; cursor:pointer; }
+.mv .na { color:var(--mute); font-weight:400; font-size:12.5px; }
+.call-in .keys { grid-template-columns:1fr; gap:4px; }
+.call-in .keys > div { display:grid; grid-template-columns:136px minmax(0, 1fr) auto; align-items:center; gap:14px; padding:8px 0; background:none; border-radius:0; }
+.call-in .keys dt { white-space:nowrap; } .call-in .keys dd { grid-column:3; margin:0; text-align:right; font-size:16px; white-space:nowrap; min-width:64px; }
+.kb { height:8px; border-radius:4px; background:var(--soft); position:relative; overflow:hidden; }
+.kb i { position:absolute; inset:0 auto 0 0; border-radius:4px; }
+.kb .dip { background:var(--brand); } .kb .bad { background:color-mix(in srgb, var(--brand) 35%, var(--sheet)); } .kb .day { background:color-mix(in srgb, var(--brand) 65%, var(--sheet)); }
 .whybox { margin-top:18px; padding-top:14px; border-top:1px solid var(--line); }
 .whybox h3 { font-size:15px; margin:0 0 10px; }
 .whylist { list-style:none; margin:0; padding:0; display:grid; gap:10px; }
@@ -730,7 +738,7 @@ const TIPS = {
   nrange:"Where the price is likely to stay during the next trading day. On about two days out of three, the stock stays inside this range.",
   bottom:"After news, a stock often keeps falling for a while before it reaches its lowest point. This is the chance that the lowest point of the four weeks has already happened. If it is high, a further dip would probably stop above that earlier low.",
   usedRange:"How much of a normal day's movement has already happened today. Near 100% means the stock has already moved about as much as it usually does in a whole day.",
-  riskbar:"Each bar starts at today's price. The dark part is the fall Settle expects before the low. The light part runs on to the bad case, a fall only about 1 in 10 similar stocks went past. Every stock uses the same scale, so a longer bar means more risk.",
+  riskbar:"Each bar starts at the last close. The dark part is the fall Settle expects before the low. The light part runs on to the bad case, a fall only about 1 in 10 similar stocks went past. Every stock uses the same scale, so a longer bar means more risk.",
   spx:"How the S&P 500, an index of 500 large US companies, moved on the day. Most stocks rise and fall with it, so it shows whether a move is about this stock or the whole market.",
   levels:"Prices worth keeping an eye on. Stocks often turn near their recent highs, lows and averages. The expected low and bad case come from Settle's forecasts."};
 const $ = s => document.querySelector(s);
@@ -868,10 +876,10 @@ function lastPx(s) {
   return sess() !== "open" && e?.price && (!n.q?.time || Date.parse(e.time) >= Date.parse(n.q.time)) ? e.price : n.px;
 }
 /* how far a forecast level (set from the last close) sits below the latest price */
-function fromNow(s, pctBelowClose) {
+function fromNow(s, pctBelowClose, done = "Reached") {
   if (pctBelowClose == null) return null;
   const r = 100 * (s.price * (1 - pctBelowClose / 100) / lastPx(s) - 1);
-  return r >= -0.05 ? "Reached" : "−" + fmt(-r) + "%";
+  return r >= -0.05 ? done : "−" + fmt(-r) + "%";
 }
 /* chart */
 const RANGES = {"1D":0, "1M":21, "3M":63, "6M":126, "1Y":252};
@@ -916,7 +924,7 @@ function drawChart(s) {
   const up = C[C.length - 1] >= C[0], lineCol = col("--brand");
   const path = C.map((v, i) => `${i ? "L" : "M"}${x(i).toFixed(1)},${y(v).toFixed(1)}`).join("");
   const area = path + `L${x(C.length - 1).toFixed(1)},${PH - padB}L${x(0)},${PH - padB}Z`;
-  const nl = Math.min(5, D.length), xl = Array.from({length:nl}, (_, k) => Math.round(k * (D.length - 1) / (nl - 1)));
+  const nl = Math.min(innerWidth < 880 ? 3 : 5, D.length), xl = Array.from({length:nl}, (_, k) => Math.round(k * (D.length - 1) / (nl - 1)));
   const lab = d => isDay ? d : day(d);
   if (V && !(Math.max(...V) > 1)) V = null;
   let svg = `<svg viewBox="0 0 ${W} ${PH + (V ? VH : 0)}" role="img" aria-label="Price chart for ${esc(s.ticker)}">
@@ -1112,11 +1120,37 @@ function render() {
   if (!picks) picks = watch.slice(0, 3);
   const t = route(), v = VIEWS[t], s = v === undefined && stockOf(t);
   document.body.dataset.view = s ? "stock" : v || "home";
-  if (s) { sel = s.ticker; ensureFull(s).then(() => { if (route() === s.ticker) renderStock(stockOf(s.ticker)); }); }
+  if (s) { sel = s.ticker; loadNews(s.ticker); ensureFull(s).then(() => { if (route() === s.ticker) renderStock(stockOf(s.ticker)); }); }
   else if (v === "all") renderBoard(); else if (v === "compare") renderCompare(); else if (v === "research") renderResearch(); else renderHome();
   renderPlan();
 }
 addEventListener("hashchange", () => { editing = false; if (sheet.open) sheet.close(); render(); scrollTo(0, 0); if (DATA) liveTick(); });
+/* headlines: the board's, plus any newer ones the live service has found since (checked on every open and refresh,
+   then every 5 minutes). Only headlines about the company count: its ticker or name within the first 7 words */
+const LNEWS = {}, newsAt = {};
+const nyMs = d => { const t = Date.parse(d.replace(" ", "T") + ":00Z"); return t - nyOff(t); };
+function aboutIt(s, h) {
+  const names = [s.ticker.length > 2 ? s.ticker : "", s.name || "", (s.name || "").split(" ")[0].length > 3 ? (s.name || "").split(" ")[0] : ""].filter(Boolean);
+  const early = h.split(/\s+/).slice(0, 7).join(" ");
+  return names.some(n => new RegExp(`(^|[^A-Za-z])${n.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}([^A-Za-z]|$)`).test(early));
+}
+function heads(s) {
+  const seen = new Set(), all = [...(LNEWS[s.ticker] || []), ...(s.headlines || [])].filter(h => !seen.has(h.headline) && seen.add(h.headline));
+  return all.sort((a, b) => (b.date || "").localeCompare(a.date || "")).slice(0, 8);
+}
+const freshNews = s => { const g = DATA?.generated_utc && Date.parse(DATA.generated_utc.replace("+00:00", "Z"));
+  return g ? (LNEWS[s.ticker] || []).filter(h => nyMs(h.date) > g && !(s.headlines || []).some(x => x.headline === h.headline)) : []; };
+function loadNews(t, force) {
+  if (!LIVE_API || !t || (!force && Date.now() - (newsAt[t] || 0) < 5 * 60e3)) return Promise.resolve();
+  newsAt[t] = Date.now();
+  return fetch(LIVE_API + "?news=" + encodeURIComponent(t)).then(r => r.ok ? r.json() : null).then(j => {
+    const s = stockOf(t); if (!s || !j?.news) return;
+    const before = JSON.stringify(LNEWS[t] || []);
+    LNEWS[t] = j.news.filter(h => aboutIt(s, h.headline)).slice(0, 8);
+    if (JSON.stringify(LNEWS[t]) !== before && route() === t) refreshView();
+  }).catch(() => {});
+}
+setInterval(() => { const t = route(); if (document.visibilityState === "visible" && DATA && stockOf(t)) loadNews(t); }, 60e3);
 /* with hundreds of stocks the board file holds only summaries; chart history and news load when a stock is opened */
 const FULL = {};
 function ensureFull(s) {
@@ -1171,22 +1205,23 @@ function renderHome() {
 
 /* all stocks */
 function renderBoard() {
-  const el = $("#detail"), L = boardOrder(), maxBad = Math.max(10, ...L.map(s => badPct(s) ?? 0));
+  const el = $("#detail"), L = boardOrder(), maxBad = Math.max(10, ...L.map(s => badOf(s, "recommended") != null ? -badOf(s, "recommended") : 0));
   const nNews = L.filter(live).length, upd = DATA.generated_utc ? new Date(DATA.generated_utc.replace("+00:00", "Z")) : null;
   const shown = L.filter(s => !query || (s.ticker + " " + (s.name || "")).toLowerCase().includes(query));
   const rows = shown.slice(0, showAll || query ? shown.length : 60).map(s => {
-    const st = stateOf(s), n = nowPx(s), b = badPct(s), dip = belowNow(s, s.entry?.expected_further_dip_pct ?? dipQ(s) ?? dipW(s)), p0 = lowIn(s), on = watch.includes(s.ticker);
-    const w = v => Math.min(100, 100 * v / maxBad).toFixed(1) + "%";
-    const bar = `<span class="rbar" aria-hidden="true">${b != null ? `<i style="width:${w(b)}"></i>` : ""}${dip != null ? `<b style="width:${w(Math.min(dip, b ?? dip))}"></b>` : ""}</span>`;
+    const st = stateOf(s), n = nowPx(s), b = badPct(s), d0 = s.entry?.expected_further_dip_pct ?? dipQ(s) ?? dipW(s), dip = belowNow(s, d0), p0 = lowIn(s), on = watch.includes(s.ticker);
+    const b0 = badOf(s, "recommended") != null ? -badOf(s, "recommended") : null, w = v => Math.min(100, 100 * Math.max(0, v) / maxBad).toFixed(1) + "%";
+    const bar = `<span class="rbar" aria-hidden="true">${b0 != null ? `<i style="width:${w(b0)}"></i>` : ""}${d0 != null ? `<b style="width:${w(Math.min(d0, b0 ?? d0))}"></b>` : ""}</span>`;
+    const dipTxt = d0 == null ? "" : dip >= 0.05 ? `Likely −${fmt(dip)}%, b` : "Dip reached, b";
     return `<li class="row"><a class="rlink" href="#${esc(s.ticker)}">
       <span class="rt"><b>${esc(s.ticker)}</b><span>${esc(s.name || "")}</span></span>
       <span class="rcall"><span class="pill ${st.cls}">${sig(s) ? st.word : st.sub}</span></span>
       <span class="rp"><b>${fmt(n.px, 2)}</b>${n.chg != null ? `<span class="${n.chg >= 0 ? "up" : "down"}">${sign(n.chg)}</span>` : ""}</span>
-      <span class="rr">${bar}<small>${b != null ? `${dip != null ? `Likely −${fmt(dip)}%, b` : "B"}ad case −${fmt(b)}%` : "No risk forecast"}</small></span>
-      <span class="rl"><b>${p0 != null ? fmt(100 * p0, 0) + "%" : "–"}</b><small>${p0 != null ? "low already in" : live(s) ? "after next close" : "call from price"}</small></span></a>
+      <span class="rr">${bar}<small>${b != null ? (b >= 0.05 ? `${dipTxt || "B"}ad case −${fmt(b)}%` : "Below its bad case") : "No risk forecast"}</small></span>
+      <span class="rl">${p0 != null ? `<b>${fmt(100 * p0, 0)}%</b><small>low already in</small>` : `<small>${live(s) ? "full call after next close" : "no recent news"}</small>`}</span></a>
       <button class="star${on ? " on" : ""}" type="button" data-star="${esc(s.ticker)}" aria-pressed="${on}" aria-label="${on ? "Remove " + esc(s.ticker) + " from" : "Add " + esc(s.ticker) + " to"} your watchlist">${STAR(on)}</button></li>`; }).join("");
   el.innerHTML = navHTML("all") + `<section class="board" id="boardBox">
-    <div class="bhead"><div><h1>All stocks</h1><p class="mute">${nNews} of ${L.length} stocks have had company news in the last three weeks.${upd ? ` Forecasts updated ${clockD(upd)}.` : ""}</p></div>
+    <div class="bhead"><div><h1>All stocks</h1><p class="mute">${nNews} of ${L.length} stocks have had company news in the last three weeks.</p></div>
       ${L.length > 12 ? `<input class="find" id="find" type="search" placeholder="Search by name or ticker" aria-label="Search stocks" value="${esc(query)}">` : ""}</div>
     <div class="sorts" id="sortBox" role="group" aria-label="Sort the list">${Object.entries(SORTS).map(([k, v]) => `<button type="button" data-sort="${k}" aria-pressed="${k === SORT}">${v}</button>`).join("")}</div>
     <div class="rhead"><span>Stock</span><span>Call</span><span>Price</span><span>How far it could fall in four weeks ${tip("riskbar")}</span><span>Low ${tip("bottom")}</span><span></span></div>
@@ -1278,7 +1313,7 @@ function renderCompare() {
       const best = ok.length > 1 && better ? v.indexOf(better === "high" ? Math.max(...ok) : Math.min(...ok)) : -1;
       return `<div class="metric"><div class="mh"><b>${label}</b><span>${note}</span></div>${S.map((s, i) => `<div class="mrow${i === best ? " best" : ""}">
         <span class="mt">${esc(s.ticker)}</span><span class="mbar">${v[i] != null ? `<i style="width:${Math.max(2, 100 * v[i] / mx).toFixed(1)}%;${color ? `background:${color}` : ""}"></i>` : ""}</span>
-        <span class="mv">${v[i] != null ? show(v[i]) : "–"}${i === best ? `<em>${tag}</em>` : ""}</span></div>`).join("")}</div>`;
+        <span class="mv">${v[i] != null ? show(v[i]) : `<small class="na">${live(s) ? "after next close" : "no recent news"}</small>`}${i === best ? `<em>${tag}</em>` : ""}</span></div>`).join("")}</div>`;
     };
     const words = (label, note, f) => { const w = S.map(f), same = w.every(x => x === w[0]);
       if (same) return `<div class="metric"><div class="mh"><b>${label}</b><span>${note}</span></div><p class="msame">${w[0]} for all ${S.length === 2 ? "both" : S.length}</p></div>`;
@@ -1332,13 +1367,14 @@ const KIND_WHY = {
   other:"Company news can change what investors expect, and the price adjusts as they react."};
 function newsLink(s) {
   if (s.event_url) return s.event_url;
-  const h = (s.headlines || []).find(x => x.headline === s.event_headline);
+  const h = heads(s).find(x => x.headline === s.event_headline);
   return h?.url || null;
 }
 function whyHTML(s, full) {
-  if (live(s)) { const mv = s.car_0_1_pct, sd = daySd(s), r = sd ? Math.abs(mv) / sd : null, url = newsLink(s), n = (s.headlines || []).length || s.news_n;
+  if (live(s)) { const mv = s.car_0_1_pct, sd = daySd(s), r = sd ? Math.abs(mv) / sd : null, url = newsLink(s), n = heads(s).length || s.news_n;
     const size = r == null ? "" : ` That is ${r < 0.5 ? "a small move" : r < 1.5 ? "an ordinary move" : r < 3 ? "a large move" : "a very large move"} for ${esc(s.name || s.ticker)}, which usually moves about ${fmt(sd)}% in a day.`;
-    const hl = s.event_headline ? `<p class="mute">The headline: ${url ? `<a class="hl" href="${esc(url)}" target="_blank" rel="noopener">“${esc(s.event_headline)}”</a>` : `“${esc(s.event_headline)}”`}${n > 1 ? ` <button type="button" class="inlk" data-sheet="news">See all ${n} stories</button>` : ""}</p>` : "";
+    const hq = (s.event_headline || "").replace(/“/g, "‘").replace(/”/g, "’").replace(/"/g, "'");     // quotes inside the headline become single quotes
+    const hl = s.event_headline ? `<p class="mute">The headline: ${url ? `<a class="hl" href="${esc(url)}" target="_blank" rel="noopener">“${esc(hq)}”</a>` : `“${esc(hq)}”`}${n > 1 ? ` <button type="button" class="inlk" data-sheet="news">See all ${n} stories</button>` : ""}</p>` : "";
     return `<div class="why"><p><b>Why it moved:</b> ${KIND_N[s.event_class] || "company news"} on ${day(s.day0)}, and the stock ${mv >= 0 ? "rose" : "fell"} ${fmt(Math.abs(mv))}% more than the market.${size}</p>
       ${full ? `<p class="mute">${KIND_WHY[s.event_class] || KIND_WHY.other}</p>` : ""}${hl}</div>`; }
   if (s.preview) return `<div class="why"><p><b>Coming up:</b> an earnings report on ${day(s.preview.report_date)}. Moves after a report are usually larger than on a normal day.</p></div>`;
@@ -1380,6 +1416,21 @@ function whyBars(s) {
                    : `<span><i class="wb deep"></i>Deeper dip</span><span><i class="wb soft"></i>Smaller dip</span>`;
   return `<div class="whybox"><h3>${call ? "What pushed this call" : "What shapes the expected dip"}</h3><ul class="whylist">${rows}</ul><p class="whykey">${key}</p></div>`;
 }
+/* in the call panel each number gets a bar: the expected dip and the bad case on one scale (how far below the price now),
+   the day as progress through the 20 trading days the call covers, an earnings move against the large move */
+function keyBars(s, box) {
+  const d0 = s.entry?.expected_further_dip_pct ?? dipW(s) ?? dipQ(s), dip = belowNow(s, d0);
+  const bad = badPct(s) ?? (s.outlook ? belowNow(s, s.outlook.bad_case_pct) : null), top = Math.max(dip || 0, bad || 0, 0.1);
+  const pv = s.preview, val = {
+    "Expected low": dip != null ? [dip / top, "dip"] : null, "Expected dip": dip != null ? [dip / top, "dip"] : null,
+    "Bad case": bad != null ? [bad / top, "bad"] : null, "Day": s.decision_day != null ? [s.decision_day / 20, "day"] : null,
+    "Expected move": pv ? [pv.typical_move_pct / pv.upper_move_pct, "dip"] : null, "Large move, 1 in 10": pv ? [1, "bad"] : null };
+  box.querySelectorAll(".keys > div").forEach(d => {
+    const k = d.querySelector("dt")?.childNodes[0]?.textContent.trim(), v = val[k];
+    if (!v || d.querySelector(".kb")) return;
+    d.querySelector("dd").insertAdjacentHTML("beforebegin", `<span class="kb" aria-hidden="true"><i class="${v[1]}" style="width:${Math.max(0, Math.min(100, 100 * v[0])).toFixed(1)}%"></i></span>`);
+  });
+}
 function callHTML(s) {
   const st = stateOf(s);
   if (live(s)) {
@@ -1391,8 +1442,8 @@ function callHTML(s) {
               : `Four weeks have passed since the news, so the call has ended.`;
     return `<p>${txt}${g ? " " + oddsLine(callOf(s)) : ""}</p>
       <dl class="keys">${dip != null ? `<div><dt>Expected low ${tip("low")}</dt><dd>${fromNow(s, dip)}</dd></div>` : dipW(s) != null ? `<div><dt>Expected low ${tip("low")}</dt><dd>${fromNow(s, dipW(s))}</dd></div>` : `<div><dt>Swings ahead ${tip("swings")}</dt><dd>${swings(s.risk?.vol_ratio_2_20?.pred).replace(" than normal", "").replace(" for this stock", "")}</dd></div>`}
-        ${bad != null ? `<div><dt>Bad case ${tip("bad")}</dt><dd>${fromNow(s, -bad)}</dd></div>` : ""}
-        <div><dt>Day ${tip("day")}</dt><dd>${s.decision_day} of 20</dd></div></dl>
+        ${bad != null ? `<div><dt>Bad case ${tip("bad")}</dt><dd>${fromNow(s, -bad, "Passed")}</dd></div>` : ""}
+        <div><dt>Day ${tip("day")}</dt><dd>${s.decision_day ? s.decision_day + " of 20" : "News day"}</dd></div></dl>
       ${s.warning_big_drop ? `<p class="alarm"><b>Higher chance of a sharp drop.</b> In past cases like this, ${WARN.flagged} in 100 went on to one of the biggest falls, compared with ${WARN.other} in 100 for other stocks. A smaller position is safer.</p>` : ""}${ownHTML(s)}`;
   }
   const pv = s.preview, o = s.outlook, c = callOf(s), dq = dipQ(s), r5 = rel5(s);
@@ -1401,7 +1452,7 @@ function callHTML(s) {
             : c ? `` : `The risks and sizing come from the stock's own history.`);
   return `<p>${txt}</p><dl class="keys">${pv ? `<div><dt>Expected move</dt><dd>±${fmt(pv.typical_move_pct)}%</dd></div><div><dt>Large move, 1 in 10</dt><dd>±${fmt(pv.upper_move_pct)}%</dd></div>`
       : `${r5 != null ? `<div><dt>Week vs market ${tip("rel5")}</dt><dd>${r5 >= 0 ? "+" : "−"}${fmt(Math.abs(r5))}%</dd></div>` : ""}${dq != null ? `<div><dt>Expected dip ${tip("dipq")}</dt><dd>${fromNow(s, dq)}</dd></div>` : ""}`}
-    ${o ? `<div><dt>Bad case ${tip("bad")}</dt><dd>${fromNow(s, -o.bad_case_pct)}</dd></div>` : ""}</dl>${ownHTML(s)}`;
+    ${o ? `<div><dt>Bad case ${tip("bad")}</dt><dd>${fromNow(s, -o.bad_case_pct, "Passed")}</dd></div>` : ""}</dl>${ownHTML(s)}`;
 }
 function sizeHTML(s) {
   const amt = (weightOf(s, tier) || 0) * budget, inPlan = plan.includes(s.ticker);
@@ -1420,7 +1471,7 @@ function bindSize(s) {
   $("#addBtn").onclick = () => { const inPlan = plan.includes(s.ticker); plan = inPlan ? plan.filter(x => x !== s.ticker) : [...plan, s.ticker].slice(0, 3); store.set("plan", plan); if (!inPlan) planOpen = true; openSheet("size", true); renderPlan(); };
 }
 function newsHTML(s) {
-  const hl = s.headlines || [];
+  const hl = heads(s);
   return hl.length ? `<ul class="news">${hl.map(h => `<li><span>${day(h.date)}</span><a href="${safeUrl(h.url)}" target="_blank" rel="noopener noreferrer">${esc(h.headline)}</a></li>`).join("")}</ul>`
                    : `<p>No headlines about ${esc(s.ticker)} in the last three weeks.</p>`;
 }
@@ -1443,7 +1494,7 @@ function tileSum(s, k) {
   if (k === "today") { const t = s.stats || {};
     return {t:"The stock today", v:({bullish:"Bullish", bearish:"Bearish", mixed:"Mixed"})[t.trend] || "–", s:t.rsi_14 != null ? `RSI ${fmt(t.rsi_14, 0)}${t.rsi_14 <= 30 ? ", fallen fast" : t.rsi_14 >= 70 ? ", risen fast" : ""}` : ""}; }
   if (k === "size") { const w = weightOf(s, tier); return {t:"How much to put in", v:w != null ? money(w * budget) : "–", s:`of $${Number(budget).toLocaleString("en-US")}, ${TIERS[tier].label} risk`}; }
-  const hl = s.headlines || (s.news_n ? Array(s.news_n).fill({date:s.news_latest}) : []);
+  const hl = heads(s).length ? heads(s) : s.news_n ? Array(s.news_n).fill({date:s.news_latest}) : [];
   return {t:"News", v:hl.length ? `${hl.length} ${hl.length === 1 ? "story" : "stories"}` : "None", s:hl.length ? `latest ${day(hl[0].date)}` : "in three weeks"};
 }
 const tilesHTML = s => TILES.map(k => { const x = tileSum(s, k);
@@ -1464,9 +1515,9 @@ function renderStock(s) {
              : s.preview ? `Earnings are due on ${day(s.preview.report_date)}. The direction cannot be known in advance.`
              : live(s) ? "Four weeks have passed since the news, so the call has ended." : "No company news in the last three weeks, so there is no call.");
   const keys = [dip != null ? ["Expected low", fromNow(s, dip)] : c?.basis === "price" && r5 != null ? ["Week vs market", (r5 >= 0 ? "+" : "−") + fmt(Math.abs(r5)) + "%"] : null,
-                bad != null ? ["Bad case", fromNow(s, bad)] : null,
+                bad != null ? ["Bad case", fromNow(s, bad, "Passed")] : null,
                 p0 != null ? ["Low already in", fmt(100 * p0, 0) + "%"] : dq != null ? ["Expected dip", fromNow(s, dq)] : dw != null ? ["Expected dip", fromNow(s, dw)] : null].filter(Boolean);
-  const stamp = forecastStamp();
+  const stamp = forecastStamp(s);
   const forDay = sess() === "open" ? "for today" : "for " + new Date(market().nextOpen).toLocaleDateString("en-GB", {weekday:"short", day:"numeric", month:"short", timeZone:"America/New_York"});
   el.innerHTML = `<div class="snav"><a href="#" class="back">${CH}Watchlist</a>
     ${W.length > 1 || (W.length && !on) ? `<nav class="wstrip" id="wstrip" aria-label="Your watchlist">${W.map(x => { const sx = stateOf(x), nx = nowPx(x);
@@ -1525,6 +1576,7 @@ function openSheet(k, keep) {
   const body = k === "call" ? `<div class="call-in">${whyHTML(s, true)}${callHTML(s)}${whyBars(s)}</div>` : k === "next" ? stripH2(nextSession(s).replace('class="next"', 'class="next in"'))
              : k === "low" ? stripH2(whenLow(s)) : k === "risk" ? stripH2(ahead(s)) : k === "today" ? stripH2(todayFacts(s)) : k === "size" ? (weightOf(s, "recommended") != null ? sizeHTML(s) : "<p>Sizing is not available for this stock.</p>") : newsHTML(s);
   $("#bsBody").innerHTML = body;
+  if (k === "call") keyBars(s, $("#bsBody"));
   $("#bsBody").querySelectorAll("[data-sheet]").forEach(b => b.onclick = () => openSheet(b.dataset.sheet));
   const j = TILES.indexOf(k);
   $("#bsNav").innerHTML = j < 0 ? "" : `${j > 0 ? `<button class="lk" type="button" data-go="${TILES[j - 1]}">Back: ${SHORT[TILES[j - 1]]}</button>` : "<span></span>"}${j < TILES.length - 1 ? `<button class="lk" type="button" data-go="${TILES[j + 1]}">Next: ${SHORT[TILES[j + 1]]}</button>` : ""}`;
@@ -1587,26 +1639,42 @@ const TOURS = {
         {el:".views", t:"Three ways to look", b:"<b>All stocks</b> ranks every stock, and the star adds one to your list. <b>Compare</b> lines up two to four stocks on timing, risk and how much to put in."}],
   stock:[{el:"#callBand", t:"The call", b:"Buy or wait for the next session, and how sure it is. After company news it comes from about 317,000 similar past cases. Without news it comes from how the stock moved against the market this week. Tap it for the reasons."},
          {el:"#chartSec", t:"The chart", b:"Drag along the line to see any day's price. The shaded area on the right shows when the low is most likely to come, and the dashed lines mark the expected low and the bad case."},
-         {el:"#tiles", t:"The details", b:"Each tile shows its main number. Tap one for more.<ul><li><b>Next open:</b> the likely price range for the next session.</li><li><b>The low:</b> when the lowest point may come, or how far it usually dips.</li><li><b>Risk:</b> how much the price may swing over four weeks.</li><li><b>The stock today:</b> trend, momentum and where it sits in its yearly range.</li><li><b>News:</b> the headlines behind the call.</li></ul>"},
-         {el:'[data-sheet="size"]', t:"How much to put in", b:"Enter your budget and pick how much risk you can take. Settle suggests an amount small enough that a bad month stays within the loss you chose. You can add up to three stocks to one plan."},
+         {el:"#tiles", t:"The details", b:"Each tile shows its main number. Tap one for more.<ul><li><b>The rest of today</b> or <b>Next open:</b> the likely price range.</li><li><b>The low:</b> when the lowest point may come, or how far it usually dips.</li><li><b>Risk:</b> how much the price may swing over four weeks.</li><li><b>The stock today:</b> trend, momentum and where it sits in its yearly range.</li><li><b>News:</b> the headlines behind the call.</li></ul>"},
+         {el:'#tiles [data-sheet="size"]', t:"How much to put in", b:"Enter your budget and pick how much risk you can take. Settle suggests an amount small enough that a bad month stays within the loss you chose. You can add up to three stocks to one plan."},
          {el:".snav", t:"Getting around", b:"Your watchlist runs along the top, so you can jump between stocks or swipe sideways. All stocks and Compare are here too, and the star adds or removes this stock."}]};
 let STEPS = TOURS.home, tourAt = -1;
 const installable = () => matchMedia("(pointer: coarse)").matches && innerWidth < 880 && !matchMedia("(display-mode: standalone)").matches && !navigator.standalone;
 let tourKind = "home";
 function startTour(which) { if (which === "stock" && !stockOf(route())) which = "home"; tourKind = which || (stockOf(route()) ? "stock" : "home"); STEPS = TOURS[tourKind].filter(st => !st.phone || installable()); if (tourKind === "home" && route()) location.hash = ""; tourAt = 0; showStep(); }
-function endTour() { if (tourAt < 0) return; document.querySelector(".spot")?.classList.remove("spot"); $("#tour").hidden = true; tourAt = -1; store.set(tourKind === "stock" ? "toured_stock" : "toured", true); }
+function endTour() { document.body.style.paddingBottom = ""; if (tourAt < 0) return; document.querySelector(".spot")?.classList.remove("spot"); $("#tour").hidden = true; tourAt = -1; store.set(tourKind === "stock" ? "toured_stock" : "toured", true); }
+/* scroll so the highlighted part and the card both fit on screen, with the card beside the part, never on top of it.
+   Only a part taller than the screen allows can sit partly under the card, and then its top is kept in view */
+function placeTour(el, card) {
+  const ring = 12, gap = 14, m = 12, vh = innerHeight, H = card.offsetHeight, W = card.offsetWidth;
+  const r = el.getBoundingClientRect(), docTop = r.top + scrollY, maxY = document.documentElement.scrollHeight - vh;
+  let y, cardTop;
+  if (r.height + 2 * ring + gap + H + 2 * m <= vh) {                                  // both fit: centre the pair, card underneath
+    y = docTop - ring - Math.max(m, (vh - (r.height + 2 * ring + gap + H)) / 2);
+  } else y = docTop - ring - m;                                                      // too tall: show its top, card at the bottom
+  y = Math.max(0, Math.min(y, maxY));
+  const top = docTop - y, bottom = top + r.height;
+  if (bottom + ring + gap + H + m <= vh) cardTop = bottom + ring + gap;
+  else if (top - ring - gap - H >= m) cardTop = top - ring - gap - H;
+  else cardTop = vh - H - m;
+  scrollTo({top:y, behavior:matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth"});
+  card.style.left = Math.max(m, Math.min(r.left, innerWidth - W - m)) + "px";
+  card.style.top = cardTop + "px";
+}
 function showStep() {
-  document.querySelector(".spot")?.classList.remove("spot");
+  document.querySelector(".spot")?.classList.remove("spot"); document.body.style.paddingBottom = "70vh";
   const st = STEPS[tourAt], el = st && (st.el === "#callBand" && innerWidth > 880 ? $("#callBox") : $(st.el));
   if (!st) return endTour();
   if (!el) { tourAt++; return showStep(); }
-  el.classList.add("spot"); el.scrollIntoView({block:"center", behavior:matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth"});
+  el.classList.add("spot");
   const card = $("#tour"); card.hidden = false;
   card.innerHTML = `<small>${tourAt + 1} of ${STEPS.length}</small><h3>${st.t}</h3><p>${st.b}</p>
     <div class="row"><button class="lk" type="button" id="tSkip">${tourAt === STEPS.length - 1 ? "" : "Skip"}</button>${tourAt ? `<button class="lk" type="button" id="tBack">Back</button>` : ""}<button class="go" type="button" id="tNext">${tourAt === STEPS.length - 1 ? "Start" : "Next"}</button></div>`;
-  setTimeout(() => { const r = el.getBoundingClientRect(), below = r.bottom + 220 < innerHeight;
-    card.style.left = Math.max(12, Math.min(r.left, innerWidth - card.offsetWidth - 12)) + "px";
-    card.style.top = (below ? Math.min(r.bottom + 14, innerHeight - card.offsetHeight - 12) : Math.max(12, r.top - card.offsetHeight - 14)) + "px"; }, 380);
+  placeTour(el, card);
   $("#tNext").onclick = () => { tourAt++; tourAt >= STEPS.length ? endTour() : showStep(); };
   if ($("#tBack")) $("#tBack").onclick = () => { tourAt--; showStep(); };
   $("#tSkip").onclick = endTour; $("#tNext").focus();
@@ -1648,9 +1716,7 @@ function liveTick() {
   }).catch(() => {});
 }
 /* redraw with the new numbers, unless the reader is in the middle of something */
-let pendingRefresh = false;
 function refreshView() {
-  if (root.classList.contains("intro")) { pendingRefresh = true; return; }
   if (!DATA || tourAt >= 0 || Date.now() - chartTouch < 4000) return;
   if (document.activeElement?.matches?.("input, select, textarea") || !$("#pop").hidden) return;
   const y = scrollY; render();
@@ -1677,7 +1743,8 @@ function nextForecast(now = Date.now()) {
   }
   return null;
 }
-function forecastStamp() { const t = nextForecast(); return t ? `Next forecast ${clockD(t)}` : ""; }
+function forecastStamp(s) { const t = nextForecast(), f = s ? freshNews(s).length : 0;
+  return (f ? `<b>${f === 1 ? "New headline" : f + " new headlines"}</b> since this forecast. ` : "") + (t ? `Next forecast ${clockD(t)}` : ""); }
 /* "Updated 12:24 AM SGT" under the name: the time of the last price check: when this device last got fresh numbers */
 let updAt = 0;
 function stampUpdated(flash) {
@@ -1686,7 +1753,7 @@ function stampUpdated(flash) {
   if (flash) { u.classList.add("new"); setTimeout(() => u.classList.remove("new"), 1500); }
 }
 function refreshAll() {
-  return Promise.all([loadBoard().catch(() => {}), loadQuotes(), sleep(500)]).then(() => liveTick()).then(() => {
+  return Promise.all([loadBoard().catch(() => {}), loadQuotes(), stockOf(route()) ? loadNews(route(), true) : null, sleep(500)]).then(() => liveTick()).then(() => {
     renderAll(); stampUpdated(true); });
 }
 /* pull down from the top of the page to refresh, on phones and tablets */
@@ -1710,30 +1777,39 @@ function refreshAll() {
     refreshAll().finally(() => { busy = false; ptr.classList.remove("spin"); reset(); });
   });
 })();
-/* the opening screen shows on every load and refresh. It never replays when someone switches back to an open tab:
-   the phone shows the old page before any code runs, so covering it afterwards is what made the page flash */
+/* the opening screen shows on every load and refresh. When the page is put away it goes up at once, so the picture the
+   phone keeps of the app (and shows first when the app is opened again) is the opening screen, not the old page */
 const sleep = ms => new Promise(r => setTimeout(r, ms));
 function endIntro() {
   const sp = $("#splash"); if (!root.classList.contains("intro")) return Promise.resolve();
   sp.classList.add("out");
-  return sleep(matchMedia("(prefers-reduced-motion: reduce)").matches ? 0 : 450).then(() => { root.classList.remove("intro"); sp.classList.remove("out");
-    if (pendingRefresh) { pendingRefresh = false; requestAnimationFrame(refreshView); } });
+  return sleep(matchMedia("(prefers-reduced-motion: reduce)").matches ? 0 : 450).then(() => { root.classList.remove("intro"); sp.classList.remove("out"); });
 }
 const fontReady = new Promise(r => { if (root.classList.contains("fok")) return r();
   const o = new MutationObserver(() => { if (root.classList.contains("fok")) { o.disconnect(); r(); } }); o.observe(root, {attributes:true, attributeFilter:["class"]}); });
 const firstVisit = !store.get("toured", false);
 const boardP = fetch("data/predictions.json?" + Date.now()).then(r => r.json());
-const introP = root.classList.contains("intro") ? Promise.all([fontReady.then(() => sleep(firstVisit ? 1200 : 750)), Promise.race([boardP.catch(() => {}), sleep(4000)])]).then(endIntro) : Promise.resolve();
+let hidAt = 0;
+function coverUp() { if (tourAt >= 0 || root.classList.contains("intro")) return; hidAt = Date.now(); const sp = $("#splash"); sp.classList.remove("out"); sp.classList.add("still"); root.classList.add("intro"); }
+function uncover() {                                                   // lift it once fresh prices are drawn underneath (at most 2.5 s)
+  if (!hidAt) return; hidAt = 0;
+  Promise.all([sleep(650), Promise.race([DATA ? liveTick() : Promise.resolve(), sleep(2500)])]).then(endIntro).then(() => $("#splash").classList.remove("still"));
+}
+document.addEventListener("visibilitychange", () => document.visibilityState === "hidden" ? coverUp() : uncover());
+addEventListener("pagehide", coverUp);
+addEventListener("pageshow", e => { if (e.persisted) { if (!hidAt) coverUp(); uncover(); } });
+let gotLive; const liveP = new Promise(r => gotLive = r);          // the opening screen stays until live prices are in, so nothing changes under the reader's eyes
+const introP = root.classList.contains("intro") ? Promise.all([fontReady.then(() => sleep(firstVisit ? 1200 : 750)), Promise.race([liveP, sleep(4000)])]).then(endIntro) : Promise.resolve();
 introP.then(() => { if (firstVisit) setTimeout(() => startTour(stockOf(route()) ? "stock" : "home"), 250);
   else if (stockOf(route()) && !store.get("toured_stock", false)) setTimeout(() => startTour("stock"), 400); });
 boardP.then(d => {
   DATA = d;
   sel = (d.stocks.find(live) || d.stocks[0] || {}).ticker;
   renderAll(); renderSkill(); stampUpdated();
-  loadQuotes().then(liveTick);
+  loadQuotes().then(liveTick).finally(gotLive);
   setInterval(() => { if (document.visibilityState === "visible" && !sheet.open) loadBoard().then(ch => { if (ch) renderAll(); }).catch(() => {}); }, 300e3);
   let rt, lw = innerWidth, lh = innerHeight; addEventListener("resize", () => { clearTimeout(rt); rt = setTimeout(() => { if (Math.abs(innerWidth - lw) > 30 || Math.abs(innerHeight - lh) > 40) { lw = innerWidth; lh = innerHeight; render(); } }, 200); });
-}).catch(() => { $("#detail").innerHTML = `<p style="padding:40px 0">Today's board could not be loaded. Refresh the page to try again.</p>`; });
+}).catch(() => { gotLive(); $("#detail").innerHTML = `<p style="padding:40px 0">Today's board could not be loaded. Refresh the page to try again.</p>`; });
 </script>
 </body>
 </html>

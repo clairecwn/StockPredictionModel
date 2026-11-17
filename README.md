@@ -603,7 +603,7 @@ This project avoids all five, so its accuracy for direction sits close to 50%, w
 ## Live board
 
 <!-- LIVE-BOARD:START -->
-_Updated 2026-11-17 17:23 UTC. Research only, not financial advice._
+_Updated 2026-11-17 18:07 UTC. Research only, not financial advice._
 
 516 stocks checked; 381 have company news in the last 15 trading days. The 40 most recent calls are listed below; the page shows all of them.
 
@@ -611,7 +611,7 @@ _Updated 2026-11-17 17:23 UTC. Research only, not financial advice._
 |---|---|---|---|---|---|---|---|---|---|
 | SO | 94.64 | price or volume shock (2026-11-13) | 1 | WAIT | 3.0% | in 11+ days (43%) | -3.9% | 0.88x | 9% |
 | AMAT | 350.25 | earnings guidance (2026-11-12) | 2 | BUY (high drop risk) | 6.0% | in 11+ days (39%) | -20.1% | 0.82x | 20% |
-| CRWV | 49.88 | price or volume shock (2026-11-12) | 2 | BUY (high drop risk) | 11.1% | in 11+ days (41%) | -25.9% | 0.81x | 0% |
+| CRWV | 49.88 | price or volume shock (2026-11-12) | 2 | BUY (high drop risk) | 11.2% | in 11+ days (41%) | -25.9% | 0.81x | 0% |
 | CSCO | 94.52 | earnings guidance (2026-11-12) | 2 | BUY | 4.3% | in 11+ days (39%) | -8.5% | 0.86x | 25% |
 | GPN | 89.82 | price or volume shock (2026-11-12) | 2 | WAIT | 5.2% | in 11+ days (43%) | -11.2% | 0.85x | 4% |
 | NBIS | 107.13 | earnings guidance (2026-11-12) | 2 | BUY (high drop risk) | 12.0% | in 11+ days (40%) | -26.8% | 0.86x | 10% |
