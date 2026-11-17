@@ -1,5 +1,5 @@
 {
- "generated_utc": "2026-11-17T02:35+00:00",
+ "generated_utc": "2026-11-17T04:10+00:00",
  "tickers": [
   "NVDA",
   "TSLA",
@@ -142,7 +142,7 @@
     "from_high_pct": -34.735,
     "above_ma200_pct": -23.36593,
     "trend": "mixed",
-    "dollar_vol_m": 40039.02628,
+    "dollar_vol_m": 40055.12319,
     "vol_20_pct": 51.34209,
     "vol_1y_pct": 38.794
    },
@@ -340,7 +340,7 @@
     "from_high_pct": -22.48306,
     "above_ma200_pct": -0.71574,
     "trend": "mixed",
-    "dollar_vol_m": 14955.52674,
+    "dollar_vol_m": 14957.95781,
     "vol_20_pct": 58.15191,
     "vol_1y_pct": 45.50685
    },
@@ -537,7 +537,7 @@
     "from_high_pct": -19.44213,
     "above_ma200_pct": -0.50389,
     "trend": "mixed",
-    "dollar_vol_m": 14879.0335,
+    "dollar_vol_m": 14879.78748,
     "vol_20_pct": 40.57153,
     "vol_1y_pct": 41.70443
    },
@@ -652,7 +652,7 @@
     "from_high_pct": -48.38455,
     "above_ma200_pct": -25.6237,
     "trend": "bearish",
-    "dollar_vol_m": 1104.77627,
+    "dollar_vol_m": 1104.8933,
     "vol_20_pct": 43.41708,
     "vol_1y_pct": 41.31069
    },
@@ -844,7 +844,7 @@
     "from_high_pct": -34.47551,
     "above_ma200_pct": -22.42732,
     "trend": "bearish",
-    "dollar_vol_m": 1846.36688,
+    "dollar_vol_m": 1846.49551,
     "vol_20_pct": 44.7518,
     "vol_1y_pct": 35.38341
    },
@@ -1041,7 +1041,7 @@
     "from_high_pct": -60.64283,
     "above_ma200_pct": -36.56526,
     "trend": "mixed",
-    "dollar_vol_m": 9880.79241,
+    "dollar_vol_m": 9881.54264,
     "vol_20_pct": 125.51484,
     "vol_1y_pct": 85.00129
    },
@@ -1232,9 +1232,9 @@
     "from_high_pct": -0.97959,
     "above_ma200_pct": 17.1071,
     "trend": "bullish",
-    "dollar_vol_m": 16520.89711,
+    "dollar_vol_m": 16521.64884,
     "vol_20_pct": 27.43288,
-    "vol_1y_pct": 24.87926
+    "vol_1y_pct": 24.87925
    },
    "closes": [
     331.09,
@@ -1423,7 +1423,7 @@
     "from_high_pct": -41.10091,
     "above_ma200_pct": -9.93013,
     "trend": "mixed",
-    "dollar_vol_m": 235.17581,
+    "dollar_vol_m": 235.20345,
     "vol_20_pct": 52.97481,
     "vol_1y_pct": 39.54629
    },
