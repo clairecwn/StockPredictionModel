@@ -17,9 +17,9 @@ document.documentElement.classList.add("intro");</script>
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-title" content="Settle">
-<meta name="apple-mobile-web-app-status-bar-style" content="default">
-<meta name="theme-color" content="#ECEFF4" media="(prefers-color-scheme: light)">
-<meta name="theme-color" content="#121927" media="(prefers-color-scheme: dark)">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="theme-color" content="#E7E5EC" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#151C2A" media="(prefers-color-scheme: dark)">
 <style>
 /* Palette: the background painting (Hilma af Klint, The Ten Largest, No. 2, 1907) is powder blue with blush and peach,
    so the interface stays in the cool part of that painting: a deep blue for the brand and the controls, a blue-green for
@@ -43,12 +43,21 @@ document.documentElement.classList.add("intro");</script>
   --buy:#7CC7B3; --buy-2:#163029; --wait:#C3A8E0; --wait-2:#2A2238; --risk:#EE9A8C; --risk-2:#3A2420; }
 
 * { box-sizing:border-box; }
-html { -webkit-text-size-adjust:100%; background:#ECEFF4; }
-:root[data-theme="dark"] { background:#121927; }
+html { -webkit-text-size-adjust:100%; background:#E7E5EC; }
+:root[data-theme="dark"] { background:#151C2A; }
 body { min-height:100dvh; }
-body { margin:0; color:var(--ink); font:16px/1.6 var(--sans); background:#B9C6D8; min-height:100vh; }
+body { margin:0; color:var(--ink); font:16px/1.6 var(--sans); background:transparent; min-height:100vh; }
 body::before { content:""; position:fixed; inset:-80px; z-index:-2; background:url("art/klint-bg.jpg") 50% 40% / cover no-repeat; filter:blur(42px) saturate(.9); }
 body::after { content:""; position:fixed; inset:0; z-index:-1; background:var(--veil); }
+/* home-screen app: the painting runs behind the clock; a light shade keeps the white clock readable */
+@media (display-mode: standalone) {
+  .top { padding-top:calc(env(safe-area-inset-top) + 10px) !important; }
+  footer { padding-bottom:calc(env(safe-area-inset-bottom) + 16px) !important; }
+  body.tray { padding-bottom:calc(env(safe-area-inset-bottom) + 84px); }
+  .plan { bottom:calc(env(safe-area-inset-bottom) + 12px) !important; }
+  html::before { content:""; position:fixed; z-index:50; left:0; right:0; top:0; height:calc(env(safe-area-inset-top) + 6px); pointer-events:none;
+    background:linear-gradient(rgba(24,35,58,.38), rgba(24,35,58,0)); }
+}
 button, input { font:inherit; color:inherit; }
 button { cursor:pointer; }
 a { color:var(--brand); text-underline-offset:3px; }
@@ -581,6 +590,7 @@ body.tray { padding-bottom:84px; }
   <h3>The call</h3>
   <p><b>Buy</b> means that in similar cases, buying right away worked out better than waiting. <b>Wait</b> means that waiting a few days usually got a better price. Use it to time a purchase you already plan, not as a reason to buy.</p>
   <p>For stocks without recent news, the call comes from how the stock moved against the market over the last week.</p>
+  <p><b>Watch</b> means the news is only a day old. The full call comes after the next close. Until then, the page shows which way the price leans and how far it may still fall.</p>
   <h3>How sure the call is</h3>
   <p><b>Slight lean:</b> close to a coin flip. <b>Mild lean:</b> a small but steady edge. <b>Clearer call:</b> the most one-sided cases, about 1 in 5 calls.</p>
   <h3>The risks</h3>
@@ -648,7 +658,7 @@ const root = document.documentElement, themeBtn = $("#themeBtn");
 const SUN = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><circle cx="12" cy="12" r="4"/><path d="M12 2.5v2.2M12 19.3v2.2M4.6 4.6l1.6 1.6M17.8 17.8l1.6 1.6M2.5 12h2.2M19.3 12h2.2M4.6 19.4l1.6-1.6M17.8 6.2l1.6-1.6"/></svg>';
 const MOON = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"><path d="M20 14.5A8 8 0 0 1 9.5 4a8 8 0 1 0 10.5 10.5z"/></svg>';
 const dark = () => root.dataset.theme === "dark";             // light unless the reader picks dark
-const syncTheme = () => { document.querySelectorAll('meta[name="theme-color"]').forEach(m => m.content = dark() ? "#121927" : "#ECEFF4"); themeBtn.innerHTML = dark() ? SUN : MOON; themeBtn.setAttribute("aria-label", dark() ? "Switch to light theme" : "Switch to dark theme"); };
+const syncTheme = () => { document.querySelectorAll('meta[name="theme-color"]').forEach(m => m.content = dark() ? "#151C2A" : "#E7E5EC"); themeBtn.innerHTML = dark() ? SUN : MOON; themeBtn.setAttribute("aria-label", dark() ? "Switch to light theme" : "Switch to dark theme"); };
 themeBtn.onclick = () => { root.dataset.theme = dark() ? "light" : "dark"; try { localStorage.setItem("theme", root.dataset.theme); } catch (e) {} syncTheme(); render(); };
 syncTheme();
 $("#howBtn").onclick = () => $("#howDlg").showModal();
@@ -690,10 +700,16 @@ const STR = {stronger:"Clearer call", mild:"Mild lean", slight:"Slight lean"};
 /* the call: from the news models when there is recent news, otherwise from the price alone */
 function callOf(s) {
   if (!s) return null;
-  if (live(s)) { const e = s.entry; return (e?.signal === "BUY" || e?.signal === "WAIT") ? {g:e.signal, odds:e.odds, str:e.strength, basis:"news"} : null; }
+  if (live(s)) { const e = s.entry, p = s.pcall;
+    if (e?.signal === "BUY" || e?.signal === "WAIT") return {g:e.signal, odds:e.odds, str:e.strength, basis:"news"};
+    return s.decision_day === 0 && p ? {g:p.signal, odds:p.odds, str:p.strength, basis:"price", when:p.when, watch:true} : null; }
   const p = s.pcall; return p && (p.signal === "BUY" || p.signal === "WAIT") ? {g:p.signal, odds:p.odds, str:p.strength, basis:"price", when:p.when} : null;
 }
-const sig = s => callOf(s)?.g || null;
+const sig = s => { const c = callOf(s); return c && !c.watch ? c.g : null; };
+const leanWord = c => c.g === "BUY" ? "Leans buy" : "Leans wait";
+const strWord = c => !c ? "" : c.watch ? leanWord(c) : STR[c.str] || "";
+/* first day after news: how far the news models expect the price to fall before its low */
+const dipW = s => live(s) && s.decision_day === 0 && s.risk?.trough_2_20?.pred < 0 ? -100 * s.risk.trough_2_20.pred : null;
 function oddsLine(c) {
   if (!c?.odds) return "";
   const n = Math.round(100 * c.odds);
@@ -713,8 +729,9 @@ const signed = x => (x >= 0 ? "up " : "down ") + fmt(Math.abs(x), 1) + "%";
 
 function stateOf(s) {
   if (live(s)) { const g = sig(s); if (g) return {cls:g, word:g === "BUY" ? "Buy" : "Wait", sub:`Day ${s.decision_day}`};
-    return s.decision_day === 0 ? {cls:"PRE", word:"Watch", sub:"First day"} : {cls:"QUIET", word:"Settled", sub:"Window over"}; }
-  const c = callOf(s); if (c) return {cls:c.g, word:c.g === "BUY" ? "Buy" : "Wait", sub:STR[c.str] || "From price"};
+    if (s.decision_day === 0) { const c = callOf(s); return {cls:"PRE", word:"Watch", sub:c ? leanWord(c) : "First day"}; }
+    return {cls:"QUIET", word:"Settled", sub:"Window over"}; }
+  const c = callOf(s); if (c && !c.watch) return {cls:c.g, word:c.g === "BUY" ? "Buy" : "Wait", sub:STR[c.str] || "From price"};
   if (s.preview) return {cls:"PRE", word:"Earnings soon", sub:`Reports ${day(s.preview.report_date)}`};
   if (s.status === "no price data") return {cls:"QUIET", word:"No data", sub:"Not loaded"};
   return {cls:"QUIET", word:"No call", sub:"Price facts below"};
@@ -752,7 +769,7 @@ function drawChart(s) {
   const full = H.c, ma = isDay ? null : C.map((_, i) => { const j = full.length - C.length + i; if (j < 49) return null; let t = 0; for (let k = j - 49; k <= j; k++) t += full[k]; return t / 50; });
   const showF = !isDay && rng !== "1Y" && rng !== "6M";
   const dip = s.entry?.expected_further_dip_pct, bad = badOf(s, "recommended"), px = nowPx(s).px;
-  const dipU = dip ?? dipQ(s), lowLvl = showF && dipU != null ? s.price * (1 - dipU / 100) : null, badLvl = showF && bad != null ? s.price * (1 + bad / 100) : null;
+  const dipU = dip ?? dipQ(s) ?? dipW(s), lowLvl = showF && dipU != null ? s.price * (1 - dipU / 100) : null, badLvl = showF && bad != null ? s.price * (1 + bad / 100) : null;
   const padR = narrow ? 44 : 56, fz = showF && (lowLvl || badLvl) ? (narrow ? 96 : 150) : 0;
   const vals = C.concat(ma ? ma.filter(v => v) : [], [lowLvl, badLvl].filter(v => v));
   if (isDay && Q.quotes[s.ticker].prev_close) vals.push(Q.quotes[s.ticker].prev_close);
@@ -792,7 +809,7 @@ function drawChart(s) {
     svg += `<text x="${zx0 + zw / 2}" y="${PH - 6}" text-anchor="middle" ${F} fill="${col("--mute")}">Next 4 weeks</text>`;
     const lv = (v, c, dash, name) => v == null ? "" : `<line x1="${x(C.length - 1)}" x2="${x1 + fz - 2}" y1="${y(v)}" y2="${y(v)}" stroke="${c}" stroke-width="2" stroke-dasharray="${dash}"/><text x="${x1 + fz - 4}" y="${y(v) - 5}" text-anchor="end" ${F} font-weight="600" fill="${c}" paint-order="stroke" stroke="${col("--sheet")}" stroke-width="3">${name} ${fmt(v, 2)}</text>`;
     const close = lowLvl != null && badLvl != null && Math.abs(y(lowLvl) - y(badLvl)) < 16;
-    svg += lv(lowLvl, col("--brand"), "6 4", dip != null ? "Expected low" : "Expected dip") + lv(badLvl, col("--risk"), "2 4", "Bad case").replace(`y="${y(badLvl) - 5}"`, close ? `y="${y(badLvl) + 14}"` : `y="${y(badLvl) - 5}"`);
+    svg += lv(lowLvl, col("--brand"), "6 4", dip != null || dipW(s) != null ? "Expected low" : "Expected dip") + lv(badLvl, col("--risk"), "2 4", "Bad case").replace(`y="${y(badLvl) - 5}"`, close ? `y="${y(badLvl) + 14}"` : `y="${y(badLvl) - 5}"`);
   }
   if (V && Math.max(...V) > 1) { const vm = Math.max(...V, 1);
     svg += V.map((v, i) => { const h = v / vm * (VH - 8), bw = Math.max(1, (x1 - x0) / C.length * 0.7), upd = i === 0 ? true : C[i] >= C[i - 1];
@@ -823,6 +840,7 @@ function whenLow(s) {
     return `<section><h2>When the low may come</h2><p>The timing of the low is forecast after company news, when stocks tend to slide for a while and then settle. ${esc(s.ticker)} has had none lately, so Settle forecasts how deep the dip may go instead, from its recent moves, swings and trading volume.</p>
       <dl class="facts"><div><dt>Expected dip ${tip("dipq")}</dt><dd>About −${fmt(dq)}%</dd><small>Near $${fmt(px * (1 - dq / 100), 2)}, if the market stays flat.</small></div>
       ${s.outlook?.bad_case_pct != null ? `<div><dt>Bad case ${tip("bad")}</dt><dd>−${fmt(-s.outlook.bad_case_pct)}%</dd><small>Only about 1 in 10 four-week stretches in its history fell further.</small></div>` : ""}</dl></section>`; }
+  if (!d && dipW(s) != null) return `<section><h2>When the low may come</h2><p>The timing of the low appears after the next close, with the full call. For now, the news models expect ${esc(s.ticker)} to fall about ${fmt(dipW(s))}% more before its low, near $${fmt(nowPx(s).px * (1 - dipW(s) / 100), 2)}.</p></section>`;
   if (!d) return `<section><h2>When the low may come</h2><p>${s.decision_day === 0 ? "This appears after the next close, together with the buy or wait call." : "Four weeks have passed since the news."}</p></section>`;
   const P = d.probs, L = ["Already passed", "In 1 to 2 days", "In 3 to 5 days", "In 6 to 10 days", "In 11+ days"], LO = [0, 1, 3, 6, 11];
   const keep = P.map((p, i) => i).filter(i => LO[i] <= d.days_left), top = keep.reduce((a, i) => P[i] > P[a] ? i : a, keep[0]);
@@ -992,7 +1010,7 @@ function wcard(s) {
   const r5 = rel5(s), c = callOf(s);
   const foot = p0 != null ? `<span>Low already in <b>${fmt(100 * p0, 0)}%</b></span>` : `<span>${live(s) && s.decision_day === 0 ? "Call after the next close" : s.preview ? `Earnings on <b>${day(s.preview.report_date)}</b>` : r5 != null ? `Week vs market <b>${r5 >= 0 ? "+" : "−"}${fmt(Math.abs(r5))}%</b>` : "Price facts inside"}</span>`;
   return `<li class="wcard"><a class="wlink" href="#${t}">
-    <span class="wtop"><span class="wt"><b>${t}</b><span>${esc(s.name || "")}</span></span><span class="wcall ${st.cls}">${st.word}${c?.str ? `<small>${STR[c.str]}</small>` : ""}</span></span>
+    <span class="wtop"><span class="wt"><b>${t}</b><span>${esc(s.name || "")}</span></span><span class="wcall ${st.cls}">${st.word}${c ? `<small>${strWord(c)}</small>` : ""}</span></span>
     <span class="wmid"><span class="wp"><b>${fmt(n.px, 2)}</b><span class="${(n.chg ?? 0) >= 0 ? "up" : "down"}">${sign(n.chg)}</span></span><span class="wsp">${spark(s)}</span></span>
     <span class="wfoot">${foot}${b != null ? `<span>Bad case <b>−${fmt(b)}%</b></span>` : ""}</span></a>
     ${editing ? `<button class="wrm" type="button" data-rmw="${t}">Remove</button>` : ""}</li>`;
@@ -1052,7 +1070,7 @@ function renderCompare() {
   else {
     const head = `<div class="cheads" style="--n:${S.length}">${S.map(s => { const st = stateOf(s), n = nowPx(s);
       return `<a class="chd ${st.cls}" href="#${esc(s.ticker)}"><b class="ct">${esc(s.ticker)}</b><span class="cn">${esc(s.name || "")}</span>
-        <span class="cw">${st.word}</span>${callOf(s)?.str ? `<span class="cs">${STR[callOf(s).str]}</span>` : ""}<span class="cp">${fmt(n.px, 2)} <span class="${(n.chg ?? 0) >= 0 ? "up" : "down"}">${sign(n.chg)}</span></span></a>`; }).join("")}</div>`;
+        <span class="cw">${st.word}</span>${callOf(s) ? `<span class="cs">${strWord(callOf(s))}</span>` : ""}<span class="cp">${fmt(n.px, 2)} <span class="${(n.chg ?? 0) >= 0 ? "up" : "down"}">${sign(n.chg)}</span></span></a>`; }).join("")}</div>`;
     /* one measure: a bar per stock on the same scale, with the best one marked */
     const metric = (label, note, f, show, better, tag, color) => {
       const v = S.map(f), ok = v.filter(x => x != null), mx = Math.max(...ok, 1e-9);
@@ -1069,7 +1087,7 @@ function renderCompare() {
       <section class="cgroup"><h2>Timing</h2>
         ${metric("Chance the low is already in", "The higher it is, the more likely a further dip stops above the low so far.", s => lowIn(s) != null ? 100 * lowIn(s) : null, v => fmt(v, 0) + "%", "high", "Highest")}
         ${metric("Expected further dip", "How much lower the price may go before its four-week low. For stocks without recent news, this comes from a separate model for quiet days.", s => s.entry?.expected_further_dip_pct ?? dipQ(s), v => "−" + fmt(v) + "%", "low", "Smallest")}
-        ${words("How sure the call is", "How often similar past cases went the way of each call.", s => { const c = callOf(s); return c?.str ? STR[c.str] + (c.basis === "price" ? ", from price" : "") : "No call yet"; })}</section>
+        ${words("How sure the call is", "How often similar past cases went the way of each call.", s => { const c = callOf(s); return c ? (c.watch ? leanWord(c) + ", until the full call" : STR[c.str] + (c.basis === "price" ? ", from price" : "")) : "No call yet"; })}</section>
       <section class="cgroup"><h2>Risk</h2>
         ${metric("Bad case over four weeks", "Only about 1 in 10 similar stocks fell further than this.", s => badPct(s), v => "−" + fmt(v) + "%", "low", "Least risk", "var(--risk)")}
         ${words("Price swings ahead", "Compared with what is normal for each stock.", s => (live(s) ? swings(s.risk?.vol_ratio_2_20?.pred) : swings(s.outlook?.vol_now_vs_usual)).replace(" for this stock", ""))}
@@ -1137,10 +1155,10 @@ function callHTML(s) {
     const e = s.entry || {}, g = sig(s), dip = e.expected_further_dip_pct, bad = badOf(s, "recommended"), d = e.days_to_low;
     const txt = g === "BUY" ? `In similar cases, buying straight away beat waiting. The price may still dip about ${fmt(dip)}% first.`
               : g === "WAIT" ? `In similar cases, waiting a few days got a better price. The price may dip about ${fmt(dip)}% before its low.`
-              : s.decision_day === 0 ? `The call comes after the next close, once the market has reacted for two days.`
+              : s.decision_day === 0 ? `The full call comes after the next close, once the market has reacted for two days.${callOf(s) ? ` Until then, ${esc(s.ticker)} ${leanWord(callOf(s)).toLowerCase()}, because large stocks that ${callOf(s).when} over a week have tended to ${callOf(s).g === "BUY" ? "do better than" : "trail"} the market the next week.` : ""}${dipW(s) != null ? ` The news models expect it to fall about ${fmt(dipW(s))}% more before its low.` : ""}`
               : `Four weeks have passed since the news, so the call has ended.`;
     return `<p>${txt}${g ? " " + oddsLine(callOf(s)) : ""}</p>
-      <dl class="keys">${dip != null ? `<div><dt>Expected low ${tip("low")}</dt><dd>−${fmt(dip)}%</dd></div>` : `<div><dt>Swings ahead ${tip("swings")}</dt><dd>${swings(s.risk?.vol_ratio_2_20?.pred).replace(" than normal", "").replace(" for this stock", "")}</dd></div>`}
+      <dl class="keys">${dip != null ? `<div><dt>Expected low ${tip("low")}</dt><dd>−${fmt(dip)}%</dd></div>` : dipW(s) != null ? `<div><dt>Expected low ${tip("low")}</dt><dd>−${fmt(dipW(s))}%</dd></div>` : `<div><dt>Swings ahead ${tip("swings")}</dt><dd>${swings(s.risk?.vol_ratio_2_20?.pred).replace(" than normal", "").replace(" for this stock", "")}</dd></div>`}
         ${bad != null ? `<div><dt>Bad case ${tip("bad")}</dt><dd>−${fmt(-bad)}%</dd></div>` : ""}
         <div><dt>Day ${tip("day")}</dt><dd>${s.decision_day} of 20</dd></div></dl>
       ${s.warning_big_drop ? `<p class="alarm"><b>Higher chance of a sharp drop.</b> In past cases like this, ${WARN.flagged} in 100 went on to one of the biggest falls, compared with ${WARN.other} in 100 for other stocks. A smaller position is safer.</p>` : ""}${ownHTML(s)}`;
@@ -1186,6 +1204,7 @@ function tileSum(s, k) {
       const keep = d.probs.map((p, i) => i).filter(i => LO[i] <= d.days_left), top = keep.reduce((a, i) => d.probs[i] > d.probs[a] ? i : a, keep[0]);
       return {t:"The low", v:`${fmt(100 * d.probs[0], 0)}% already in`, s:top === 0 ? "most likely already passed" : `most likely ${L[top]}`}; }
     if (dipQ(s) != null) return {t:"The low", v:`Dip to −${fmt(dipQ(s))}%`, s:"expected in the next four weeks"};
+    if (dipW(s) != null) return {t:"The low", v:`Dip to −${fmt(dipW(s))}%`, s:"expected before the low"};
     return {t:"The low", v:"After the next close", s:"needs two closes"}; }
   if (k === "risk") { if (live(s)) return {t:"Risk, four weeks", v:swings(s.risk?.vol_ratio_2_20?.pred).replace("Normal for this stock", "Normal") + " swings", s:volWord(s.risk?.abn_volume_2_20?.pred).replace("Normal for this stock", "normal").replace(" than normal", "").toLowerCase() + " trading"};
     return {t:"Risk, four weeks", v:s.outlook ? `About ±${fmt(s.outlook.vol_20d_pct, 0)}%` : "–", s:"typical move"}; }
@@ -1205,14 +1224,16 @@ function renderStock(s) {
   const el = $("#detail"), st = stateOf(s), n = nowPx(s), on = watch.includes(s.ticker), W = watch.map(stockOf).filter(Boolean);
   const dip = s.entry?.expected_further_dip_pct, bad = badPct(s), p0 = lowIn(s);
   const c = callOf(s), r5 = rel5(s), dq = dipQ(s);
-  const short = (c?.basis === "price" ? `${c.g === "BUY" ? "Buying now has" : "Waiting has"} usually done better after a week like this one, when it ${relWord(r5)}.`
+  const dw = dipW(s);
+  const short = (c?.watch ? `Full call after the next close. Until then it ${leanWord(c).toLowerCase()}: this week it ${relWord(r5)}.`
+             : c?.basis === "price" ? `${c.g === "BUY" ? "Buying now has" : "Waiting has"} usually done better after a week like this one, when it ${relWord(r5)}.`
              : {BUY:"Buying now has usually beaten waiting in cases like this.", WAIT:"Waiting a few days has usually got a better price in cases like this."}[sig(s)])
              || (live(s) && s.decision_day === 0 ? "The call comes after the next close, once the market has reacted for two days."
              : s.preview ? `Earnings are due on ${day(s.preview.report_date)}. The direction cannot be known in advance.`
              : live(s) ? "Four weeks have passed since the news, so the call has ended." : "No company news in the last three weeks, so there is no call.");
   const keys = [dip != null ? ["Expected low", "−" + fmt(dip) + "%"] : c?.basis === "price" && r5 != null ? ["Week vs market", (r5 >= 0 ? "+" : "−") + fmt(Math.abs(r5)) + "%"] : null,
                 bad != null ? ["Bad case", "−" + fmt(bad) + "%"] : null,
-                p0 != null ? ["Low already in", fmt(100 * p0, 0) + "%"] : dq != null ? ["Expected dip", "−" + fmt(dq) + "%"] : null].filter(Boolean);
+                p0 != null ? ["Low already in", fmt(100 * p0, 0) + "%"] : dq != null ? ["Expected dip", "−" + fmt(dq) + "%"] : dw != null ? ["Expected dip", "−" + fmt(dw) + "%"] : null].filter(Boolean);
   const forDay = sess() === "open" ? "for today" : Q?.next_open_utc ? "for " + new Date(Q.next_open_utc).toLocaleDateString("en-GB", {weekday:"short", day:"numeric", month:"short", timeZone:"America/New_York"}) : "";
   el.innerHTML = `<div class="snav"><a href="#" class="back">${CH}Watchlist</a>
     ${W.length > 1 || (W.length && !on) ? `<nav class="wstrip" id="wstrip" aria-label="Your watchlist">${W.map(x => { const sx = stateOf(x), nx = nowPx(x);
@@ -1224,7 +1245,7 @@ function renderStock(s) {
         <div class="price"><b>${fmt(n.px, 2)}</b>${n.chg != null ? `<span class="move ${n.chg >= 0 ? "up" : "down"}">${sign(n.chg)}</span>` : ""}</div></div>
       ${statusLine(s)}
       <button class="callband ${st.cls}" type="button" id="callBand" data-sheet="call">
-        <span class="cb-top"><span><span class="cb-word">${st.word}</span>${c?.str ? `<span class="cb-str">${STR[c.str]}</span>` : ""}</span><span class="cb-for">${forDay}</span></span>
+        <span class="cb-top"><span><span class="cb-word">${st.word}</span>${c ? `<span class="cb-str">${strWord(c)}</span>` : ""}</span><span class="cb-for">${forDay}</span></span>
         <span class="cb-text">${short}</span>
         ${keys.length ? `<span class="cb-keys">${keys.map(([a, b]) => `<span><small>${a}</small><b>${b}</b></span>`).join("")}</span>` : ""}
         <span class="cb-more">Why, and how sure</span></button>
@@ -1233,7 +1254,7 @@ function renderStock(s) {
       ${whyHTML(s)}
       ${quickChips(s)}
     </div><div class="sright">
-      <div class="call ${st.cls}" id="callBox"><small>${forWhen()}</small><p class="word ${st.cls}">${st.word}</p>${c?.str ? `<p class="str">${STR[c.str]}${c.basis === "price" ? ", from price" : ""} ${tip("str")}</p>` : ""}${callHTML(s)}</div>
+      <div class="call ${st.cls}" id="callBox"><small>${forWhen()}</small><p class="word ${st.cls}">${st.word}</p>${c ? `<p class="str">${c.watch ? leanWord(c) + ", until the full call" : STR[c.str] + (c.basis === "price" ? ", from price" : "")} ${tip("str")}</p>` : ""}${callHTML(s)}</div>
       <div class="tiles" id="tiles">${tilesHTML(s)}</div>
     </div></div>`;
   drawChart(s); bindTiles(); fitChart(s);

@@ -50,6 +50,16 @@ def quiet_features(f):
          "max_20": np.nanmax(r[-20:]), "min_20": np.nanmin(r[-20:]), "mkt_5": np.nansum(m[-5:]), "mkt_20": np.nansum(m[-20:]),
          "mkt_vol20": sd(m[-20:]) * np.sqrt(252), "vol_chg": np.log(np.nanmean(v[-20:]) / np.nanmean(v[-250:]))}
     return x, max(sd60, 0.003)
+def price_call(item, news_day=False):
+    """Buy-or-wait lean from price alone (experiment 16): last week's move against the market, with the past odds.
+    The rule was tested on days without news, so on a news day it is only shown as a slight lean until the full call."""
+    z = item.get("stats", {}).get("rel_5d_z")
+    if not QRULE or z is None or not np.isfinite(z):
+        return
+    B = QRULE["bins"][int(np.searchsorted(QRULE["cut"], z, side="right"))]
+    o = B["up_share"] if B["call"] == "BUY" else 1 - B["up_share"]
+    item["pcall"] = {"signal": B["call"], "when": B["when"], "odds": round(float(o), 4),
+                     "strength": "slight" if news_day else strength(o, B["holds_2021_on"]), "n": B["n"]}
 def strength(odds, holds=True):
     """How far the past record sits from a coin flip. odds = share of similar past cases where the call was right."""
     e = odds - 0.5
@@ -244,13 +254,7 @@ for w in WL["stocks"]:
                 item["outlook"]["dip_pct"] = max(0.0, -pred * sd60 * np.sqrt(20) * 100)   # expected deepest fall against the market
             except Exception as e:
                 print(f"quiet dip failed for {t}: {e}")
-        # Buy-or-wait lean from price alone (Experiment 16): last week's move against the market, with the past odds.
-        z = item.get("stats", {}).get("rel_5d_z")
-        if QRULE and z is not None and np.isfinite(z):
-            B = QRULE["bins"][int(np.searchsorted(QRULE["cut"], z, side="right"))]
-            o = B["up_share"] if B["call"] == "BUY" else 1 - B["up_share"]
-            item["pcall"] = {"signal": B["call"], "when": B["when"], "odds": round(float(o), 4),
-                             "strength": strength(o, B["holds_2021_on"]), "n": B["n"]}
+        price_call(item)
         if next_earn is not None and 0 < (next_earn - pd.Timestamp(f.index[-1]).normalize()).days <= 21:
             try:
                 cap = float(__import__("yfinance").Ticker(t).fast_info["market_cap"]) / 1e3
@@ -279,6 +283,8 @@ for w in WL["stocks"]:
     out = predict_all(f, i0, ev, sr, reg_now.get("vix"), ev.get("vix"))
     item.update({"status": "event", "event_class": cls, "event_headline": hl, **out})
     e_ = item.get("entry") or {}
+    if e_.get("signal") not in ("BUY", "WAIT"):
+        price_call(item, news_day=True)                         # first day after news: the full call needs a second close
     if ODDS and e_.get("signal") in ("BUY", "WAIT") and e_.get("expected_next5_sd") is not None:
         up = ODDS["up_share"][int(np.searchsorted(ODDS["edges"], e_["expected_next5_sd"], side="right"))]
         o = up if e_["signal"] == "BUY" else 1 - up
