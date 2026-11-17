@@ -105,6 +105,15 @@ if xs.exists() and HAVE_SENT:
     ev["sestm_x_attn"] = ev.sestm_react_01 / np.log1p(ev.get("analyst_cov", pd.Series(0, index=ev.index)).fillna(0) + 1)   # tone where few analysts watch
     SENT = SENT + [c for c in ("txt_novelty", "txt_dispersion", "lex_uncertain", "lex_litig", "lex_fear", "lex_anger", "lex_excite",
                                "ana_trough", "ana_logvr", "ana_drift5", "ana_sim") if c in ev] + ["sestm_react_01", "sestm_drift_01", "sestm_react_pre", "sestm_n", "sestm_x_car", "sestm_gap", "sestm_x_attn"]
+# experiment 12 (x09): price patterns. Passed for volatility and volume with both feature sets.
+PP_F = ["intra_01", "ovn_01", "ovn_share", "max_20", "min_20", "skew_60", "rev_5", "seas_5y"]
+xp = PROC / "price_patterns.parquet"
+if xp.exists() and os.environ.get("EXP_NO_PP") != "1":
+    x = pd.read_parquet(xp).drop_duplicates(["permno", "day0"])[["permno", "day0"] + PP_F]
+    x["permno"] = x.permno.astype(ev.permno.dtype); x["day0"] = pd.to_datetime(x.day0)
+    ev = ev.merge(x, on=["permno", "day0"], how="left")
+else:
+    PP_F = []
 # experiment 8 (x06): gaps between long-run, recent and range-based volatility. vol_ratio_2_20 is scaled by vol_pre,
 # so these tell the model how far the last 60 days sat from the stock's normal level (mean reversion).
 VOLGAP_F = ["lv_long", "lv_5", "lv_20", "lv_range"]
@@ -124,7 +133,7 @@ FEATS = ["car_0_1", "ar_day0_sd", "abn_volume_0_1", "beta", "idio_vol_pre", "vol
          "log_claim", "activist_stake", "restate_adverse", "rec_net", "ceo_tenure", "ceo_age", "ceo_own_pct", "long_tenure_ceo",
          "yz_vol_5", "yz_vol_20", "yz_vol_60", "yz_term", "range_shock_01", "n_same_day_earn", "friday", "react_per_sue", "sue_react_clash",
          "peer_car_01", "own_vs_peer", "peer_pre20", "peer_event", "peer_corr", "si_pre", "si_chg",
-         "eps_sue", "eps_surp_rel", "eps_beat", "est_dispersion", "n_analysts", "analyst_cov"] + CAL_F + LIQ_F + VOLGAP_F \
+         "eps_sue", "eps_surp_rel", "eps_beat", "est_dispersion", "n_analysts", "analyst_cov"] + CAL_F + LIQ_F + VOLGAP_F + PP_F \
         + [f"has_{c}" for c in CLASSES] + [f"cls_{c}" for c in CLASSES] + REGIME
 FEATS = [f for f in FEATS if f in ev]
 # Live mode: keep only what can be rebuilt from free live data (daily OHLCV for the stock and SPY, FRED, event class
@@ -134,7 +143,8 @@ LIVE_OK = {"car_0_1", "ar_day0_sd", "abn_volume_0_1", "beta", "idio_vol_pre", "v
            "dist_52w_high", "alpha_pre", "amihud", "log_dollar_vol", "log_mcap", "mkt_day0", "mkt_pre5", "mkt_vol20",
            "yz_vol_5", "yz_vol_20", "yz_vol_60", "yz_term", "range_shock_01", "friday", "scandal_word", "n_events",
            "vix", "epu", "hy_oas", "umcsent", "exp_earn_in_win", "days_to_exp_earn", "days_since_earn", "earn_react_hist",
-           "turn_chg", "amihud_chg", "zero_ret_60", "pre_abvol_5", "lv_long", "lv_5", "lv_20", "lv_range"} | {f"cls_{c}" for c in CLASSES} | {f"has_{c}" for c in CLASSES}
+           "turn_chg", "amihud_chg", "zero_ret_60", "pre_abvol_5", "lv_long", "lv_5", "lv_20", "lv_range",
+           "intra_01", "ovn_01", "ovn_share", "max_20", "min_20", "skew_60", "rev_5", "seas_5y"} | {f"cls_{c}" for c in CLASSES} | {f"has_{c}" for c in CLASSES}
 if LIVE:
     FEATS = [f for f in FEATS if f in LIVE_OK]
     HAVE_SENT = False

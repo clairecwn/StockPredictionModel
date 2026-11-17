@@ -1,5 +1,5 @@
 {
- "generated_utc": "2026-11-17T02:06+00:00",
+ "generated_utc": "2026-11-17T02:35+00:00",
  "tickers": [
   "NVDA",
   "TSLA",
@@ -14,101 +14,101 @@
  "corr": [
   [
    1.0,
-   0.371,
-   0.24,
-   0.26,
-   0.171,
-   0.366,
-   0.051,
+   0.378,
+   0.244,
+   0.271,
+   0.178,
+   0.373,
+   0.052,
+   0.131,
+   0.171
+  ],
+  [
+   0.378,
+   1.0,
+   0.29,
+   0.151,
+   0.176,
+   0.325,
+   0.129,
    0.13,
-   0.159
+   0.165
   ],
   [
-   0.371,
+   0.244,
+   0.29,
    1.0,
-   0.286,
-   0.147,
-   0.17,
-   0.32,
-   0.124,
-   0.128,
-   0.161
+   0.177,
+   0.155,
+   0.153,
+   0.121,
+   0.233,
+   0.26
   ],
   [
-   0.24,
-   0.286,
-   1.0,
-   0.17,
+   0.271,
    0.151,
-   0.149,
-   0.12,
-   0.232,
-   0.252
+   0.177,
+   1.0,
+   0.155,
+   0.11,
+   0.136,
+   0.263,
+   0.228
   ],
   [
-   0.26,
-   0.147,
-   0.17,
+   0.178,
+   0.176,
+   0.155,
+   0.155,
    1.0,
-   0.144,
-   0.101,
-   0.127,
-   0.259,
-   0.224
-  ],
-  [
-   0.171,
-   0.17,
-   0.151,
-   0.144,
-   1.0,
+   0.168,
    0.161,
-   0.159,
    0.23,
-   0.208
+   0.219
   ],
   [
-   0.366,
-   0.32,
-   0.149,
-   0.101,
-   0.161,
+   0.373,
+   0.325,
+   0.153,
+   0.11,
+   0.168,
    1.0,
-   0.048,
-   0.007,
-   0.067
+   0.05,
+   0.008,
+   0.076
   ],
   [
-   0.051,
-   0.124,
-   0.12,
-   0.127,
-   0.159,
-   0.048,
+   0.052,
+   0.129,
+   0.121,
+   0.136,
+   0.161,
+   0.05,
    1.0,
    0.122,
-   0.14
+   0.15
   ],
   [
+   0.131,
    0.13,
-   0.128,
-   0.232,
-   0.259,
+   0.233,
+   0.263,
    0.23,
-   0.007,
+   0.008,
    0.122,
    1.0,
-   0.387
+   0.393
   ],
   [
-   0.159,
-   0.161,
-   0.252,
-   0.224,
-   0.208,
-   0.067,
-   0.14,
-   0.387,
+   0.171,
+   0.165,
+   0.26,
+   0.228,
+   0.219,
+   0.076,
+   0.15,
+   0.393,
    1.0
   ]
  ],
@@ -132,11 +132,21 @@
   {
    "ticker": "NVDA",
    "name": "Nvidia",
-   "price": 162.85001,
-   "price_date": "2026-11-13",
-   "chg_1d_pct": -2.00975,
+   "price": 156.14,
+   "price_date": "2026-11-16",
+   "chg_1d_pct": -4.12036,
+   "stats": {
+    "beta": 1.78308,
+    "ret_3m_pct": -28.86379,
+    "mkt_3m_pct": -3.34387,
+    "from_high_pct": -34.735,
+    "above_ma200_pct": -23.36593,
+    "trend": "mixed",
+    "dollar_vol_m": 40039.02628,
+    "vol_20_pct": 51.34209,
+    "vol_1y_pct": 38.794
+   },
    "closes": [
-    210.96,
     212.17,
     213.9,
     219.34,
@@ -180,10 +190,10 @@
     168.89,
     173.73,
     166.19,
-    162.85
+    162.85,
+    156.14
    ],
    "close_dates": [
-    "2026-09-14",
     "2026-09-15",
     "2026-09-16",
     "2026-09-17",
@@ -227,10 +237,16 @@
     "2026-11-10",
     "2026-11-11",
     "2026-11-12",
-    "2026-11-13"
+    "2026-11-13",
+    "2026-11-16"
    ],
    "next_earnings": "2026-11-17",
    "headlines": [
+    {
+     "date": "2026-11-16 20:43",
+     "headline": "Nvidia earnings to test AI boom after Huang's exit",
+     "url": "https://finnhub.io/api/news?id=47452ed0648fab9f518a837a16380505a6a7ccec5f8133a4ac378d9205180444"
+    },
     {
      "date": "2026-11-16 20:03",
      "headline": "Wall Street futures muted as Nvidia earnings loom amid AI jitters",
@@ -258,92 +274,77 @@
     }
    ],
    "status": "event",
-   "event_class": "other",
-   "event_headline": "",
-   "day0": "2026-11-12",
-   "car_0_1_pct": -5.01826,
-   "decision_day": 1,
+   "event_class": "earnings_guidance",
+   "event_headline": "Nvidia earnings to test AI boom after Huang's exit",
+   "day0": "2026-11-16",
+   "car_0_1_pct": -0.58022,
+   "decision_day": 0,
    "risk": {
     "drift_1_20": {
-     "pred": 0.00604,
-     "lo80": -0.10876,
-     "hi80": 0.11176
+     "pred": 0.00213,
+     "lo80": -0.10719,
+     "hi80": 0.10099
     },
     "trough_2_20": {
-     "pred": -0.00669,
-     "lo80": -0.09049,
-     "hi80": 0.05536
+     "pred": -0.00206,
+     "lo80": -0.08596,
+     "hi80": 0.05523
     },
     "vol_ratio_2_20": {
-     "pred": 1.06803,
-     "lo80": 0.63532,
-     "hi80": 1.65622
+     "pred": 0.9212,
+     "lo80": 0.57658,
+     "hi80": 1.44171
     },
     "abn_volume_2_20": {
-     "pred": 1.54042,
-     "lo80": 1.00692,
-     "hi80": 2.22522
+     "pred": 1.34713,
+     "lo80": 0.96273,
+     "hi80": 1.88717
     }
-   },
-   "entry": {
-    "signal": "BUY",
-    "expected_next5_sd": 0.03864,
-    "expected_further_dip_pct": 5.3977,
-    "at_new_low": true,
-    "days_to_low": {
-     "labels": [
-      "already in",
-      "1-2 days",
-      "3-5 days",
-      "6-10 days",
-      "11+ days"
-     ],
-     "probs": [
-      0.16248,
-      0.1492,
-      0.14042,
-      0.17175,
-      0.37615
-     ],
-     "beats_baseline": true,
-     "days_left": 19
-    },
-    "p_low_holds": 0.20442
    },
    "sizing": {
     "tiers": {
      "safest": {
-      "weight": 0.07297,
-      "bad_case_pct": -20.51049,
+      "weight": 0.04195,
+      "bad_case_pct": -17.86312,
       "loss_budget_pct": 2.0,
       "chance": 0.05
      },
      "recommended": {
-      "weight": 0.14594,
-      "bad_case_pct": -13.87955,
+      "weight": 0.08389,
+      "bad_case_pct": -12.93688,
       "loss_budget_pct": 4.0,
       "chance": 0.1
      },
      "bold": {
-      "weight": 0.21891,
-      "bad_case_pct": -13.87955,
+      "weight": 0.12584,
+      "bad_case_pct": -12.93688,
       "loss_budget_pct": 8.0,
       "chance": 0.1
      }
     },
-    "mu_pct": 1.04547,
-    "sigma_pct": 18.92589
+    "mu_pct": 0.91031,
+    "sigma_pct": 23.29289
    },
    "warning_big_drop": false
   },
   {
    "ticker": "TSLA",
    "name": "Tesla",
-   "price": 390.22,
-   "price_date": "2026-11-13",
-   "chg_1d_pct": -1.8191,
+   "price": 379.73999,
+   "price_date": "2026-11-16",
+   "chg_1d_pct": -2.68567,
+   "stats": {
+    "beta": 2.08876,
+    "ret_3m_pct": 12.72598,
+    "mkt_3m_pct": -3.34387,
+    "from_high_pct": -22.48306,
+    "above_ma200_pct": -0.71574,
+    "trend": "mixed",
+    "dollar_vol_m": 14955.52674,
+    "vol_20_pct": 58.15191,
+    "vol_1y_pct": 45.50685
+   },
    "closes": [
-    358.97,
     356.58,
     358.08,
     366.2,
@@ -387,10 +388,10 @@
     379.78,
     390.84,
     397.45,
-    390.22
+    390.22,
+    379.74
    ],
    "close_dates": [
-    "2026-09-14",
     "2026-09-15",
     "2026-09-16",
     "2026-09-17",
@@ -434,16 +435,23 @@
     "2026-11-10",
     "2026-11-11",
     "2026-11-12",
-    "2026-11-13"
+    "2026-11-13",
+    "2026-11-16"
    ],
    "next_earnings": null,
-   "headlines": [],
+   "headlines": [
+    {
+     "date": "2026-11-16 20:00",
+     "headline": "Tesla board member Joe Gebbia: Nvidia should \u201creinstate\u201d Jensen Huang to let investigation play out",
+     "url": "https://finnhub.io/api/news?id=4e5b488f40f9c1efca5f7216f3fcce8382147a72c5e957f221d5c82363afb0f4"
+    }
+   ],
    "status": "event",
    "event_class": "other",
    "event_headline": "",
    "day0": "2026-11-04",
-   "car_0_1_pct": -8.1691,
-   "decision_day": 7,
+   "car_0_1_pct": -8.16911,
+   "decision_day": 8,
    "risk": {
     "drift_1_20": {
      "pred": -0.00426,
@@ -468,8 +476,8 @@
    },
    "entry": {
     "signal": "WAIT",
-    "expected_next5_sd": -0.05926,
-    "expected_further_dip_pct": 4.53912,
+    "expected_next5_sd": -0.05887,
+    "expected_further_dip_pct": 4.3561,
     "at_new_low": false,
     "days_to_low": {
      "labels": [
@@ -480,14 +488,14 @@
       "11+ days"
      ],
      "probs": [
-      0.74369,
-      0.00357,
-      0.02091,
-      0.08702,
-      0.14482
+      0.85107,
+      0.00202,
+      0.01266,
+      0.05901,
+      0.07524
      ],
      "beats_baseline": true,
-     "days_left": 13
+     "days_left": 12
     }
    },
    "sizing": {
@@ -519,11 +527,21 @@
   {
    "ticker": "META",
    "name": "Meta Platforms",
-   "price": 641.69,
-   "price_date": "2026-11-13",
-   "chg_1d_pct": 2.89925,
+   "price": 626.40997,
+   "price_date": "2026-11-16",
+   "chg_1d_pct": -2.38122,
+   "stats": {
+    "beta": 1.36969,
+    "ret_3m_pct": 15.30972,
+    "mkt_3m_pct": -3.34387,
+    "from_high_pct": -19.44213,
+    "above_ma200_pct": -0.50389,
+    "trend": "mixed",
+    "dollar_vol_m": 14879.0335,
+    "vol_20_pct": 40.57153,
+    "vol_1y_pct": 41.70443
+   },
    "closes": [
-    665.08,
     669.71,
     672.78,
     681.77,
@@ -567,10 +585,10 @@
     641.39,
     628.77,
     623.61,
-    641.69
+    641.69,
+    626.41
    ],
    "close_dates": [
-    "2026-09-14",
     "2026-09-15",
     "2026-09-16",
     "2026-09-17",
@@ -614,7 +632,8 @@
     "2026-11-10",
     "2026-11-11",
     "2026-11-12",
-    "2026-11-13"
+    "2026-11-13",
+    "2026-11-16"
    ],
    "next_earnings": null,
    "headlines": [],
@@ -623,11 +642,21 @@
   {
    "ticker": "BABA",
    "name": "Alibaba",
-   "price": 94.38,
-   "price_date": "2026-11-13",
-   "chg_1d_pct": 0.02119,
+   "price": 90.62,
+   "price_date": "2026-11-16",
+   "chg_1d_pct": -3.98389,
+   "stats": {
+    "beta": 0.97108,
+    "ret_3m_pct": -29.28599,
+    "mkt_3m_pct": -3.34387,
+    "from_high_pct": -48.38455,
+    "above_ma200_pct": -25.6237,
+    "trend": "bearish",
+    "dollar_vol_m": 1104.77627,
+    "vol_20_pct": 43.41708,
+    "vol_1y_pct": 41.31069
+   },
    "closes": [
-    109.23,
     109.34,
     107.27,
     108.54,
@@ -671,10 +700,10 @@
     102.72,
     101.52,
     94.36,
-    94.38
+    94.38,
+    90.62
    ],
    "close_dates": [
-    "2026-09-14",
     "2026-09-15",
     "2026-09-16",
     "2026-09-17",
@@ -718,7 +747,8 @@
     "2026-11-10",
     "2026-11-11",
     "2026-11-12",
-    "2026-11-13"
+    "2026-11-13",
+    "2026-11-16"
    ],
    "next_earnings": "2026-11-19",
    "headlines": [],
@@ -727,7 +757,7 @@
    "event_headline": "",
    "day0": "2026-11-05",
    "car_0_1_pct": 8.47591,
-   "decision_day": 6,
+   "decision_day": 7,
    "risk": {
     "drift_1_20": {
      "pred": -0.00591,
@@ -752,8 +782,8 @@
    },
    "entry": {
     "signal": "BUY",
-    "expected_next5_sd": 0.0751,
-    "expected_further_dip_pct": 4.8325,
+    "expected_next5_sd": 0.09297,
+    "expected_further_dip_pct": 5.07301,
     "at_new_low": true,
     "days_to_low": {
      "labels": [
@@ -764,16 +794,16 @@
       "11+ days"
      ],
      "probs": [
-      0.19782,
-      0.14962,
-      0.17469,
-      0.22193,
-      0.25593
+      0.17432,
+      0.1838,
+      0.17295,
+      0.23853,
+      0.2304
      ],
      "beats_baseline": true,
-     "days_left": 14
+     "days_left": 13
     },
-    "p_low_holds": 0.2247
+    "p_low_holds": 0.24237
    },
    "sizing": {
     "tiers": {
@@ -804,11 +834,21 @@
   {
    "ticker": "BA",
    "name": "Boeing",
-   "price": 171.5,
-   "price_date": "2026-11-13",
-   "chg_1d_pct": -0.02915,
+   "price": 165.22,
+   "price_date": "2026-11-16",
+   "chg_1d_pct": -3.66181,
+   "stats": {
+    "beta": 1.04278,
+    "ret_3m_pct": -25.93024,
+    "mkt_3m_pct": -3.34387,
+    "from_high_pct": -34.47551,
+    "above_ma200_pct": -22.42732,
+    "trend": "bearish",
+    "dollar_vol_m": 1846.36688,
+    "vol_20_pct": 44.7518,
+    "vol_1y_pct": 35.38341
+   },
    "closes": [
-    210.27,
     209.69,
     201.96,
     197.0,
@@ -852,10 +892,10 @@
     173.38,
     174.54,
     171.55,
-    171.5
+    171.5,
+    165.22
    ],
    "close_dates": [
-    "2026-09-14",
     "2026-09-15",
     "2026-09-16",
     "2026-09-17",
@@ -899,16 +939,23 @@
     "2026-11-10",
     "2026-11-11",
     "2026-11-12",
-    "2026-11-13"
+    "2026-11-13",
+    "2026-11-16"
    ],
    "next_earnings": null,
-   "headlines": [],
+   "headlines": [
+    {
+     "date": "2026-11-16 19:19",
+     "headline": "Boeing (BA) ULA Rocket Failure Halts Deployment Of 40 Broadband Satellites",
+     "url": "https://finnhub.io/api/news?id=511f78f5aef5c09b41b36834d23e9970cbd87e9d8826ebbc6c760a9169298966"
+    }
+   ],
    "status": "event",
    "event_class": "earnings_guidance",
    "event_headline": "",
    "day0": "2026-10-27",
    "car_0_1_pct": -12.43611,
-   "decision_day": 13,
+   "decision_day": 14,
    "risk": {
     "drift_1_20": {
      "pred": -0.00348,
@@ -933,8 +980,8 @@
    },
    "entry": {
     "signal": "WAIT",
-    "expected_next5_sd": -0.07694,
-    "expected_further_dip_pct": 2.3756,
+    "expected_next5_sd": -0.05702,
+    "expected_further_dip_pct": 2.36872,
     "at_new_low": false,
     "days_to_low": {
      "labels": [
@@ -945,14 +992,14 @@
       "11+ days"
      ],
      "probs": [
-      0.89066,
-      0.00333,
-      0.02862,
-      0.07739,
+      0.83705,
+      0.00924,
+      0.0735,
+      0.08022,
       0.0
      ],
      "beats_baseline": true,
-     "days_left": 7
+     "days_left": 6
     }
    },
    "sizing": {
@@ -984,11 +1031,21 @@
   {
    "ticker": "INTC",
    "name": "Intel",
-   "price": 59.66,
-   "price_date": "2026-11-13",
-   "chg_1d_pct": -2.51634,
+   "price": 55.47,
+   "price_date": "2026-11-16",
+   "chg_1d_pct": -7.02313,
+   "stats": {
+    "beta": 3.23265,
+    "ret_3m_pct": -42.63109,
+    "mkt_3m_pct": -3.34387,
+    "from_high_pct": -60.64283,
+    "above_ma200_pct": -36.56526,
+    "trend": "mixed",
+    "dollar_vol_m": 9880.79241,
+    "vol_20_pct": 125.51484,
+    "vol_1y_pct": 85.00129
+   },
    "closes": [
-    97.19,
     97.14,
     101.05,
     108.8,
@@ -1032,10 +1089,10 @@
     58.13,
     62.5,
     61.2,
-    59.66
+    59.66,
+    55.47
    ],
    "close_dates": [
-    "2026-09-14",
     "2026-09-15",
     "2026-09-16",
     "2026-09-17",
@@ -1079,7 +1136,8 @@
     "2026-11-10",
     "2026-11-11",
     "2026-11-12",
-    "2026-11-13"
+    "2026-11-13",
+    "2026-11-16"
    ],
    "next_earnings": null,
    "headlines": [],
@@ -1088,7 +1146,7 @@
    "event_headline": "",
    "day0": "2026-10-29",
    "car_0_1_pct": -25.7612,
-   "decision_day": 11,
+   "decision_day": 12,
    "risk": {
     "drift_1_20": {
      "pred": 0.02164,
@@ -1113,8 +1171,8 @@
    },
    "entry": {
     "signal": "BUY",
-    "expected_next5_sd": 0.0711,
-    "expected_further_dip_pct": 5.33157,
+    "expected_next5_sd": 0.07958,
+    "expected_further_dip_pct": 4.74233,
     "at_new_low": false,
     "days_to_low": {
      "labels": [
@@ -1125,14 +1183,14 @@
       "11+ days"
      ],
      "probs": [
-      0.70641,
-      0.01424,
-      0.0748,
-      0.20455,
+      0.68285,
+      0.02601,
+      0.09222,
+      0.19892,
       0.0
      ],
      "beats_baseline": true,
-     "days_left": 9
+     "days_left": 8
     }
    },
    "sizing": {
@@ -1164,11 +1222,21 @@
   {
    "ticker": "AAPL",
    "name": "Apple",
-   "price": 356.26999,
-   "price_date": "2026-11-13",
-   "chg_1d_pct": 0.39168,
+   "price": 352.78,
+   "price_date": "2026-11-16",
+   "chg_1d_pct": -0.97959,
+   "stats": {
+    "beta": 0.61342,
+    "ret_3m_pct": 13.87545,
+    "mkt_3m_pct": -3.34387,
+    "from_high_pct": -0.97959,
+    "above_ma200_pct": 17.1071,
+    "trend": "bullish",
+    "dollar_vol_m": 16520.89711,
+    "vol_20_pct": 27.43288,
+    "vol_1y_pct": 24.87926
+   },
    "closes": [
-    332.83,
     331.09,
     332.16,
     336.74,
@@ -1212,10 +1280,10 @@
     348.25,
     355.36,
     354.88,
-    356.27
+    356.27,
+    352.78
    ],
    "close_dates": [
-    "2026-09-14",
     "2026-09-15",
     "2026-09-16",
     "2026-09-17",
@@ -1259,7 +1327,8 @@
     "2026-11-10",
     "2026-11-11",
     "2026-11-12",
-    "2026-11-13"
+    "2026-11-13",
+    "2026-11-16"
    ],
    "next_earnings": null,
    "headlines": [],
@@ -1268,7 +1337,7 @@
    "event_headline": "",
    "day0": "2026-11-02",
    "car_0_1_pct": -3.61858,
-   "decision_day": 9,
+   "decision_day": 10,
    "risk": {
     "drift_1_20": {
      "pred": -0.00483,
@@ -1293,8 +1362,8 @@
    },
    "entry": {
     "signal": "WAIT",
-    "expected_next5_sd": -0.12622,
-    "expected_further_dip_pct": 2.63307,
+    "expected_next5_sd": -0.1231,
+    "expected_further_dip_pct": 2.44479,
     "at_new_low": false,
     "days_to_low": {
      "labels": [
@@ -1305,14 +1374,14 @@
       "11+ days"
      ],
      "probs": [
-      0.94029,
-      0.00114,
-      0.00516,
-      0.02656,
-      0.02685
+      0.96372,
+      0.00119,
+      0.0057,
+      0.0294,
+      0.0
      ],
      "beats_baseline": true,
-     "days_left": 11
+     "days_left": 10
     }
    },
    "sizing": {
@@ -1344,11 +1413,21 @@
   {
    "ticker": "GRAB",
    "name": "Grab Holdings",
-   "price": 3.24,
-   "price_date": "2026-11-13",
-   "chg_1d_pct": 0.0,
+   "price": 3.21,
+   "price_date": "2026-11-16",
+   "chg_1d_pct": -0.92593,
+   "stats": {
+    "beta": 1.07722,
+    "ret_3m_pct": -6.95652,
+    "mkt_3m_pct": -3.34387,
+    "from_high_pct": -41.10091,
+    "above_ma200_pct": -9.93013,
+    "trend": "mixed",
+    "dollar_vol_m": 235.17581,
+    "vol_20_pct": 52.97481,
+    "vol_1y_pct": 39.54629
+   },
    "closes": [
-    3.02,
     2.91,
     2.87,
     2.81,
@@ -1392,10 +1471,10 @@
     3.35,
     3.33,
     3.24,
-    3.24
+    3.24,
+    3.21
    ],
    "close_dates": [
-    "2026-09-14",
     "2026-09-15",
     "2026-09-16",
     "2026-09-17",
@@ -1439,7 +1518,8 @@
     "2026-11-10",
     "2026-11-11",
     "2026-11-12",
-    "2026-11-13"
+    "2026-11-13",
+    "2026-11-16"
    ],
    "next_earnings": null,
    "headlines": [],
@@ -1448,7 +1528,7 @@
    "event_headline": "",
    "day0": "2026-11-05",
    "car_0_1_pct": 7.42513,
-   "decision_day": 6,
+   "decision_day": 7,
    "risk": {
     "drift_1_20": {
      "pred": -0.00862,
@@ -1473,9 +1553,9 @@
    },
    "entry": {
     "signal": "WAIT",
-    "expected_next5_sd": -0.00619,
-    "expected_further_dip_pct": 4.22395,
-    "at_new_low": true,
+    "expected_next5_sd": -0.01082,
+    "expected_further_dip_pct": 4.14851,
+    "at_new_low": false,
     "days_to_low": {
      "labels": [
       "already in",
@@ -1485,16 +1565,15 @@
       "11+ days"
      ],
      "probs": [
-      0.19377,
-      0.12487,
-      0.17048,
-      0.23329,
-      0.27759
+      0.38295,
+      0.04667,
+      0.12272,
+      0.2159,
+      0.23175
      ],
      "beats_baseline": true,
-     "days_left": 14
-    },
-    "p_low_holds": 0.16152
+     "days_left": 13
+    }
    },
    "sizing": {
     "tiers": {
@@ -1525,11 +1604,21 @@
   {
    "ticker": "SE",
    "name": "Sea Ltd",
-   "price": 75.36,
-   "price_date": "2026-11-13",
-   "chg_1d_pct": 1.12722,
+   "price": 71.63,
+   "price_date": "2026-11-16",
+   "chg_1d_pct": -4.94958,
+   "stats": {
+    "beta": 1.28097,
+    "ret_3m_pct": -38.3881,
+    "mkt_3m_pct": -3.34387,
+    "from_high_pct": -51.35814,
+    "above_ma200_pct": -25.38344,
+    "trend": "bearish",
+    "dollar_vol_m": 706.33153,
+    "vol_20_pct": 50.87997,
+    "vol_1y_pct": 50.98739
+   },
    "closes": [
-    108.68,
     102.65,
     103.5,
     101.27,
@@ -1573,10 +1662,10 @@
     76.8,
     73.99,
     74.52,
-    75.36
+    75.36,
+    71.63
    ],
    "close_dates": [
-    "2026-09-14",
     "2026-09-15",
     "2026-09-16",
     "2026-09-17",
@@ -1620,7 +1709,8 @@
     "2026-11-10",
     "2026-11-11",
     "2026-11-12",
-    "2026-11-13"
+    "2026-11-13",
+    "2026-11-16"
    ],
    "next_earnings": null,
    "headlines": [],
@@ -1629,7 +1719,7 @@
    "event_headline": "",
    "day0": "2026-11-10",
    "car_0_1_pct": -6.33966,
-   "decision_day": 3,
+   "decision_day": 4,
    "risk": {
     "drift_1_20": {
      "pred": 0.00704,
@@ -1654,9 +1744,9 @@
    },
    "entry": {
     "signal": "BUY",
-    "expected_next5_sd": 0.04482,
-    "expected_further_dip_pct": 5.40978,
-    "at_new_low": false,
+    "expected_next5_sd": 0.04665,
+    "expected_further_dip_pct": 5.20611,
+    "at_new_low": true,
     "days_to_low": {
      "labels": [
       "already in",
@@ -1666,15 +1756,16 @@
       "11+ days"
      ],
      "probs": [
-      0.34997,
-      0.03764,
-      0.08809,
-      0.16742,
-      0.35688
+      0.16196,
+      0.14139,
+      0.15735,
+      0.20092,
+      0.33838
      ],
      "beats_baseline": true,
-     "days_left": 17
-    }
+     "days_left": 16
+    },
+    "p_low_holds": 0.23231
    },
    "sizing": {
     "tiers": {
@@ -1697,7 +1788,7 @@
       "chance": 0.1
      }
     },
-    "mu_pct": 0.98337,
+    "mu_pct": 0.98336,
     "sigma_pct": 19.9365
    },
    "warning_big_drop": true

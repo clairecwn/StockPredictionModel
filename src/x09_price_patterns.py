@@ -3,6 +3,7 @@ monthly paired t-test of rank correlations, Holm-adjusted across all target x gr
 Run: python src/x09_price_patterns.py   (quick: EXP_TEST=1)     Output: results/experiments/x09_price_patterns.md
 """
 import os, warnings; warnings.filterwarnings("ignore")
+os.environ["EXP_NO_PP"] = "1"           # base = the model before experiment 12
 import numpy as np, pandas as pd
 from scipy.stats import spearmanr, norm
 from config import PROC, ROOT, LIVE

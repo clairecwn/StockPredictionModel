@@ -15,7 +15,7 @@ KMAX = 15
 H_RET = {"drift_1_5": 4, "drift_1_20": 19, "drift_1_60": 59, "trough_2_20": 19}
 
 # ---------------------------------------------------------------- data
-def alpaca_bars(symbols, years=3):
+def alpaca_bars(symbols, years=6):
     """Daily split/dividend-adjusted bars from Alpaca's free market data (consolidated SIP feed, which the free plan
     allows once data is 15+ minutes old). Needs ALPACA_KEY_ID and ALPACA_SECRET. Returns {symbol: DataFrame}."""
     import requests
@@ -45,7 +45,7 @@ def alpaca_bars(symbols, years=3):
         out[sym] = d.rename(columns={"o": "Open", "h": "High", "l": "Low", "c": "Close", "v": "Volume"})[["Open", "High", "Low", "Close", "Volume"]]
     return out
 
-def yahoo_frames(tickers, period="3y"):
+def yahoo_frames(tickers, period="6y"):
     """Daily OHLCV for each ticker plus SPY as the market, from Yahoo Finance (split/dividend adjusted)."""
     import yfinance as yf
     d = yf.download(list(tickers) + ["SPY"], period=period, auto_adjust=True, progress=False, group_by="ticker", threads=True)
@@ -149,6 +149,22 @@ def event_features(f, i0, cls="other", headline="", log_mcap=np.nan, regime=None
     x["yz_term"] = np.log(max(x["yz_vol_5"], 0.01) / max(x["yz_vol_60"], 0.01)) if np.isfinite(x["yz_vol_5"]) else np.nan
     pk1 = pk.iloc[i0 + 1] if d1 else pk.iloc[i0]
     x["range_shock_01"] = np.log(max(np.sqrt((pk.iloc[i0] + pk1) / 2 * 252), 0.01) / max(x["yz_vol_20"], 0.02))
+    # experiment 12: price patterns (same definitions as s02i)
+    pre20, pre60 = r_all[i0 - 20:i0], r_all[i0 - 60:i0]
+    x["max_20"], x["min_20"] = float(np.nanmax(pre20)), float(np.nanmin(pre20))
+    sd60 = np.nanstd(pre60); x["skew_60"] = float(np.nanmean(((pre60 - np.nanmean(pre60)) / sd60) ** 3)) if sd60 > 0 else np.nan
+    x["rev_5"] = float(np.nansum(np.log1p(np.clip(r_all[i0 - 5:i0], -0.99, None))))
+    dd = [i0] + ([i0 + 1] if d1 else [])
+    o_, c_ = f.o.values, f.c.values
+    intra = float(np.sum([np.log(c_[j] / o_[j]) for j in dd if o_[j] > 0 and c_[j] > 0]))
+    tot = float(np.sum(np.log1p(np.clip(r_all[dd], -0.99, None))))
+    x["intra_01"], x["ovn_01"] = float(np.clip(intra, -1, 1)), float(np.clip(tot - intra, -1, 1))
+    den = abs(tot - intra) + abs(intra); x["ovn_share"] = (tot - intra) / den if den > 0 else np.nan
+    lr = pd.Series(np.log1p(np.clip(r_all[:i0], -0.99, None)), index=f.index[:i0])
+    mon = lr.groupby([lr.index.year, lr.index.month]).sum()
+    yr, mo = f.index[i0].year, f.index[i0].month
+    past = [mon.get((yr - L, mo)) for L in range(1, 6)]; past = [p_ for p_ in past if p_ is not None]
+    x["seas_5y"] = float(np.mean(past)) if len(past) >= 2 else np.nan
     lgv = lambda a, b: float(np.log(max(a, 1e-4) / max(b, 1e-4))) if np.isfinite(a) and np.isfinite(b) else np.nan
     x["lv_long"], x["lv_5"] = lgv(x["idio_vol_pre"], x["vol_pre"]), lgv(x["yz_vol_5"], x["vol_pre"])
     x["lv_20"], x["lv_range"] = lgv(x["yz_vol_20"], x["vol_pre"]), lgv(x["yz_vol_60"], x["vol_pre"])

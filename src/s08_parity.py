@@ -22,6 +22,10 @@ if cf.exists():
     ev = ev.merge(c, on=["permno", "day0"], how="left")
 import os
 LIQ = ["turn_chg", "amihud_chg", "zero_ret_60", "pre_abvol_5"]
+PPC = ["max_20", "min_20", "skew_60", "rev_5", "intra_01", "ovn_01", "seas_5y"]
+pf = PROC / "price_patterns.parquet"
+if pf.exists():
+    ev = ev.merge(pd.read_parquet(pf, columns=["permno", "day0"] + PPC).drop_duplicates(["permno", "day0"]), on=["permno", "day0"], how="left")
 lf = PROC / "spillover_features.parquet"
 if lf.exists():
     l = pd.read_parquet(lf, columns=["permno", "day0"] + LIQ).drop_duplicates(["permno", "day0"])
@@ -47,6 +51,8 @@ if cf.exists():
     COMPARE = COMPARE + CAL
 if lf.exists():
     COMPARE = COMPARE + LIQ
+if pf.exists():
+    COMPARE = COMPARE + PPC
 rows = []
 for _, e in ev.iterrows():
     f = frames.get(e.permno)

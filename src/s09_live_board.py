@@ -113,6 +113,20 @@ for w in WL["stocks"]:
         board.append(item); continue
     item["price"] = float(f.c.iloc[-1]); item["price_date"] = str(f.index[-1].date())
     item["chg_1d_pct"] = 100 * float(f.ret.iloc[-1])
+    # everyday stock facts shown on the page (from the same daily prices; not model outputs)
+    try:
+        c, r, m = f.c.values, f.ret.values, f.mkt.values
+        ok = np.isfinite(r[-250:]) & np.isfinite(m[-250:])
+        beta = float(np.polyfit(m[-250:][ok], r[-250:][ok], 1)[0])
+        ma50, ma200 = float(np.mean(c[-50:])), float(np.mean(c[-200:]))
+        r63, m63 = float(c[-1] / c[-64] - 1), float(np.prod(1 + np.nan_to_num(m[-63:])) - 1)
+        trend = "bullish" if (c[-1] > ma50 > ma200 and r63 > m63) else "bearish" if (c[-1] < ma50 < ma200 and r63 < m63) else "mixed"
+        item["stats"] = {"beta": beta, "ret_3m_pct": 100 * r63, "mkt_3m_pct": 100 * m63, "from_high_pct": 100 * float(c[-1] / np.max(c[-252:]) - 1),
+                         "above_ma200_pct": 100 * float(c[-1] / ma200 - 1), "trend": trend,
+                         "dollar_vol_m": float(np.nanmean(c[-20:] * f.vol.values[-20:])) / 1e6,
+                         "vol_20_pct": 100 * float(np.nanstd(r[-20:]) * np.sqrt(252)), "vol_1y_pct": 100 * float(np.nanstd(r[-250:]) * np.sqrt(252))}
+    except Exception as e:
+        print(f"stats failed for {t}: {e}")
     tail = f.c.iloc[-45:]                                       # recent closes for the price chart on the page
     item["closes"] = [round(float(x), 2) for x in tail]; item["close_dates"] = [str(d.date()) for d in tail.index]
     news = finnhub(t)

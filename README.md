@@ -201,7 +201,7 @@ Here $\hat{\sigma}_i$ is the stock's daily idiosyncratic volatility before the e
 
 ### 3. Features
 
-The live models use 61 features, and the research models add the peer, positioning and text groups. The features fall into six groups:
+The live models use 69 features, and the research models add the peer, positioning and text groups. The features fall into six groups:
 
 - **Reaction:** $CAR_{0,1}$, the day-0 move in standard deviations, and abnormal volume on days 0 and 1.
 - **Stock state:** momentum over 20, 60 and 250 days, distance from the 52-week high, beta, idiosyncratic volatility, Amihud illiquidity, dollar volume and size, plus how turnover and illiquidity changed in the month before the news.
@@ -499,6 +499,12 @@ Da, Engelberg and Gao (2011) found that a jump in retail attention predicts a sh
 
 None of the forecasts improved after the Holm correction, with the research or the live features. The closest was the deepest-drop forecast (monthly t = 2.0, Holm p = 0.15). One pattern is worth noting: the attention spike lines up with the part of the 60-day drift the model gets wrong (monthly t = 3.3 with the live features, Holm p = 0.02; t = 2.9 with the research features, Holm p = 0.06), so stocks that drew unusual attention around the news did slightly better over the next three months than predicted. That fits the attention literature, but the effect is small, the ablation did not confirm it, and the data covers only nine years, so it was not added to the models.
 
+### Experiment: price patterns
+
+Four well-documented price patterns were tested, all built from daily prices that free live data can supply: how much of the news reaction came overnight rather than during trading (Lou, Polk and Skouras, 2019), lottery-like behaviour measured by the largest and smallest daily returns of the past month and the skewness of returns (Bali, Cakici and Whitelaw, 2011), short-term reversal over the past week (Jegadeesh, 1990), and return seasonality in the same calendar month of earlier years (Heston and Sadka, 2008).
+
+None of them predicted direction. Together, though, they improved the volatility forecast (monthly t = 9.1 with the live features, better in 79% of test months) and the volume forecast (t = 6.3), and both gains held from 2021 on. Most of the volatility gain came from the lottery measures: a stock that recently had one very large daily move tends to stay jumpy after news, which the 60-day volatility average understates. All four groups were added to the research and live models.
+
 ### Why the headline numbers are modest
 
 Published stock models often report directional accuracy of 90% or more. In almost every case, figures like this come from one of five problems:
@@ -514,19 +520,19 @@ This project avoids all five, so its accuracy for direction sits close to 50%, w
 ## Live board
 
 <!-- LIVE-BOARD:START -->
-_Updated 2026-11-17 02:06 UTC. Research only, not financial advice._
+_Updated 2026-11-17 02:35 UTC. Research only, not financial advice._
 
 | Stock | Price | Event (day 0) | Day | Signal | Expected further dip | Most likely timing of the 20-day low | 1-in-10 worst point (20 days) | Risk vs normal | Balanced size |
 |---|---|---|---|---|---|---|---|---|---|
-| NVDA | 162.85 | price or volume shock (2026-11-12) | 1 | BUY | 5.4% | in 11+ days (38%) | -13.9% | 1.07x | 15% |
-| TSLA | 390.22 | price or volume shock (2026-11-04) | 7 | WAIT (high drop risk) | 4.5% | already passed (74%) | -11.2% | 0.92x | 25% |
-| META | 641.69 | quiet: no event in the last 15 trading days | | | | | | | |
-| BABA | 94.38 | price or volume shock (2026-11-05) | 6 | BUY | 4.8% | in 11+ days (26%) | -15.7% | 1.11x | 5% |
-| BA | 171.50 | earnings guidance (2026-10-27) | 13 | WAIT | 2.4% | already passed (89%) | -9.2% | 0.93x | 25% |
-| INTC | 59.66 | earnings guidance (2026-10-29) | 11 | BUY (high drop risk) | 5.3% | already passed (71%) | -20.9% | 0.88x | 19% |
-| AAPL | 356.27 | earnings guidance (2026-11-02) | 9 | WAIT | 2.6% | already passed (94%) | -6.2% | 0.96x | 11% |
-| GRAB | 3.24 | price or volume shock (2026-11-05) | 6 | WAIT (high drop risk) | 4.2% | in 11+ days (28%) | -15.5% | 0.88x | 5% |
-| SE | 75.36 | earnings guidance (2026-11-10) | 3 | BUY (high drop risk) | 5.4% | in 11+ days (36%) | -13.8% | 1.20x | 12% |
+| NVDA | 156.14 | earnings guidance (2026-11-16) | 0 |  |  |  | -12.9% | 0.92x | 8% |
+| TSLA | 379.74 | price or volume shock (2026-11-04) | 8 | WAIT (high drop risk) | 4.4% | already passed (85%) | -11.2% | 0.92x | 25% |
+| META | 626.41 | quiet: no event in the last 15 trading days | | | | | | | |
+| BABA | 90.62 | price or volume shock (2026-11-05) | 7 | BUY | 5.1% | in 6-10 days (24%) | -15.7% | 1.11x | 5% |
+| BA | 165.22 | earnings guidance (2026-10-27) | 14 | WAIT | 2.4% | already passed (84%) | -9.2% | 0.93x | 25% |
+| INTC | 55.47 | earnings guidance (2026-10-29) | 12 | BUY (high drop risk) | 4.7% | already passed (68%) | -20.9% | 0.88x | 19% |
+| AAPL | 352.78 | earnings guidance (2026-11-02) | 10 | WAIT | 2.4% | already passed (96%) | -6.2% | 0.96x | 11% |
+| GRAB | 3.21 | price or volume shock (2026-11-05) | 7 | WAIT (high drop risk) | 4.1% | already passed (38%) | -15.5% | 0.88x | 5% |
+| SE | 71.63 | earnings guidance (2026-11-10) | 4 | BUY (high drop risk) | 5.2% | in 11+ days (34%) | -13.8% | 1.20x | 12% |
 <!-- LIVE-BOARD:END -->
 
 The board runs on GitHub Actions twice per trading day, once after the US close and once in the morning to refresh headlines. Each run follows six steps:
@@ -534,7 +540,7 @@ The board runs on GitHub Actions twice per trading day, once after the US close 
 1. Download daily prices for the watchlist and SPY from Yahoo Finance. If Yahoo drops a ticker, the board retries it, then falls back to Alpaca's free consolidated daily bars, and if both fail it shows the last good reading with its date. An unfinished intraday bar is never used, because the models were trained on closing values.
 2. Look for an event in the last 15 trading days. An earnings date from the calendar comes first, then a classified headline that names the company, then an unexplained price or volume shock. Events are dated to the announcement day, which is the same convention as in training.
 3. Rebuild the features with the same code that was checked against the training data. Over 1,500 historical events, the live code matches the training values with rank correlations of 0.96 to 1.00.
-4. Predict risk, entry timing, the chances for when the 20-day low will come, and sizing with the live models. These models are retrained on the 61 features that free data can supply.
+4. Predict risk, entry timing, the chances for when the 20-day low will come, and sizing with the live models. These models are retrained on the 69 features that free data can supply.
 5. Publish `docs/data/predictions.json`, which drives the page, and update the table above.
 6. Log each prediction in `docs/data/forward_log.csv` and score it once its 20-day outcome is known. This gives a forward test that cannot be affected by look-ahead.
 
@@ -599,6 +605,7 @@ A full run takes about 6 to 8 hours on a laptop. Most of that time is spent in t
 
 ## References
 
+- Bali, T., Cakici, N. and Whitelaw, R. (2011). Maxing out: stocks as lotteries and the cross-section of expected returns. *Journal of Financial Economics*.
 - Bernard, V. and Thomas, J. (1989). Post-earnings-announcement drift: delayed price response or risk premium? *Journal of Accounting Research*.
 - Cohen, L., Malloy, C. and Pomorski, L. (2012). Decoding inside information. *Journal of Finance*.
 - Cohen, L. and Frazzini, A. (2008). Economic links and predictable returns. *Journal of Finance*.
