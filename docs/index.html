@@ -104,7 +104,7 @@ h2 { margin:0 0 8px; font-size:19px; font-weight:700; letter-spacing:-.01em; }
 .tab[aria-pressed="true"] span { color:var(--on-brand); opacity:.78; }
 .dot { width:8px; height:8px; border-radius:50%; background:#AEB8C8; flex:none; }
 .dot.BUY { background:var(--buy); } .dot.WAIT { background:var(--wait); } .dot.PRE { background:var(--brand); }
-.tab[aria-pressed="true"] .dot { box-shadow:0 0 0 2px var(--on-brand); }
+.tab[aria-pressed="true"] .dot { box-shadow:0 0 0 2px var(--on-brand); } .tab[aria-pressed="true"] .dot.PRE { background:var(--on-brand); box-shadow:none; }
 
 .sheet { max-width:1180px; margin:0 auto; background:var(--sheet); border-radius:22px; padding:30px 34px 44px; }
 .hero { display:grid; grid-template-columns:minmax(0,1.05fr) minmax(0,1fr); gap:28px 56px; align-items:start; }
@@ -489,7 +489,7 @@ body.on-stock .plan { bottom:16px; }
 .ws { flex:none; display:flex; align-items:center; gap:7px; padding:6px 12px; border-radius:999px; background:var(--soft); color:var(--ink); text-decoration:none; font-size:14px; }
 .ws b { font-weight:700; } .ws span { font-weight:600; font-size:13px; }
 .ws.on { background:var(--brand); color:var(--on-brand); } .ws.on span { color:var(--on-brand); opacity:.85; }
-.ws.on .dot { box-shadow:0 0 0 2px var(--on-brand); }
+.ws.on .dot { box-shadow:0 0 0 2px var(--on-brand); } .ws.on .dot.PRE { background:var(--on-brand); box-shadow:none; }
 .watchbtn { margin-left:auto; flex:none; display:inline-flex; align-items:center; gap:6px; border:1px solid var(--line); background:var(--raise); color:var(--ink); border-radius:999px; padding:7px 14px 7px 11px; font-weight:600; font-size:14px; }
 .watchbtn.on { color:var(--brand); border-color:var(--brand-2); background:var(--brand-2); }
 .shead { display:flex; align-items:baseline; justify-content:flex-start; gap:6px 22px; flex-wrap:wrap; }
@@ -1322,7 +1322,7 @@ function renderCompare() {
     body = head + `<div class="cgroups">
       <section class="cgroup"><h2>Timing</h2>
         ${metric("Chance the low is already in", "The higher it is, the more likely a further dip stops above the low so far.", s => lowIn(s) != null ? 100 * lowIn(s) : null, v => fmt(v, 0) + "%", "high", "Highest")}
-        ${metric("Expected further dip", "How much lower the price may go before its four-week low. For stocks without recent news, this comes from a separate model for quiet days.", s => belowNow(s, s.entry?.expected_further_dip_pct ?? dipQ(s) ?? dipW(s)), v => "−" + fmt(v) + "%", "low", "Smallest")}
+        ${metric("Expected further dip", "How much lower the price may go before its four-week low. For stocks without recent news, this comes from a separate model for quiet days.", s => belowNow(s, s.entry?.expected_further_dip_pct ?? dipQ(s) ?? dipW(s)), v => v < 0.05 ? "Reached" : "−" + fmt(v) + "%", "low", "Smallest")}
         ${words("How sure the call is", "How often similar past cases went the way of each call.", s => { const c = callOf(s); return c ? (c.watch ? leanWord(c) + ", until the full call" : STR[c.str] + (c.basis === "price" ? ", from price" : "")) : "No call yet"; })}</section>
       <section class="cgroup"><h2>Risk</h2>
         ${metric("Bad case over four weeks", "Only about 1 in 10 similar stocks fell further than this.", s => badPct(s), v => "−" + fmt(v) + "%", "low", "Least risk", "color-mix(in srgb, var(--brand) 45%, var(--sheet))")}
@@ -1420,7 +1420,7 @@ function whyBars(s) {
    the day as progress through the 20 trading days the call covers, an earnings move against the large move */
 function keyBars(s, box) {
   const d0 = s.entry?.expected_further_dip_pct ?? dipW(s) ?? dipQ(s), dip = belowNow(s, d0);
-  const bad = badPct(s) ?? (s.outlook ? belowNow(s, s.outlook.bad_case_pct) : null), top = Math.max(dip || 0, bad || 0, 0.1);
+  const bad = badPct(s) ?? (s.outlook ? belowNow(s, -s.outlook.bad_case_pct) : null), top = Math.max(dip || 0, bad || 0, 0.1);
   const pv = s.preview, val = {
     "Expected low": dip != null ? [dip / top, "dip"] : null, "Expected dip": dip != null ? [dip / top, "dip"] : null,
     "Bad case": bad != null ? [bad / top, "bad"] : null, "Day": s.decision_day != null ? [s.decision_day / 20, "day"] : null,
@@ -1515,7 +1515,7 @@ function renderStock(s) {
              : s.preview ? `Earnings are due on ${day(s.preview.report_date)}. The direction cannot be known in advance.`
              : live(s) ? "Four weeks have passed since the news, so the call has ended." : "No company news in the last three weeks, so there is no call.");
   const keys = [dip != null ? ["Expected low", fromNow(s, dip)] : c?.basis === "price" && r5 != null ? ["Week vs market", (r5 >= 0 ? "+" : "−") + fmt(Math.abs(r5)) + "%"] : null,
-                bad != null ? ["Bad case", fromNow(s, bad, "Passed")] : null,
+                bad != null ? ["Bad case", bad >= 0.05 ? "−" + fmt(bad) + "%" : "Passed"] : null,          // bad is already measured from the price now
                 p0 != null ? ["Low already in", fmt(100 * p0, 0) + "%"] : dq != null ? ["Expected dip", fromNow(s, dq)] : dw != null ? ["Expected dip", fromNow(s, dw)] : null].filter(Boolean);
   const stamp = forecastStamp(s);
   const forDay = sess() === "open" ? "for today" : "for " + new Date(market().nextOpen).toLocaleDateString("en-GB", {weekday:"short", day:"numeric", month:"short", timeZone:"America/New_York"});
@@ -1790,12 +1790,18 @@ const fontReady = new Promise(r => { if (root.classList.contains("fok")) return 
 const firstVisit = !store.get("toured", false);
 const boardP = fetch("data/predictions.json?" + Date.now()).then(r => r.json());
 let hidAt = 0;
-function coverUp() { if (tourAt >= 0 || root.classList.contains("intro")) return; hidAt = Date.now(); const sp = $("#splash"); sp.classList.remove("out"); sp.classList.add("still"); root.classList.add("intro"); }
+function coverUp() { if (tourAt >= 0 || root.classList.contains("intro")) return; hidAt = Date.now(); const sp = $("#splash"); sp.classList.remove("out"); sp.classList.add("still"); root.classList.add("intro"); void sp.offsetHeight; }
 function uncover() {                                                   // lift it once fresh prices are drawn underneath (at most 2.5 s)
   if (!hidAt) return; hidAt = 0;
   Promise.all([sleep(650), Promise.race([DATA ? liveTick() : Promise.resolve(), sleep(2500)])]).then(endIntro).then(() => $("#splash").classList.remove("still"));
 }
 document.addEventListener("visibilitychange", () => document.visibilityState === "hidden" ? coverUp() : uncover());
+/* on phones the app loses focus a moment before it is hidden, and the phone takes its picture in between, so cover up
+   then (the earliest signal there is). Desktops lose focus all the time to other windows, so this is phones only */
+const phone = matchMedia("(pointer: coarse)").matches;
+addEventListener("blur", () => { if (phone) coverUp(); });
+addEventListener("focus", () => { if (phone && document.visibilityState === "visible") uncover(); });
+document.addEventListener("freeze", coverUp);
 addEventListener("pagehide", coverUp);
 addEventListener("pageshow", e => { if (e.persisted) { if (!hidAt) coverUp(); uncover(); } });
 let gotLive; const liveP = new Promise(r => gotLive = r);          // the opening screen stays until live prices are in, so nothing changes under the reader's eyes
