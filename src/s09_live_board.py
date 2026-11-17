@@ -168,6 +168,7 @@ for w in WL["stocks"]:
                          "atr_pct": 100 * float(np.mean(tr) / f.c.iloc[-1])}
     except Exception as e:
         print(f"quote failed for {t}: {e}")
+    item["spark"] = [round(float(x), 2) for x in f.c.iloc[-60::2]]   # small price line for the watchlist (every other day, 3 months)
     tail = f.c.iloc[-45:]                                       # recent closes for the price chart on the page
     item["closes"] = [round(float(x), 2) for x in tail]; item["close_dates"] = [str(d.date()) for d in tail.index]
     news = finnhub(t)

@@ -570,7 +570,7 @@ This project avoids all five, so its accuracy for direction sits close to 50%, w
 ## Live board
 
 <!-- LIVE-BOARD:START -->
-_Updated 2026-11-17 06:17 UTC. Research only, not financial advice._
+_Updated 2026-11-17 06:58 UTC. Research only, not financial advice._
 
 516 stocks checked; 381 have company news in the last 15 trading days. The 40 most recent calls are listed below; the page shows all of them.
 

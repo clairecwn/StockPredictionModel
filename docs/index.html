@@ -106,6 +106,7 @@ h2 { margin:0 0 8px; font-size:19px; font-weight:700; letter-spacing:-.01em; }
 .ranges button[aria-pressed="true"] { background:var(--brand); color:var(--on-brand); }
 .cbox { position:relative; margin-top:12px; touch-action:pan-y; }
 .cbox svg { display:block; width:100%; height:auto; overflow:visible; }
+@media (min-width:881px) { body[data-view="stock"] .cbox { position:relative; } body[data-view="stock"] .cbox svg { position:absolute; inset:0 auto auto 0; } }
 .ctip { position:absolute; top:6px; pointer-events:none; background:var(--raise); border:1px solid var(--line); border-radius:10px; padding:7px 10px; font-size:13px; line-height:1.45; white-space:nowrap; box-shadow:0 6px 18px rgba(24,35,58,.12); }
 .ctip[hidden] { display:none; }
 .legend { display:flex; flex-wrap:wrap; gap:6px 20px; margin-top:8px; font-size:14px; color:var(--mute); }
@@ -206,7 +207,7 @@ dialog::backdrop { background:rgba(18,26,44,.5); }
 .tour h3 { margin:4px 0 6px; font:400 23px/1.25 var(--display); }
 .tour .row { display:flex; align-items:center; gap:8px; margin-top:14px; }
 .tour .row .go { margin-left:auto; background:var(--brand); color:var(--on-brand); border:0; border-radius:999px; padding:8px 20px; font-weight:600; }
-footer { max-width:1180px; margin:0 auto; padding:18px 34px 110px; color:var(--ink); opacity:.7; font-size:12.5px; }
+footer { max-width:1180px; margin:0 auto; padding:16px 34px 28px; color:var(--ink); opacity:.7; font-size:12.5px; }
 
 @media (max-width:880px) {
   .top { padding:14px 16px 10px; }
@@ -232,7 +233,6 @@ footer { max-width:1180px; margin:0 auto; padding:18px 34px 110px; color:var(--i
   .amt { font-size:46px; }
   .ranges button { padding:5px 9px; }
   .dlg { padding:24px 20px; }
-  footer { padding:20px 16px 140px; }
 }
 @media (prefers-reduced-motion: no-preference) {
   .tab, .seg button, .ranges button, .add, .i { transition:background-color .15s, color .15s; }
@@ -351,6 +351,156 @@ body.on-stock .plan { bottom:16px; }
   .bs-body .today .facts { grid-template-columns:1fr; }
   .cmpbar { bottom:12px; }
 }
+
+/* ---------- v9: views, watchlist, compare, the call band, wide screens */
+.views { display:flex; gap:4px; padding:4px; border-radius:999px; background:var(--soft); width:max-content; max-width:100%; margin:0 0 20px; }
+.views a { padding:8px 18px; border-radius:999px; color:var(--mute); font-weight:600; text-decoration:none; }
+.views a[aria-current="page"] { background:var(--brand); color:var(--on-brand); }
+.hhead { display:flex; align-items:flex-end; gap:16px; justify-content:space-between; }
+.hhead h1, .bhead h1 { margin:0; font:400 34px/1.1 var(--display); letter-spacing:-.01em; }
+.hhead p { margin-top:6px; }
+.empty { padding:22px; border-radius:16px; background:var(--soft); color:var(--mute); margin-top:16px; }
+.wgrid { list-style:none; margin:18px 0 0; padding:0; display:grid; grid-template-columns:repeat(auto-fill, minmax(300px, 1fr)); gap:12px; }
+.wcard { position:relative; }
+.wlink { display:flex; flex-direction:column; gap:10px; padding:16px 18px 14px; border-radius:18px; background:var(--soft); color:var(--ink); text-decoration:none; height:100%; transition:background-color .15s; }
+.wlink:hover { background:var(--brand-2); }
+.wtop, .wmid, .wfoot { display:flex; align-items:center; justify-content:space-between; gap:10px; }
+.wt b { font-size:19px; font-weight:700; } .wt span { display:block; color:var(--mute); font-size:14px; }
+.wcall { font:400 34px/1 var(--display); color:var(--brand); }
+.wcall.BUY { color:var(--buy); } .wcall.WAIT { color:var(--wait); } .wcall.QUIET { font:600 15px/1.2 var(--sans); color:var(--mute); }
+.wp b { font-size:20px; font-weight:700; margin-right:8px; } .wp span { font-weight:600; }
+.wsp { color:var(--ma); } .wsp .spark { display:block; }
+.wfoot { padding-top:10px; border-top:1px solid var(--line); color:var(--mute); font-size:14px; }
+.wfoot b { color:var(--ink); }
+.wrm { position:absolute; top:-8px; right:-6px; border:0; border-radius:999px; padding:5px 12px; background:var(--risk); color:#fff; font-weight:600; font-size:13px; }
+.addw { margin-top:18px; display:flex; flex-wrap:wrap; align-items:center; gap:12px 18px; }
+.findwrap { position:relative; flex:0 1 380px; }
+.findwrap .find { width:100%; margin:0; }
+.findwrap.small { flex:0 1 220px; }
+.sugg { position:absolute; left:0; right:0; top:calc(100% + 6px); z-index:9; list-style:none; margin:0; padding:6px; border-radius:14px; background:var(--raise); box-shadow:0 12px 30px rgba(24,35,58,.16); }
+.sugg[hidden] { display:none; }
+.sugg button { display:block; width:100%; text-align:left; border:0; background:none; padding:9px 10px; border-radius:10px; color:var(--ink); }
+.sugg button:hover, .sugg button:focus { background:var(--soft); } .sugg span { color:var(--mute); }
+.popular { display:flex; flex-wrap:wrap; align-items:center; gap:6px; } .popular .mute { margin-right:4px; font-size:14px; }
+.chipb { border:1px solid var(--line); background:var(--raise); color:var(--ink); border-radius:999px; padding:6px 13px; font-weight:600; font-size:14px; }
+.chipb:hover { border-color:var(--brand); }
+.chipb.on { background:var(--brand); border-color:var(--brand); color:var(--on-brand); }
+.star { border:0; background:none; color:var(--mute); width:40px; height:40px; display:grid; place-items:center; border-radius:50%; flex:none; }
+.star:hover { background:var(--soft); } .star.on { color:var(--brand); }
+.rhead { padding-right:60px; }
+/* compare */
+.cpick { display:flex; flex-wrap:wrap; align-items:center; gap:8px; margin-top:16px; }
+.cheads { display:grid; grid-template-columns:repeat(var(--n), minmax(0,1fr)); gap:10px; margin-top:20px; }
+.chd { display:flex; flex-direction:column; padding:14px 16px; border-radius:16px; background:var(--soft); color:var(--ink); text-decoration:none; }
+.chd.BUY { background:var(--buy-2); } .chd.WAIT { background:var(--wait-2); }
+.chd .ct { font-size:18px; } .chd .cn { color:var(--mute); font-size:13.5px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+.chd .cw { font:400 38px/1.1 var(--display); margin:8px 0 4px; color:var(--brand); }
+.chd.BUY .cw { color:var(--buy); } .chd.WAIT .cw { color:var(--wait); } .chd.QUIET .cw { font:600 16px/1.3 var(--sans); color:var(--mute); margin:12px 0 8px; }
+.chd .cp { font-weight:600; font-size:14.5px; }
+.cgroups { display:grid; grid-template-columns:repeat(3, minmax(0,1fr)); gap:16px 28px; margin-top:24px; align-items:start; }
+.cgroup h2 { font-size:15px; color:var(--mute); font-weight:600; margin:0 0 4px; }
+.metric { padding:12px 0 14px; border-top:1px solid var(--line); }
+.mh b { display:block; font-weight:700; } .mh span { display:block; color:var(--mute); font-size:13.5px; line-height:1.4; margin:2px 0 8px; }
+.mrow { display:grid; grid-template-columns:58px minmax(0,1fr) 112px; align-items:center; gap:10px; padding:4px 0; }
+.mt { font-weight:700; font-size:14px; }
+.mbar { height:12px; border-radius:6px; background:var(--soft); overflow:hidden; }
+.mbar i { display:block; height:100%; border-radius:6px; background:color-mix(in srgb, var(--brand) 35%, var(--soft)); }
+.mrow.best .mbar i { background:var(--brand); }
+.mv { font-weight:700; font-size:14.5px; text-align:right; white-space:nowrap; }
+.mv em { font-style:normal; font-weight:600; font-size:12px; margin-left:6px; padding:1px 7px; border-radius:999px; background:var(--brand-2); color:var(--brand); }
+.mw { grid-column:2 / 4; font-weight:600; }
+.msame { font-weight:600; margin:0; }
+/* stock page: top row and watchlist strip */
+.snav { display:flex; align-items:center; gap:10px 14px; margin:-6px 0 14px; flex-wrap:wrap; }
+.snav .back { display:inline-flex; align-items:center; gap:3px; color:var(--brand); font-weight:600; text-decoration:none; flex:none; }
+.wstrip { flex:1 1 0; min-width:0; display:flex; gap:6px; overflow-x:auto; scrollbar-width:none; padding:2px; }
+.wstrip::-webkit-scrollbar { display:none; }
+.ws { flex:none; display:flex; align-items:center; gap:7px; padding:6px 12px; border-radius:999px; background:var(--soft); color:var(--ink); text-decoration:none; font-size:14px; }
+.ws b { font-weight:700; } .ws span { font-weight:600; font-size:13px; }
+.ws.on { background:var(--brand); color:var(--on-brand); } .ws.on span { color:var(--on-brand); opacity:.85; }
+.ws.on .dot { box-shadow:0 0 0 2px var(--on-brand); }
+.watchbtn { margin-left:auto; flex:none; display:inline-flex; align-items:center; gap:6px; border:1px solid var(--line); background:var(--raise); color:var(--ink); border-radius:999px; padding:7px 14px 7px 11px; font-weight:600; font-size:14px; }
+.watchbtn.on { color:var(--brand); border-color:var(--brand-2); background:var(--brand-2); }
+.shead { display:flex; align-items:baseline; justify-content:flex-start; gap:6px 22px; flex-wrap:wrap; }
+.shead .price { margin-top:0; }
+/* the call band (phones): the decision, large, right under the price */
+.callband { display:none; width:100%; text-align:left; border:0; border-radius:20px; padding:16px 18px 14px; margin-top:12px; background:var(--soft); color:var(--ink); font:inherit; }
+.callband.BUY { background:var(--buy-2); } .callband.WAIT { background:var(--wait-2); } .callband.PRE { background:var(--brand-2); }
+.cb-top { display:flex; align-items:baseline; justify-content:space-between; gap:10px; }
+.cb-word { font:400 54px/1 var(--display); color:var(--brand); }
+.callband.BUY .cb-word { color:var(--buy); } .callband.WAIT .cb-word { color:var(--wait); } .callband.QUIET .cb-word { font-size:36px; }
+.cb-for { color:var(--mute); font-size:14px; font-weight:600; }
+.cb-text { display:block; margin-top:8px; font-size:15.5px; line-height:1.45; }
+.cb-keys { display:grid; grid-template-columns:repeat(3, minmax(0,1fr)); gap:6px; margin-top:12px; }
+.cb-keys span { padding:8px 10px; border-radius:12px; background:var(--sheet); }
+.cb-keys small { display:block; color:var(--mute); font-size:12px; white-space:nowrap; } .cb-keys b { font-size:17px; }
+.cb-more { display:block; margin-top:10px; font-size:14px; font-weight:600; color:var(--brand); text-decoration:underline; text-underline-offset:4px; }
+/* footer: no empty band at the bottom; room for the plan tray only while it shows */
+body.tray { padding-bottom:84px; }
+/* wide screens: use the width, keep the stock page on one screen */
+@media (min-width:881px) {
+  .top { max-width:min(1560px, 94vw); padding:14px 8px 10px; }
+  .sheet { max-width:min(1560px, 94vw); padding:22px 30px 26px; }
+  footer { max-width:min(1560px, 94vw); }
+  .sleft .alarm.wide { display:none; }
+  .sgrid { grid-template-columns:minmax(0,1.55fr) minmax(360px,1fr); gap:20px 30px; }
+  .price b { font-size:52px; }
+  .sleft .chartsec { margin-top:8px; }
+  .why { margin-top:10px; padding:10px 14px; } .quick { margin-top:8px; }
+  .sright .call { padding:18px 20px; }
+  .sright .call .word { font-size:64px; margin:2px 0 8px; }
+  .sright .call .alarm { margin-top:10px; padding:10px 12px; font-size:14px; }
+  .tiles { margin-top:12px; }
+}
+@media (min-width:1500px) { .tiles { grid-template-columns:repeat(3, minmax(0,1fr)); } .tile { min-height:84px; } }
+@media (max-width:880px) {
+  .views { width:100%; } .views a { flex:1; text-align:center; padding:8px 6px; }
+  .hhead h1, .bhead h1 { font-size:29px; }
+  .wgrid { grid-template-columns:1fr; gap:10px; margin-top:14px; }
+  .wlink { padding:12px 14px 10px; gap:6px; } .wcall { font-size:30px; } .wt span { display:inline; margin-left:6px; } .wfoot { padding-top:8px; font-size:13.5px; }
+  .findwrap { flex:1 1 100%; } .findwrap.small { flex:1 1 100%; }
+  .cheads { gap:6px; } .chd { padding:10px 10px; border-radius:14px; } .chd .cn { display:none; } .chd .ct { font-size:15px; } .chd .cw { font-size:26px; margin:4px 0 2px; } .chd.QUIET .cw { font-size:13px; margin:6px 0 4px; } .chd .cp { font-size:12.5px; } .chd .cp span { display:block; }
+  .cgroups { grid-template-columns:1fr; gap:4px; }
+  .mrow { grid-template-columns:46px minmax(0,1fr) auto; } .mv { font-size:14px; } .mv em { display:block; margin:2px 0 0; text-align:center; }
+  .snav { margin:-4px 0 12px; } .wstrip { order:3; flex-basis:100%; } .watchbtn span { display:none; } .watchbtn { padding:7px 10px; }
+  .callband { display:block; }
+  .rhead { display:none; }
+  footer { padding:14px 16px 22px; }
+}
+
+/* wide screens: the stock page fills the window height; the chart takes the spare room and both columns end level */
+@media (min-width:881px) {
+  body[data-view="stock"] .sheet { display:flex; flex-direction:column; min-height:min(calc(100vh - 112px), 840px); }
+  body[data-view="stock"] #detail { flex:1; display:flex; flex-direction:column; }
+  body[data-view="stock"] .sgrid { flex:1; align-items:stretch; }
+  body[data-view="stock"] .sleft { display:flex; flex-direction:column; min-height:0; }
+  body[data-view="stock"] .sleft .chartsec { flex:1; display:flex; flex-direction:column; min-height:300px; }
+  body[data-view="stock"] .cbox { flex:1; min-height:260px; }
+  body[data-view="stock"] .sright { display:flex; flex-direction:column; }
+  body[data-view="stock"] .tiles { flex:1; grid-auto-rows:1fr; }
+  body[data-view="stock"] .tile { justify-content:center; }
+  .top { padding-top:12px; padding-bottom:8px; }
+  footer { padding-top:12px; padding-bottom:16px; }
+}
+
+/* tall screens: keep the page a comfortable height and centre it, so the space above and below is even */
+@media (min-width:881px) and (min-height:960px) {
+  body[data-view="stock"] { display:flex; flex-direction:column; justify-content:center; min-height:100vh; }
+  body[data-view="stock"] .top, body[data-view="stock"] .sheet, body[data-view="stock"] footer { width:100%; }
+}
+/* short laptop screens: tighten so the stock page still fits */
+@media (min-width:881px) and (max-height:800px) {
+  .top { padding-top:8px; padding-bottom:6px; } .brand b { font-size:30px; }
+  .sheet { padding-top:16px; padding-bottom:18px; }
+  .snav { margin:-4px 0 8px; }
+  .price b { font-size:44px; } .status { margin-top:4px; }
+  .sright .call { padding:14px 18px; } .sright .call .word { font-size:50px; margin:0 0 4px; }
+  .sright .call .keys { margin-top:10px; } .sright .call .keys div { padding:7px 10px; }
+  .tiles { gap:8px; margin-top:10px; } .tile { min-height:70px; padding:10px 13px; } .tile b { font-size:16.5px; }
+  .why { margin-top:8px; padding:8px 12px; } .quick { margin-top:6px; } .qc { padding:7px 10px; }
+  body[data-view="stock"] .cbox { min-height:200px; } body[data-view="stock"] .sleft .chartsec { min-height:240px; }
+  .sright .call .alarm { display:none; } .sleft .alarm.wide { display:block; margin-top:8px; padding:9px 12px; font-size:14px; }
+}
 @keyframes up { from { transform:translateY(40px); opacity:.6; } to { transform:none; opacity:1; } }
 @media (prefers-reduced-motion: reduce) { .bsheet[open] { animation:none; } }
 </style>
@@ -371,7 +521,6 @@ body.on-stock .plan { bottom:16px; }
 
 <div class="pop" id="pop" role="tooltip" hidden></div>
 <div class="tour" id="tour" role="dialog" aria-live="polite" hidden></div>
-<div class="cmpbar" id="cmpBar" hidden></div>
 <dialog id="sheetDlg" class="bsheet" aria-labelledby="bsTitle" tabindex="-1"><div class="bs-grab" id="bsGrab" aria-hidden="true"><i></i></div>
   <div class="bs-top"><h2 id="bsTitle"></h2><button class="lk" type="button" data-close>Close</button></div>
   <div class="bs-body" id="bsBody"></div><div class="bs-nav" id="bsNav"></div></dialog>
@@ -525,7 +674,7 @@ function chartHTML(s) {
 function drawChart(s) {
   const box = $("#cbox"); if (!box) return;
   const css = getComputedStyle(root), col = n => css.getPropertyValue(n).trim();
-  const narrow = innerWidth < 880, W = Math.max(300, box.clientWidth), PH = narrow ? 200 : 270, VH = narrow ? 26 : 36, padT = 22, padB = 24;
+  box.innerHTML = ""; const narrow = innerWidth < 880, W = Math.max(300, box.clientWidth), PH = narrow ? 200 : Math.round(Math.max(200, Math.min(620, (box.clientHeight || 330) - (innerWidth < 880 ? 26 : 36) - 4))), VH = narrow ? 26 : 36, padT = 22, padB = 24;
   let D, C, V, isDay = rng === "1D" && PATHS?.[s.ticker]?.length > 1;
   if (rng === "1D" && !isDay) rng = "3M";
   const H = series(s);
@@ -703,13 +852,19 @@ function nextSession(s) {
   return `<section class="next" id="nextBox"><div><h2>${isOpen ? "The rest of today" : "Before the next open"}</h2><p class="when-line">${line}</p><dl class="stats">${st.join("")}</dl></div>${ladder}</section>`;
 }
 
-/* ------------------------------------------------------------------ routes: the board (#) or one stock (#NVDA) */
-let SORT = store.get("sort", "calls"), cmp = store.get("cmp", []), query = "", showAll = false;
+/* ------------------------------------------------------------------ views: your watchlist (#), all stocks (#all), compare (#compare), one stock (#NVDA) */
+let SORT = store.get("sort", "calls"), query = "", showAll = false, editing = false;
 const SORTS = {calls:"Calls first", risk:"Most risk", moves:"Biggest moves", low:"Low most likely in"};
+const POPULAR = ["NVDA", "TSLA", "AAPL", "GOOGL", "MSFT", "AMZN", "META", "AMD", "NFLX", "PLTR", "AVGO", "JPM"];
+let watch = store.get("watch", null), picks = store.get("cmp", null);
 const callRank = s => { const g = sig(s); return g === "BUY" ? 0 : g === "WAIT" ? 1 : live(s) ? 2 : s.preview ? 3 : 4; };
 const lowIn = s => s.entry?.days_to_low?.probs?.[0];
 const badPct = s => { const b = badOf(s, "recommended"); return b == null ? null : -b; };
 const chgOf = s => nowPx(s).chg;
+const sign = x => x == null ? "" : (x >= 0 ? "+" : "−") + fmt(Math.abs(x), 2) + "%";
+const STAR = on => `<svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true" fill="${on ? "currentColor" : "none"}" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"><path d="M12 3.5l2.6 5.3 5.9.9-4.2 4.1 1 5.8L12 16.9l-5.3 2.7 1-5.8L3.5 9.7l5.9-.9z"/></svg>`;
+const CH = '<svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 6l-6 6 6 6"/></svg>';
+function setWatch(t, on) { watch = on ? [...watch.filter(x => x !== t), t] : watch.filter(x => x !== t); store.set("watch", watch); }
 function boardOrder() {
   const ch = s => Math.abs(chgOf(s) ?? 0);
   const by = {calls:(a, b) => callRank(a) - callRank(b) || ch(b) - ch(a),
@@ -718,76 +873,138 @@ function boardOrder() {
               low:(a, b) => (lowIn(b) ?? -1) - (lowIn(a) ?? -1)}[SORT];
   return [...DATA.stocks].sort(by || (() => 0));
 }
+const VIEWS = {"": "home", "ALL": "all", "COMPARE": "compare"};
 const route = () => decodeURIComponent(location.hash.slice(1)).toUpperCase();
 function render() {
-  const t = route(), s = t && stockOf(t);
-  document.body.classList.toggle("on-stock", !!s);
-  if (s) { sel = s.ticker; store.set("sel", sel); ensureFull(s).then(() => { if (route() === s.ticker) renderStock(stockOf(s.ticker)); }); }
-  else renderBoard();
-  renderPlan(); renderCmpBar();
+  if (!watch) { watch = POPULAR.slice(0, 7).filter(stockOf); store.set("watch", watch); }
+  watch = watch.filter(stockOf);
+  if (!picks) picks = watch.slice(0, 3);
+  const t = route(), v = VIEWS[t], s = v === undefined && stockOf(t);
+  document.body.dataset.view = s ? "stock" : v || "home";
+  if (s) { sel = s.ticker; ensureFull(s).then(() => { if (route() === s.ticker) renderStock(stockOf(s.ticker)); }); }
+  else if (v === "all") renderBoard(); else if (v === "compare") renderCompare(); else renderHome();
+  renderPlan();
 }
-addEventListener("hashchange", () => { if (route() && !PATHS) loadQuotes(); render(); scrollTo(0, 0); });
-/* with a long watchlist the board file holds only the summary; the chart history and news load when a stock is opened */
+addEventListener("hashchange", () => { if (stockOf(route()) && !PATHS) loadQuotes(); editing = false; render(); scrollTo(0, 0); });
+/* with hundreds of stocks the board file holds only summaries; chart history and news load when a stock is opened */
 const FULL = {};
 function ensureFull(s) {
   if (s.hist || s.closes || FULL[s.ticker]) return Promise.resolve();
   return fetch(`data/stocks/${encodeURIComponent(s.ticker)}.json?${DATA.generated_utc || ""}`).then(r => r.ok ? r.json() : null)
     .then(x => { FULL[s.ticker] = true; if (x) Object.assign(s, x); }).catch(() => { FULL[s.ticker] = true; });
 }
+const navHTML = v => `<nav class="views" aria-label="Views">${[["home", "#", "Watchlist"], ["all", "#all", "All stocks"], ["compare", "#compare", "Compare"]]
+  .map(([k, h, l]) => `<a href="${h}"${k === v ? ' aria-current="page"' : ""}>${l}</a>`).join("")}</nav>`;
+function spark(s, w = 120, h = 36) {
+  const c = s.spark || s.hist?.c?.slice(-60).filter((_, i) => i % 2 === 0) || s.closes; if (!c || c.length < 2) return "";
+  const lo = Math.min(...c), hi = Math.max(...c), x = i => (i / (c.length - 1) * w).toFixed(1), y = v => (h - 3 - (v - lo) / ((hi - lo) || 1) * (h - 6)).toFixed(1);
+  return `<svg class="spark" viewBox="0 0 ${w} ${h}" width="${w}" height="${h}" aria-hidden="true"><path d="${c.map((v, i) => (i ? "L" : "M") + x(i) + "," + y(v)).join("")}" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/></svg>`;
+}
+/* search box with suggestions; onPick(ticker) */
+function bindFinder(id, onPick, exclude) {
+  const f = $("#" + id), box = $("#" + id + "Res"); if (!f) return;
+  const show = () => { const q = f.value.trim().toLowerCase(); if (!q) { box.hidden = true; return; }
+    const R = DATA.stocks.filter(s => !exclude().includes(s.ticker) && (s.ticker.toLowerCase().startsWith(q) || (s.name || "").toLowerCase().includes(q))).slice(0, 6);
+    box.innerHTML = R.length ? R.map(s => `<li><button type="button" data-pick="${esc(s.ticker)}"><b>${esc(s.ticker)}</b> <span>${esc(s.name || "")}</span></button></li>`).join("") : `<li class="mute" style="padding:10px 14px">No match</li>`;
+    box.hidden = false; box.querySelectorAll("[data-pick]").forEach(b => b.onclick = () => onPick(b.dataset.pick)); };
+  f.oninput = show; f.onkeydown = e => { if (e.key === "Enter") { const b = box.querySelector("[data-pick]"); if (b) b.click(); } };
+}
 
-/* ------------------------------------------------------------------ the board */
+/* ------------------------------------------------------------------ your watchlist */
+function wcard(s) {
+  const st = stateOf(s), n = nowPx(s), b = badPct(s), p0 = lowIn(s), t = esc(s.ticker);
+  const foot = p0 != null ? `<span>Low already in <b>${fmt(100 * p0, 0)}%</b></span>` : `<span>${live(s) && s.decision_day === 0 ? "Call after the next close" : s.preview ? `Earnings on <b>${day(s.preview.report_date)}</b>` : "No recent news"}</span>`;
+  return `<li class="wcard"><a class="wlink" href="#${t}">
+    <span class="wtop"><span class="wt"><b>${t}</b><span>${esc(s.name || "")}</span></span><span class="wcall ${st.cls}">${st.word}</span></span>
+    <span class="wmid"><span class="wp"><b>${fmt(n.px, 2)}</b><span class="${(n.chg ?? 0) >= 0 ? "up" : "down"}">${sign(n.chg)}</span></span><span class="wsp">${spark(s)}</span></span>
+    <span class="wfoot">${foot}${b != null ? `<span>Bad case <b>−${fmt(b)}%</b></span>` : ""}</span></a>
+    ${editing ? `<button class="wrm" type="button" data-rmw="${t}">Remove</button>` : ""}</li>`;
+}
+function renderHome() {
+  const el = $("#detail"), W = watch.map(stockOf).filter(Boolean), pop = POPULAR.filter(t => stockOf(t) && !watch.includes(t)).slice(0, 6);
+  const nb = W.filter(s => sig(s) === "BUY").length, nw = W.filter(s => sig(s) === "WAIT").length;
+  el.innerHTML = navHTML("home") + `<section class="home" id="homeBox">
+    <div class="hhead"><div><h1>Your watchlist</h1><p class="mute">${W.length ? `${nb} buy ${nb === 1 ? "call" : "calls"} and ${nw} wait ${nw === 1 ? "call" : "calls"} for the next session.` : "Add the stocks you care about most."}</p></div>
+      ${W.length ? `<button class="lk" type="button" id="editW">${editing ? "Done" : "Edit"}</button>` : ""}</div>
+    ${W.length ? `<ul class="wgrid" id="wgrid">${W.map(wcard).join("")}</ul>` : ""}
+    <div class="addw" id="addBox"><div class="findwrap"><input id="addFind" class="find" type="search" placeholder="Add a stock by name or ticker" autocomplete="off" aria-label="Add a stock to your watchlist"><ul class="sugg" id="addFindRes" hidden></ul></div>
+      ${pop.length ? `<div class="popular"><span class="mute">Popular</span>${pop.map(t => `<button type="button" class="chipb" data-addw="${t}">${t}</button>`).join("")}</div>` : ""}</div></section>`;
+  const add = t => { setWatch(t, true); renderHome(); };
+  bindFinder("addFind", add, () => watch);
+  document.querySelectorAll("[data-addw]").forEach(b => b.onclick = () => add(b.dataset.addw));
+  document.querySelectorAll("[data-rmw]").forEach(b => b.onclick = () => { setWatch(b.dataset.rmw, false); renderHome(); });
+  if ($("#editW")) $("#editW").onclick = () => { editing = !editing; renderHome(); };
+}
+
+/* ------------------------------------------------------------------ all stocks */
 function renderBoard() {
   const el = $("#detail"), L = boardOrder(), maxBad = Math.max(10, ...L.map(s => badPct(s) ?? 0));
   const nNews = L.filter(live).length, upd = DATA.generated_utc ? new Date(DATA.generated_utc.replace("+00:00", "Z")) : null;
   const shown = L.filter(s => !query || (s.ticker + " " + (s.name || "")).toLowerCase().includes(query));
   const rows = shown.slice(0, showAll || query ? shown.length : 60).map(s => {
-    const st = stateOf(s), n = nowPx(s), b = badPct(s), dip = s.entry?.expected_further_dip_pct, p0 = lowIn(s), on = cmp.includes(s.ticker);
+    const st = stateOf(s), n = nowPx(s), b = badPct(s), dip = s.entry?.expected_further_dip_pct, p0 = lowIn(s), on = watch.includes(s.ticker);
     const bar = `<span class="rbar">${b != null ? `<i style="width:${Math.min(100, 100 * b / maxBad).toFixed(1)}%"></i>` : ""}${dip != null ? `<b style="right:${Math.min(100, 100 * dip / maxBad).toFixed(1)}%"></b>` : ""}</span>`;
     return `<li class="row"><a class="rlink" href="#${esc(s.ticker)}">
       <span class="rt"><b>${esc(s.ticker)}</b><span>${esc(s.name || "")}</span></span>
       <span class="rcall"><span class="pill ${st.cls}">${sig(s) ? st.word : st.sub}</span></span>
-      <span class="rp"><b>${fmt(n.px, 2)}</b>${n.chg != null ? `<span class="${n.chg >= 0 ? "up" : "down"}">${n.chg >= 0 ? "+" : "−"}${fmt(Math.abs(n.chg), 2)}%</span>` : ""}</span>
+      <span class="rp"><b>${fmt(n.px, 2)}</b>${n.chg != null ? `<span class="${n.chg >= 0 ? "up" : "down"}">${sign(n.chg)}</span>` : ""}</span>
       <span class="rr">${bar}<small>${b != null ? `Bad case −${fmt(b)}%` : "No risk forecast"}</small></span>
       <span class="rl"><b>${p0 != null ? fmt(100 * p0, 0) + "%" : "–"}</b><small>${p0 != null ? "low already in" : live(s) ? "after next close" : "no recent news"}</small></span></a>
-      <label class="rc"><input type="checkbox" data-cmp="${esc(s.ticker)}" ${on ? "checked" : ""} ${!on && cmp.length >= 3 ? "disabled" : ""}><span>Compare</span></label></li>`; }).join("");
-  el.innerHTML = `<section class="board" id="boardBox">
-    <div class="bhead"><div><h1>Today's board</h1><p class="mute">${nNews} of ${L.length} stocks have had company news in the last three weeks.${upd ? ` Forecasts updated ${upd.toLocaleString([], {weekday:"short", hour:"numeric", minute:"2-digit"})} your time.` : ""}</p></div>
+      <button class="star${on ? " on" : ""}" type="button" data-star="${esc(s.ticker)}" aria-pressed="${on}" aria-label="${on ? "Remove " + esc(s.ticker) + " from" : "Add " + esc(s.ticker) + " to"} your watchlist">${STAR(on)}</button></li>`; }).join("");
+  el.innerHTML = navHTML("all") + `<section class="board" id="boardBox">
+    <div class="bhead"><div><h1>All stocks</h1><p class="mute">${nNews} of ${L.length} stocks have had company news in the last three weeks.${upd ? ` Forecasts updated ${upd.toLocaleString([], {weekday:"short", hour:"numeric", minute:"2-digit"})} your time.` : ""}</p></div>
       ${L.length > 12 ? `<input class="find" id="find" type="search" placeholder="Search by name or ticker" aria-label="Search stocks" value="${esc(query)}">` : ""}</div>
-    <div class="sorts" id="sortBox" role="group" aria-label="Sort the board">${Object.entries(SORTS).map(([k, v]) => `<button type="button" data-sort="${k}" aria-pressed="${k === SORT}">${v}</button>`).join("")}</div>
+    <div class="sorts" id="sortBox" role="group" aria-label="Sort the list">${Object.entries(SORTS).map(([k, v]) => `<button type="button" data-sort="${k}" aria-pressed="${k === SORT}">${v}</button>`).join("")}</div>
     <div class="rhead"><span>Stock</span><span>Call</span><span>Price</span><span>Risk over four weeks ${tip("riskbar")}</span><span>Low ${tip("bottom")}</span><span></span></div>
     <ul class="rows" id="boardList">${rows || `<li class="mute" style="padding:16px 0">No stocks match that search.</li>`}</ul>
     ${!showAll && !query && shown.length > 60 ? `<p style="text-align:center;margin-top:16px"><button class="lk" type="button" id="moreBtn">Show all ${shown.length} stocks</button></p>` : ""}</section>`;
   if ($("#moreBtn")) $("#moreBtn").onclick = () => { showAll = true; renderBoard(); };
   document.querySelectorAll("[data-sort]").forEach(b => b.onclick = () => { SORT = b.dataset.sort; store.set("sort", SORT); renderBoard(); });
-  document.querySelectorAll("[data-cmp]").forEach(c => c.onchange = () => {
-    const t = c.dataset.cmp; cmp = c.checked ? [...cmp, t].slice(0, 3) : cmp.filter(x => x !== t); store.set("cmp", cmp); renderBoard(); renderCmpBar(); });
+  document.querySelectorAll("[data-star]").forEach(b => b.onclick = () => { setWatch(b.dataset.star, !watch.includes(b.dataset.star)); renderBoard(); });
   const f = $("#find"); if (f) f.oninput = () => { query = f.value.trim().toLowerCase(); const p = f.selectionStart; renderBoard(); const g = $("#find"); g.focus(); g.setSelectionRange(p, p); };
 }
-function renderCmpBar() {
-  cmp = cmp.filter(stockOf); const bar = $("#cmpBar");
-  if (!cmp.length || route()) { bar.hidden = true; return; }
-  bar.hidden = false;
-  bar.innerHTML = `<span>${cmp.length === 1 ? `${esc(cmp[0])} picked. Pick one or two more to compare.` : `Comparing ${cmp.map(esc).join(", ")}`}</span>
-    <button class="lk" type="button" id="cmpClear">Clear</button>${cmp.length > 1 ? `<button class="go" type="button" id="cmpGo">Compare</button>` : ""}`;
-  $("#cmpClear").onclick = () => { cmp = []; store.set("cmp", cmp); render(); };
-  if ($("#cmpGo")) $("#cmpGo").onclick = () => openSheet("cmp");
-}
-function compareHTML() {
-  const S = cmp.map(stockOf).filter(Boolean);
-  const row = (label, f) => `<tr><th scope="row">${label}</th>${S.map(s => `<td>${f(s)}</td>`).join("")}</tr>`;
-  const T = TIERS[tier];
-  return `<p class="mute" style="margin-bottom:10px">Each column is one stock, using the same risk level and budget as the sizing (${T.label}, $${Number(budget).toLocaleString("en-US")}).</p>
-    <div class="ctab"><table><thead><tr><th></th>${S.map(s => `<th scope="col"><a href="#${esc(s.ticker)}" data-closego>${esc(s.ticker)}</a></th>`).join("")}</tr></thead><tbody>
-    ${row("Call", s => { const st = stateOf(s); return `<span class="pill ${st.cls}">${sig(s) ? st.word : st.sub}</span>`; })}
-    ${row("Price today", s => { const n = nowPx(s); return `${fmt(n.px, 2)}<br><span class="${(n.chg ?? 0) >= 0 ? "up" : "down"}">${n.chg != null ? (n.chg >= 0 ? "+" : "−") + fmt(Math.abs(n.chg), 2) + "%" : ""}</span>`; })}
-    ${row("Chance the low is in", s => lowIn(s) != null ? fmt(100 * lowIn(s), 0) + "%" : "–")}
-    ${row("Expected low", s => s.entry?.expected_further_dip_pct != null ? "−" + fmt(s.entry.expected_further_dip_pct) + "%" : "–")}
-    ${row("Bad case", s => badPct(s) != null ? "−" + fmt(badPct(s)) + "%" : "–")}
-    ${row("Price swings ahead", s => live(s) ? swings(s.risk?.vol_ratio_2_20?.pred).replace(" for this stock", "") : swings(s.outlook?.vol_now_vs_usual).replace(" for this stock", ""))}
-    ${row("Trend", s => ({bullish:"Bullish", bearish:"Bearish", mixed:"Mixed"})[s.stats?.trend] || "–")}
-    ${row("Suggested amount", s => weightOf(s, tier) != null ? money(weightOf(s, tier) * budget) : "–")}
-    </tbody></table></div>
-    <p class="mute" style="margin-top:10px">Bought together, the amounts would shrink a little more, because stocks often fall together in a sell-off. Add them to a plan to see the combined split.</p>`;
+function renderCmpBar() {}
+
+/* ------------------------------------------------------------------ compare: the same measure lined up for each stock */
+function renderCompare() {
+  picks = picks.filter(stockOf).slice(0, 4); store.set("cmp", picks);
+  const el = $("#detail"), S = picks.map(stockOf), opts = [...new Set([...watch, ...picks])];
+  const chips = opts.map(t => `<button type="button" class="chipb${picks.includes(t) ? " on" : ""}" data-pickc="${esc(t)}" aria-pressed="${picks.includes(t)}">${esc(t)}</button>`).join("");
+  let body = "";
+  if (S.length < 2) body = `<p class="empty">Pick two to four stocks above to see them side by side.</p>`;
+  else {
+    const head = `<div class="cheads" style="--n:${S.length}">${S.map(s => { const st = stateOf(s), n = nowPx(s);
+      return `<a class="chd ${st.cls}" href="#${esc(s.ticker)}"><b class="ct">${esc(s.ticker)}</b><span class="cn">${esc(s.name || "")}</span>
+        <span class="cw">${st.word}</span><span class="cp">${fmt(n.px, 2)} <span class="${(n.chg ?? 0) >= 0 ? "up" : "down"}">${sign(n.chg)}</span></span></a>`; }).join("")}</div>`;
+    /* one measure: a bar per stock on the same scale, with the best one marked */
+    const metric = (label, note, f, show, better, tag, color) => {
+      const v = S.map(f), ok = v.filter(x => x != null), mx = Math.max(...ok, 1e-9);
+      const best = ok.length > 1 && better ? v.indexOf(better === "high" ? Math.max(...ok) : Math.min(...ok)) : -1;
+      return `<div class="metric"><div class="mh"><b>${label}</b><span>${note}</span></div>${S.map((s, i) => `<div class="mrow${i === best ? " best" : ""}">
+        <span class="mt">${esc(s.ticker)}</span><span class="mbar">${v[i] != null ? `<i style="width:${Math.max(2, 100 * v[i] / mx).toFixed(1)}%;${color ? `background:${color}` : ""}"></i>` : ""}</span>
+        <span class="mv">${v[i] != null ? show(v[i]) : "–"}${i === best ? `<em>${tag}</em>` : ""}</span></div>`).join("")}</div>`;
+    };
+    const words = (label, note, f) => { const w = S.map(f), same = w.every(x => x === w[0]);
+      if (same) return `<div class="metric"><div class="mh"><b>${label}</b><span>${note}</span></div><p class="msame">${w[0]} for all ${S.length === 2 ? "both" : S.length}</p></div>`;
+      return `<div class="metric"><div class="mh"><b>${label}</b><span>${note}</span></div>${S.map((s, i) => `<div class="mrow"><span class="mt">${esc(s.ticker)}</span><span class="mw">${w[i]}</span></div>`).join("")}</div>`; };
+    const T = TIERS[tier];
+    body = head + `<div class="cgroups">
+      <section class="cgroup"><h2>Timing</h2>
+        ${metric("Chance the low is already in", "The higher it is, the more likely a further dip stops above the low so far.", s => lowIn(s) != null ? 100 * lowIn(s) : null, v => fmt(v, 0) + "%", "high", "Highest")}
+        ${metric("Expected further dip", "How much lower the price may go before its four-week low.", s => s.entry?.expected_further_dip_pct ?? null, v => "−" + fmt(v) + "%", "low", "Smallest")}</section>
+      <section class="cgroup"><h2>Risk</h2>
+        ${metric("Bad case over four weeks", "Only about 1 in 10 similar stocks fell further than this.", s => badPct(s), v => "−" + fmt(v) + "%", "low", "Least risk", "var(--risk)")}
+        ${words("Price swings ahead", "Compared with what is normal for each stock.", s => (live(s) ? swings(s.risk?.vol_ratio_2_20?.pred) : swings(s.outlook?.vol_now_vs_usual)).replace(" for this stock", ""))}
+        ${words("Trend", "The direction of the price over recent months.", s => ({bullish:"Bullish", bearish:"Bearish", mixed:"Mixed"})[s.stats?.trend] || "–")}</section>
+      <section class="cgroup"><h2>How much to put in</h2>
+        ${metric(`Suggested amount of $${Number(budget).toLocaleString("en-US")}`, `${T.label} risk level, for each stock on its own. Bought together, the amounts shrink a little more.`, s => weightOf(s, tier) != null ? weightOf(s, tier) * budget : null, v => money(v), null, "", "var(--buy)")}</section></div>`;
+  }
+  el.innerHTML = navHTML("compare") + `<section class="compare" id="cmpBox"><div class="hhead"><div><h1>Compare</h1><p class="mute">Choose up to four stocks. Each measure lines them up on the same scale.</p></div></div>
+    <div class="cpick">${chips}<div class="findwrap small"><input id="cmpFind" class="find" type="search" placeholder="Add another stock" autocomplete="off" aria-label="Add a stock to compare"><ul class="sugg" id="cmpFindRes" hidden></ul></div></div>
+    ${body}</section>`;
+  document.querySelectorAll("[data-pickc]").forEach(b => b.onclick = () => { const t = b.dataset.pickc;
+    picks = picks.includes(t) ? picks.filter(x => x !== t) : [...picks, t].slice(-4); store.set("cmp", picks); renderCompare(); });
+  bindFinder("cmpFind", t => { picks = [...picks.filter(x => x !== t), t].slice(-4); store.set("cmp", picks); renderCompare(); }, () => picks);
 }
 
 /* ------------------------------------------------------------------ one stock */
@@ -894,35 +1111,58 @@ const bindTiles = () => document.querySelectorAll("[data-sheet]").forEach(b => b
 const stripH2 = h => h.replace(/<h2[^>]*>[\s\S]*?<\/h2>/, "");
 
 function renderStock(s) {
-  const el = $("#detail"), st = stateOf(s), n = nowPx(s), order = boardOrder(), i = order.findIndex(x => x.ticker === s.ticker);
-  const prev = order[(i - 1 + order.length) % order.length], next = order[(i + 1) % order.length];
-  const CH = '<svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 6l-6 6 6 6"/></svg>';
-  el.innerHTML = `<div class="snav"><a href="#" class="lk back">${CH}All stocks</a>
-      <span class="pn"><a href="#${esc(prev.ticker)}" aria-label="Previous stock, ${esc(prev.ticker)}">${CH}${esc(prev.ticker)}</a><a href="#${esc(next.ticker)}" aria-label="Next stock, ${esc(next.ticker)}">${esc(next.ticker)}<span style="display:inline-block;transform:scaleX(-1)">${CH}</span></a></span></div>
+  const el = $("#detail"), st = stateOf(s), n = nowPx(s), on = watch.includes(s.ticker), W = watch.map(stockOf).filter(Boolean);
+  const dip = s.entry?.expected_further_dip_pct, bad = badPct(s), p0 = lowIn(s);
+  const short = {BUY:"Buying now has usually beaten waiting in cases like this.", WAIT:"Waiting a few days has usually got a better price in cases like this."}[sig(s)]
+             || (live(s) && s.decision_day === 0 ? "The call comes after the next close, once the market has reacted for two days."
+             : s.preview ? `Earnings are due on ${day(s.preview.report_date)}. The direction cannot be known in advance.`
+             : live(s) ? "Four weeks have passed since the news, so there is no longer a call." : "No company news in the last three weeks, so there is no call.");
+  const keys = [dip != null ? ["Expected low", "−" + fmt(dip) + "%"] : null, bad != null ? ["Bad case", "−" + fmt(bad) + "%"] : null,
+                p0 != null ? ["Low already in", fmt(100 * p0, 0) + "%"] : null].filter(Boolean);
+  const forDay = sess() === "open" ? "for today" : Q?.next_open_utc ? "for " + new Date(Q.next_open_utc).toLocaleDateString("en-GB", {weekday:"short", day:"numeric", month:"short", timeZone:"America/New_York"}) : "";
+  el.innerHTML = `<div class="snav"><a href="#" class="back">${CH}Watchlist</a>
+    ${W.length > 1 || (W.length && !on) ? `<nav class="wstrip" id="wstrip" aria-label="Your watchlist">${W.map(x => { const sx = stateOf(x), nx = nowPx(x);
+      return `<a class="ws${x.ticker === s.ticker ? " on" : ""}" href="#${esc(x.ticker)}"${x.ticker === s.ticker ? ' aria-current="page"' : ""}><i class="dot ${sx.cls}" aria-hidden="true"></i><b>${esc(x.ticker)}</b><span class="${(nx.chg ?? 0) >= 0 ? "up" : "down"}">${sign(nx.chg)}</span></a>`; }).join("")}</nav>` : ""}
+      <button class="watchbtn${on ? " on" : ""}" type="button" id="watchBtn" aria-pressed="${on}">${STAR(on)}<span>${on ? "On your watchlist" : "Add to watchlist"}</span></button></div>
     <div class="sgrid"><div class="sleft">
-      <div class="shead"><div><div class="who"><h1>${esc(s.ticker)}</h1><span class="name">${esc(s.name || "")}</span></div>
-        <div class="price"><b>${fmt(n.px, 2)}</b>${n.chg != null ? `<span class="move ${n.chg >= 0 ? "up" : "down"}">${n.chg >= 0 ? "+" : "−"}${fmt(Math.abs(n.chg), 2)}%</span>` : ""}</div></div>
-        <button class="badge ${st.cls}" type="button" id="callBadge" data-sheet="call"><b>${st.word}</b><small>${sess() === "open" ? "for today" : Q?.next_open_utc ? "for " + new Date(Q.next_open_utc).toLocaleDateString("en-GB", {weekday:"short", day:"numeric", month:"short", timeZone:"America/New_York"}) : "Tap for why"}</small></button></div>
+      <div class="shead"><div class="who"><h1>${esc(s.ticker)}</h1><span class="name">${esc(s.name || "")}</span></div>
+        <div class="price"><b>${fmt(n.px, 2)}</b>${n.chg != null ? `<span class="move ${n.chg >= 0 ? "up" : "down"}">${sign(n.chg)}</span>` : ""}</div></div>
       ${statusLine(s)}
+      <button class="callband ${st.cls}" type="button" id="callBand" data-sheet="call">
+        <span class="cb-top"><span class="cb-word">${st.word}</span><span class="cb-for">${forDay}</span></span>
+        <span class="cb-text">${short}</span>
+        ${keys.length ? `<span class="cb-keys">${keys.map(([a, b]) => `<span><small>${a}</small><b>${b}</b></span>`).join("")}</span>` : ""}
+        <span class="cb-more">Why, and how sure</span></button>
+      ${s.warning_big_drop ? `<button class="alarm wide" type="button" data-sheet="call"><b>Higher chance of a sharp drop.</b> A smaller position is safer.</button>` : ""}
       ${chartHTML(s)}
       ${whyHTML(s)}
       ${quickChips(s)}
-      ${s.warning_big_drop ? `<button class="alarm wide" type="button" data-sheet="call"><b>Higher chance of a sharp drop.</b> A smaller position is safer. Tap for details.</button>` : ""}
     </div><div class="sright">
       <div class="call ${st.cls}" id="callBox"><small>${forWhen()}</small><p class="word ${st.cls}">${st.word}</p>${callHTML(s)}</div>
       <div class="tiles" id="tiles">${tilesHTML(s)}</div>
     </div></div>`;
-  drawChart(s); bindTiles();
+  drawChart(s); bindTiles(); fitChart(s);
+  $("#watchBtn").onclick = () => { setWatch(s.ticker, !watch.includes(s.ticker)); renderStock(s); };
+  $(".ws.on")?.scrollIntoView({inline:"center", block:"nearest"});
   if (store.get("toured", false) && !store.get("toured_stock", false) && tourAt < 0) setTimeout(() => startTour("stock"), 500);
 }
-/* swipe left or right on a stock page to move along the board; the chart keeps its own finger tracking */
+/* on wide screens the chart fills whatever height its column ends up with (fonts and live prices can change it after drawing) */
+let chartRO = null;
+function fitChart(s) {
+  chartRO?.disconnect(); const box = $("#cbox"); if (!box || innerWidth < 880 || !window.ResizeObserver) return;
+  let last = box.clientHeight;
+  chartRO = new ResizeObserver(() => { const h = box.clientHeight; if (Math.abs(h - last) > 12) { last = h; drawChart(s); last = box.clientHeight; } });
+  chartRO.observe(box.parentElement);
+  document.fonts?.ready.then(() => { if ($("#cbox") === box) { drawChart(s); last = box.clientHeight; } });
+}
+/* swipe left or right on a stock page to move through your watchlist (or the full list); the chart keeps its own finger tracking */
 let sx = null, sy = 0;
-document.addEventListener("touchstart", e => { if (!route() || e.target.closest(".cbox, input, dialog, .plan")) { sx = null; return; } sx = e.touches[0].clientX; sy = e.touches[0].clientY; }, {passive:true});
+document.addEventListener("touchstart", e => { if (!stockOf(route()) || e.target.closest(".cbox, input, dialog, .plan, .wstrip")) { sx = null; return; } sx = e.touches[0].clientX; sy = e.touches[0].clientY; }, {passive:true});
 document.addEventListener("touchend", e => {
   if (sx == null) return; const dx = e.changedTouches[0].clientX - sx, dy = e.changedTouches[0].clientY - sy; sx = null;
   if (Math.abs(dx) < 70 || Math.abs(dy) > 45) return;
-  const order = boardOrder(), i = order.findIndex(x => x.ticker === route()); if (i < 0) return;
-  location.hash = order[(i + (dx < 0 ? 1 : -1) + order.length) % order.length].ticker;
+  const order = watch.includes(route()) ? watch : boardOrder().map(x => x.ticker), i = order.indexOf(route()); if (i < 0) return;
+  location.hash = order[(i + (dx < 0 ? 1 : -1) + order.length) % order.length];
 }, {passive:true});
 
 /* ------------------------------------------------------------------ the sheet: slides up on phones, a panel on wider screens */
@@ -931,7 +1171,7 @@ let sheetKey = null;
 function openSheet(k, keep) {
   const s = stockOf(sel); sheetKey = k;
   $("#bsTitle").textContent = k === "call" ? `${TITLE.call}: ${stateOf(s).word}` : TITLE[k];
-  const body = k === "cmp" ? compareHTML() : k === "call" ? `<div class="call-in">${whyHTML(s)}${callHTML(s)}</div>` : k === "next" ? stripH2(nextSession(s).replace('class="next"', 'class="next in"'))
+  const body = k === "call" ? `<div class="call-in">${whyHTML(s)}${callHTML(s)}</div>` : k === "next" ? stripH2(nextSession(s).replace('class="next"', 'class="next in"'))
              : k === "low" ? stripH2(whenLow(s)) : k === "risk" ? stripH2(ahead(s)) : k === "today" ? stripH2(todayFacts(s)) : k === "size" ? (weightOf(s, "recommended") != null ? sizeHTML(s) : "<p>Sizing is not available for this stock.</p>") : newsHTML(s);
   $("#bsBody").innerHTML = body;
   const j = TILES.indexOf(k);
@@ -959,8 +1199,8 @@ function updateAnswer() {
 function renderPlan() {
   plan = plan.filter(t => stockOf(t) && weightOf(stockOf(t), "recommended") != null);
   const box = $("#plan");
-  if (!plan.length) { box.hidden = true; return; }
-  box.hidden = false;
+  if (!plan.length) { box.hidden = true; document.body.classList.remove("tray"); return; }
+  box.hidden = false; document.body.classList.add("tray");
   const rows = plan.map(stockOf), C = rows.map(a => rows.map(b => corrOf(a.ticker, b.ticker)));
   const T = TIERS[tier], w = rows.map(r => weightOf(r, tier) ?? 0), q = rows.map(r => (badOf(r, tier) ?? -10) / 100);
   const ws = rows.length > 1 ? basketScale(w, q, C, T.d) : w.map(x => Math.min(x, MAX_TOTAL));
@@ -988,19 +1228,18 @@ function renderAll() { render(); }
 
 /* ------------------------------------------------------------------ walkthrough on the first visit */
 const TOURS = {
-  board:[{el:"#boardList", t:"Today's board", b:"Each row is one stock. Green means buy, violet means wait, and grey means there has been no recent news. Tap a row to open the stock."},
-         {el:"#sortBox", t:"Sort the board", b:"Put buy calls first, the riskiest stocks first, the biggest movers first, or the stocks whose low has most likely passed."},
-         {el:".rr", t:"Compare risk at a glance", b:"The bar runs from today's price down to the bad case, on the same scale for every stock. A longer bar means more risk."},
-         {el:".rc", t:"Compare side by side", b:"Tick two or three stocks to see their calls, risks and suggested amounts in one table."}],
-  stock:[{el:"#callBadge", t:"The call", b:"Buy or wait, for the next trading session. Tap it to see why, how far the price may still dip, and how bad a rough month could get."},
-         {el:"#chartSec", t:"The chart", b:"Move along the line to see any day's price. The shaded area on the right shows when the low is most likely to come, with the expected low and bad case drawn as lines."},
+  home:[{el:"#wgrid", t:"Your watchlist", b:"The stocks you follow, each with its call for the next session. Green means buy, violet means wait. Tap a stock to open it."},
+        {el:"#addBox", t:"Add or remove stocks", b:"Search for any of about 500 large US stocks, or tap a popular one. Use Edit to remove stocks."},
+        {el:".views", t:"Three views", b:"Switch between your watchlist, every stock with its call, and a side-by-side comparison."}],
+  stock:[{el:"#callBand", t:"The call", b:"Buy or wait, for the next trading session, with how far the price may still dip. Tap it to see why."},
+         {el:"#chartSec", t:"The chart", b:"Move along the line to see any day's price. The shaded area on the right shows when the low is most likely to come."},
          {el:"#tiles", t:"Everything else, one tap away", b:"Each tile shows the main number. Tap it for the details, then swipe down or tap outside to close."}]};
-let STEPS = TOURS.board, tourAt = -1;
-function startTour(which) { STEPS = TOURS[which || (route() ? "stock" : "board")]; tourAt = 0; showStep(); }
+let STEPS = TOURS.home, tourAt = -1;
+function startTour(which) { STEPS = TOURS[which || (stockOf(route()) ? "stock" : "home")]; if (STEPS === TOURS.home && route()) location.hash = ""; tourAt = 0; showStep(); }
 function endTour() { if (tourAt < 0) return; document.querySelector(".spot")?.classList.remove("spot"); $("#tour").hidden = true; tourAt = -1; store.set(STEPS === TOURS.stock ? "toured_stock" : "toured", true); }
 function showStep() {
   document.querySelector(".spot")?.classList.remove("spot");
-  const st = STEPS[tourAt], el = st && $(st.el);
+  const st = STEPS[tourAt], el = st && (st.el === "#callBand" && innerWidth > 880 ? $("#callBox") : $(st.el));
   if (!st) return endTour();
   if (!el) { tourAt++; return showStep(); }
   el.classList.add("spot"); el.scrollIntoView({block:"center", behavior:matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth"});
@@ -1017,17 +1256,17 @@ function showStep() {
 
 /* ------------------------------------------------------------------ data: board twice a day, quotes every few minutes */
 function loadQuotes() {
-  if (route()) fetch("data/paths.json?" + Date.now()).then(r => r.ok ? r.json() : null).then(p => { if (p) PATHS = p; }).catch(() => {});
+  if (stockOf(route())) fetch("data/paths.json?" + Date.now()).then(r => r.ok ? r.json() : null).then(p => { if (p) PATHS = p; }).catch(() => {});
   return fetch("data/quotes.json?" + Date.now()).then(r => r.ok ? r.json() : null).then(q => { if (q) { Q = q; if (DATA && !sheet.open) render(); } }).catch(() => {});
 }
 fetch("data/predictions.json?" + Date.now()).then(r => r.json()).then(d => {
   DATA = d;
   sel = (d.stocks.find(live) || d.stocks[0] || {}).ticker;
   renderAll(); renderSkill();
-  loadQuotes().then(() => { if (!store.get("toured", false) && !route()) setTimeout(() => startTour("board"), 600); });
+  loadQuotes().then(() => { if (!store.get("toured", false) && !stockOf(route())) setTimeout(() => startTour("home"), 600); });
   setInterval(() => { if (document.visibilityState === "visible") loadQuotes(); }, 60000);
   setInterval(() => fetch("data/predictions.json?" + Date.now()).then(r => r.json()).then(x => { if (x.generated_utc !== DATA.generated_utc && !sheet.open) { DATA = x; renderAll(); } }).catch(() => {}), 600000);
-  let rt, lw = innerWidth; addEventListener("resize", () => { clearTimeout(rt); rt = setTimeout(() => { if (Math.abs(innerWidth - lw) > 30) { lw = innerWidth; render(); } }, 200); });
+  let rt, lw = innerWidth, lh = innerHeight; addEventListener("resize", () => { clearTimeout(rt); rt = setTimeout(() => { if (Math.abs(innerWidth - lw) > 30 || Math.abs(innerHeight - lh) > 40) { lw = innerWidth; lh = innerHeight; render(); } }, 200); });
 }).catch(() => { $("#detail").innerHTML = `<p style="padding:40px 0">Today's board could not be loaded. Refresh the page to try again.</p>`; });
 </script>
 </body>
