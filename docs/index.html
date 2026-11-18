@@ -21,6 +21,14 @@
 (function () { const r = document.documentElement, ok = () => r.classList.add("fok"); setTimeout(ok, 900);
   try { document.fonts.load('400 1em "Gloock"').then(ok, ok); } catch (e) { ok(); } })();</script>
 <link rel="preload" href="fonts/gloock-latin-400-normal.woff2" as="font" type="font/woff2" crossorigin>
+<!-- link previews (LinkedIn, WhatsApp, Slack and others read these) -->
+<meta property="og:type" content="website">
+<meta property="og:title" content="Settle: buy the dip now, or wait?">
+<meta property="og:description" content="Machine learning forecasts of how far a stock may fall after company news, for 500+ US stocks.">
+<meta property="og:url" content="https://clairecwn.github.io/StockPredictionModel/">
+<meta property="og:image" content="https://clairecwn.github.io/StockPredictionModel/art/preview.png">
+<meta property="og:image:width" content="1280"><meta property="og:image:height" content="640">
+<meta name="twitter:card" content="summary_large_image">
 <link rel="apple-touch-icon" href="art/icon-180.png">
 <!-- launch screens for the home-screen app: the same picture as the opening screen, shown by the phone while Settle starts -->
 <link rel="apple-touch-startup-image" media="(device-width: 440px) and (device-height: 956px) and (-webkit-device-pixel-ratio: 3) and (orientation: portrait)" href="art/launch/launch-1320x2868.jpg">
