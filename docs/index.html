@@ -760,7 +760,7 @@ const TIPS = {
   swings:"How much the price is likely to move up and down each day over the next four weeks, compared with what is normal for this stock.",
   vol:"How many shares are likely to trade each day over the next four weeks, compared with what is normal for this stock. Trading often gets busy after news and quietens as the news gets older.",
   move4:"How far the price could travel over the next four weeks in an ordinary month, either up or down. About two months in three stay within this.",
-  ext:"Trades made before the market opens (4:00 to 9:30 AM New York time) or after it closes (4:00 to 8:00 PM). Fewer people trade then, so the price can jump around, but it hints at where the stock may open.",
+  ext:"Trades made before the market opens (4:00 to 9:30 AM New York time) or after it closes (4:00 to 8:00 PM), and overnight on some venues (8:00 PM to 4:00 AM). Fewer people trade then, so the price can jump around, but it hints at where the stock may open.",
   nrange:"Where the price is likely to stay during the next trading day. On about two days out of three, the stock stays inside this range.",
   bottom:"After news, a stock often keeps falling for a while before it reaches its lowest point. This is the chance that the lowest point of the four weeks has already happened. If it is high, a further dip would probably stop above that earlier low.",
   usedRange:"How much of a normal day's movement has already happened today. Near 100% means the stock has already moved about as much as it usually does in a whole day.",
@@ -1795,9 +1795,9 @@ function nextForecast(now = Date.now()) {
 }
 /* label an out-of-hours price by when it traded (New York time): before 9:30 am is pre-market, after 4 pm is after hours.
    Brokers that trade overnight (8 pm to 4 am New York) show prices this page has no source for, so say so once it is stale */
-function extLabel(e) { const t = Date.parse(e.time), ny = new Date(t + nyOff(t)), m = ny.getUTCHours() * 60 + ny.getUTCMinutes();
+function extLabel(e) { if (e.session === "overnight") return "Overnight"; const t = Date.parse(e.time), ny = new Date(t + nyOff(t)), m = ny.getUTCHours() * 60 + ny.getUTCMinutes();
   return m < 570 && m >= 240 ? "Pre-market" : "After hours"; }
-function extNote(e) { return Date.now() - Date.parse(e.time) > 30 * 60e3 && market().sess === "closed" ? " Overnight trading on some brokers is not included." : ""; }
+function extNote(e) { return e.session === "overnight" ? " Overnight prices are the midpoint of live buy and sell quotes, so they move more than daytime prices." : Date.now() - Date.parse(e.time) > 30 * 60e3 && market().sess === "closed" ? " Overnight trading on some brokers is not included." : ""; }
 function forecastStamp(s) { const t = nextForecast(), f = s ? freshNews(s).length : 0;
   return (f ? `<b>${f === 1 ? "New headline" : f + " new headlines"}</b> since this forecast. ` : "") + (t ? `Next forecast ${clockD(t)}` : ""); }
 /* "Updated 12:24 AM SGT" under the name: the time of the last price check: when this device last got fresh numbers */
