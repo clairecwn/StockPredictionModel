@@ -11,11 +11,13 @@
 <link rel="preload" href="fonts/gloock-latin-400-normal.woff2" as="font" type="font/woff2" crossorigin>
 <script>try { const t = localStorage.getItem("theme"); if (t) document.documentElement.dataset.theme = t;
 } catch (e) {}
-/* the opening screen shows on fresh visits and refreshes. When a home-screen app is reopened soon after it was left, the
-   phone first shows its saved picture of the page, so the opening screen would flash over it: skip it then */
 (function () { let back = 0; try { back = Date.now() - (+localStorage.getItem("settle_left") || 0); } catch (e) {}
   const app = matchMedia("(display-mode: standalone)").matches || navigator.standalone;
-  if (!(app && back < 30 * 60e3)) document.documentElement.classList.add("intro"); })();
+  // the home-screen app never draws it: the phone shows the launch screen (art/launch) on a fresh start and its picture
+  // of the last page otherwise, so anything drawn on top flashes. In a browser it shows on a refresh, and otherwise unless
+  // the tab was left within the last 30 minutes (the browser may be showing its picture of the page then too)
+  const nav = (performance.getEntriesByType && performance.getEntriesByType("navigation")[0] || {}).type;
+  if (!app && (back > 30 * 60e3 || nav === "reload")) document.documentElement.classList.add("intro"); })();
 (function () { const r = document.documentElement, ok = () => r.classList.add("fok"); setTimeout(ok, 900);
   try { document.fonts.load('400 1em "Gloock"').then(ok, ok); } catch (e) { ok(); } })();</script>
 <link rel="preload" href="fonts/gloock-latin-400-normal.woff2" as="font" type="font/woff2" crossorigin>
@@ -1653,7 +1655,7 @@ const TOURS = {
         {el:"#wgrid .wfoot", t:"The two numbers to check", b:"<b>Low already in</b> is the chance the stock has already hit its lowest point after its news, so a further dip would likely stop above it. <b>Bad case</b> is a fall that only about 1 in 10 similar cases went beyond in four weeks. Stocks without recent news show their week against the market instead."},
         {el:"#addBox", t:"Build your list", b:"Search for any of about 500 large US stocks, or tap a popular one to add it. Tap Edit to remove stocks."},
         {el:".views", t:"Three ways to look", b:"<b>All stocks</b> ranks every stock, and the star adds one to your list. <b>Compare</b> lines up two to four stocks on timing, risk and how much to put in."}],
-  stock:[{el:"#callBand", t:"The call", b:"Buy or wait for the next session, and how sure it is. After company news it comes from about 317,000 similar past cases. Without news it comes from how the stock moved against the market this week. Tap it for the reasons."},
+  stock:[{el:"#callBand", t:"The call", b:"Buy or wait for the next session, and how sure it is. After company news it comes from about 317,000 similar past cases. Without news it comes from how the stock moved against the market this week. Tap it for the reasons."}, {el:".top", phone:true, t:"Keep Settle on your phone", b:() => installHow()},
          {el:"#chartSec", t:"The chart", b:"Drag along the line to see any day's price. The shaded area on the right shows when the low is most likely to come, and the dashed lines mark the expected low and the bad case."},
          {el:"#tiles", t:"The details", b:"Each tile shows its main number. Tap one for more.<ul><li><b>The rest of today</b> or <b>Next open:</b> the likely price range.</li><li><b>The low:</b> when the lowest point may come, or how far it usually dips.</li><li><b>Risk:</b> how much the price may swing over four weeks.</li><li><b>The stock today:</b> trend, momentum and where it sits in its yearly range.</li><li><b>News:</b> the headlines behind the call.</li></ul>"},
          {el:'#tiles [data-sheet="size"]', t:"How much to put in", b:"Enter your budget and pick how much risk you can take. Settle suggests an amount small enough that a bad month stays within the loss you chose. You can add up to three stocks to one plan."},
@@ -1673,9 +1675,9 @@ function installHow() {
                                        : "Tap the <b>menu</b> (three dots) at the top right, then <b>Add to Home screen</b> or <b>Install app</b>.");
   return null;
 }
-const installable = () => matchMedia("(pointer: coarse)").matches && innerWidth < 880 && !matchMedia("(display-mode: standalone)").matches && !navigator.standalone;
+const installable = () => !matchMedia("(display-mode: standalone)").matches && !navigator.standalone;   // installHow() decides by phone and browser
 let tourKind = "home";
-function startTour(which) { if (which === "stock" && !stockOf(route())) which = "home"; tourKind = which || (stockOf(route()) ? "stock" : "home"); STEPS = TOURS[tourKind].filter(st => !st.phone || (installable() && installHow())); if (tourKind === "home" && route()) location.hash = ""; tourAt = 0; showStep(); }
+function startTour(which) { if (which === "stock" && !stockOf(route())) which = "home"; tourKind = which || (stockOf(route()) ? "stock" : "home"); STEPS = TOURS[tourKind].filter(st => !st.phone || (installable() && installHow() && !store.get("told_install", false)));   /* told once, in whichever walkthrough comes first */ if (tourKind === "home" && route()) location.hash = ""; tourAt = 0; showStep(); }
 function endTour() { document.body.style.paddingBottom = ""; if (tourAt < 0) return; document.querySelector(".spot")?.classList.remove("spot"); $("#tour").hidden = true; tourAt = -1; store.set(tourKind === "stock" ? "toured_stock" : "toured", true); }
 /* scroll so the highlighted part and the card both fit on screen, with the card beside the part, never on top of it.
    Only a part taller than the screen allows can sit partly under the card, and then its top is kept in view */
@@ -1696,6 +1698,7 @@ function placeTour(el, card) {
   card.style.top = cardTop + "px";
 }
 function showStep() {
+  if (STEPS[tourAt]?.phone) store.set("told_install", true);
   document.querySelector(".spot")?.classList.remove("spot"); document.body.style.paddingBottom = "70vh";
   const st = STEPS[tourAt], el = st && (st.el === "#callBand" && innerWidth > 880 ? $("#callBox") : $(st.el));
   if (!st) return endTour();
