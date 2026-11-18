@@ -1090,7 +1090,7 @@ function nextSession(s) {
     if (h && l && pc && qq.atr_pct) { const used = 100 * (100 * (h - l) / pc) / qq.atr_pct;
       st.push(`<div class="stat"><dt>Day's range used ${tip("usedRange")}</dt><dd>${fmt(used, 0)}%</dd><small>It has moved ${fmt(100 * (h - l) / pc)}% from low to high so far, against about ${fmt(qq.atr_pct)}% on a normal day.</small></div>`); }
   } else if (ext) {
-    st.push(`<div class="stat"><dt>${ext.session === "pre-market" ? "Pre-market" : "After hours"} ${tip("ext")}</dt><dd>${fmt(ext.price, 2)} <span class="${ext.change_pct >= 0 ? "up" : "down"}" style="font-size:17px">${ext.change_pct >= 0 ? "+" : "−"}${fmt(Math.abs(ext.change_pct), 2)}%</span></dd><small>Compared with the last close. Last trade at ${clockD(ext.time)}.</small></div>`);
+    st.push(`<div class="stat"><dt>${extLabel(ext)} ${tip("ext")}</dt><dd>${fmt(ext.price, 2)} <span class="${ext.change_pct >= 0 ? "up" : "down"}" style="font-size:17px">${ext.change_pct >= 0 ? "+" : "−"}${fmt(Math.abs(ext.change_pct), 2)}%</span></dd><small>Compared with the last close. Last trade at ${clockD(ext.time)}.${extNote(ext)}</small></div>`);
   } else {
     st.push(`<div class="stat"><dt>Since the close ${tip("ext")}</dt><dd class="sm">No trades yet</dd><small>Early trading starts at 4:00 AM New York time and will show here.</small></div>`);
   }
@@ -1109,7 +1109,7 @@ function nextSession(s) {
     const t = s.stats, tw = {bullish:"Bullish", bearish:"Bearish", mixed:"Mixed"}[t.trend];
     st.push(`<div class="stat"><dt>Trend ${tip("trend")}</dt><dd class="${t.trend === "bullish" ? "up" : t.trend === "bearish" ? "down" : ""}">${tw}</dd><small>It is ${t.ret_3m_pct >= 0 ? "up" : "down"} ${fmt(Math.abs(t.ret_3m_pct))}% over three months, while the market ${t.mkt_3m_pct >= 0 ? "rose" : "fell"} ${fmt(Math.abs(t.mkt_3m_pct))}%.</small></div>`);
   }
-  const lp = lastPx(s), L = levels(s, lp).concat([{k:lp !== px ? (ext?.session === "after hours" ? "Now, after hours" : "Now, pre-market") : "Now", v:lp, now:true}]).sort((a, b) => b.v - a.v);
+  const lp = lastPx(s), L = levels(s, lp).concat([{k:lp !== px ? (ext ? "Now, " + extLabel(ext).toLowerCase() : "Now") : "Now", v:lp, now:true}]).sort((a, b) => b.v - a.v);
   const ladder = L.length > 1 ? `<div><h3 style="display:flex;align-items:center;gap:6px;margin:0 0 8px;font-size:16px">Price levels to watch ${tip("levels")}</h3><ul class="ladder">
     ${L.map(x => `<li class="${x.now ? "now" : x.c || ""}"><i></i><span>${x.k}</span><b>${fmt(x.v, 2)}</b><em>${x.now ? "" : (x.v >= lp ? "+" : "−") + fmt(Math.abs(100 * (x.v / lp - 1))) + "%"}</em></li>`).join("")}</ul></div>` : "";
   return `<section class="next" id="nextBox"><div><h2>${isOpen ? "The rest of today" : "Before the next open"}</h2><p class="when-line">${line}</p><dl class="stats">${st.join("")}</dl></div>${ladder}</section>`;
@@ -1418,7 +1418,7 @@ function quickChips(s) {
   if (sess() === "open" && q?.high && q?.low && q?.prev_close && qq.atr_pct) {
     out.push(`<div class="qc"><dt>Day's move used ${tip("usedRange")}</dt><dd>${fmt(100 * (100 * (q.high - q.low) / q.prev_close) / qq.atr_pct, 0)}%</dd></div>`);
   } else if (q?.ext) {
-    out.push(`<div class="qc"><dt>${q.ext.session === "pre-market" ? "Pre-market" : "After hours"} ${tip("ext")}</dt><dd class="${q.ext.change_pct >= 0 ? "up" : "down"}">${q.ext.change_pct >= 0 ? "+" : "−"}${fmt(Math.abs(q.ext.change_pct), 2)}%</dd></div>`);
+    out.push(`<div class="qc"><dt>${extLabel(q.ext)} ${tip("ext")}</dt><dd class="${q.ext.change_pct >= 0 ? "up" : "down"}">${q.ext.change_pct >= 0 ? "+" : "−"}${fmt(Math.abs(q.ext.change_pct), 2)}%</dd></div>`);
   } else {
     out.push(`<div class="qc"><dt>After hours ${tip("ext")}</dt><dd>No trades</dd></div>`);
   }
@@ -1793,6 +1793,11 @@ function nextForecast(now = Date.now()) {
   }
   return null;
 }
+/* label an out-of-hours price by when it traded (New York time): before 9:30 am is pre-market, after 4 pm is after hours.
+   Brokers that trade overnight (8 pm to 4 am New York) show prices this page has no source for, so say so once it is stale */
+function extLabel(e) { const t = Date.parse(e.time), ny = new Date(t + nyOff(t)), m = ny.getUTCHours() * 60 + ny.getUTCMinutes();
+  return m < 570 && m >= 240 ? "Pre-market" : "After hours"; }
+function extNote(e) { return Date.now() - Date.parse(e.time) > 30 * 60e3 && market().sess === "closed" ? " Overnight trading on some brokers is not included." : ""; }
 function forecastStamp(s) { const t = nextForecast(), f = s ? freshNews(s).length : 0;
   return (f ? `<b>${f === 1 ? "New headline" : f + " new headlines"}</b> since this forecast. ` : "") + (t ? `Next forecast ${clockD(t)}` : ""); }
 /* "Updated 12:24 AM SGT" under the name: the time of the last price check: when this device last got fresh numbers */
