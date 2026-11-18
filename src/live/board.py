@@ -3,7 +3,6 @@ features exactly as in training (see parity_check.py), and write:
   docs/data/predictions.json   the board: one summary per stock (signals, risk, sizing) and compact correlations
   docs/data/stocks/<T>.json    everything else the page shows for one stock (price history, quote, headlines), loaded on demand
   docs/data/forward_log.csv    one row per stock per run, so live accuracy can be scored later (out of sample by construction)
-  README.md                    the table between the LIVE-BOARD markers is replaced
 Models: models/live/ (trained with LIVE_FEATS=1 on features that free live data can rebuild).
 Run: python src/live/board.py          Research only. Not investment advice.
 """
@@ -359,31 +358,3 @@ old = pd.read_csv(logf) if logf.exists() else pd.DataFrame()
 if len(old) and "price_date" not in old: old = pd.DataFrame()
 if len(new) or len(old):
     pd.concat([old, new]).drop_duplicates(["ticker", "price_date"], keep="last").to_csv(logf, index=False)
-
-# README table
-lines = [f"_Updated {now:%Y-%m-%d %H:%M} UTC. Research only, not financial advice._", "",
-         "| Stock | Price | Event (day 0) | Day | Signal | Expected further dip | Most likely timing of the 20-day low | 1-in-10 worst point (20 days) | Risk vs normal | Balanced size |",
-         "|---|---|---|---|---|---|---|---|---|---|"]
-shown = sorted([b for b in board if b.get("status") == "event" and b.get("entry", {}).get("signal") in ("BUY", "WAIT")], key=lambda b: b["decision_day"])[:40]
-lines[1:1] = ["", f"{len(board)} stocks checked; {sum(b.get('status') == 'event' for b in board)} have company news in the last 15 trading days. The 40 most recent calls are listed below; the page shows all of them."]
-for b in shown:
-    e, r, s = b.get("entry", {}), b["risk"], b.get("sizing", {}).get("tiers", {})
-    dip = f"{e['expected_further_dip_pct']:.1f}%" if "expected_further_dip_pct" in e else ""
-    vr = f"{r['vol_ratio_2_20']['pred']:.2f}x" if "vol_ratio_2_20" in r else ""
-    rec = f"{100 * s['recommended']['weight']:.0f}%" if "recommended" in s else ""
-    warn = " (high drop risk)" if b.get("warning_big_drop") else ""
-    dl = e.get("days_to_low")
-    if dl:
-        j = int(np.argmax(dl["probs"])); names = ["already passed", "in 1-2 days", "in 3-5 days", "in 6-10 days", "in 11+ days"]
-        low = f"{names[j]} ({100 * dl['probs'][j]:.0f}%)"
-    else:
-        low = ""
-    bad = f"{s['recommended']['bad_case_pct']:.1f}%" if "recommended" in s else ""
-    lab = "price or volume shock" if b["event_class"] == "other" else b["event_class"].replace("_", " ")
-    lines.append(f"| {b['ticker']} | {b['price']:.2f} | {lab} ({b['day0']}) | {b['decision_day']} | {e.get('signal', '')}{warn} | {dip} | {low} | {bad} | {vr} | {rec} |")
-rd = ROOT / "README.md"; txt = rd.read_text()
-A, B = "<!-- LIVE-BOARD:START -->", "<!-- LIVE-BOARD:END -->"
-block = A + "\n" + "\n".join(lines) + "\n" + B
-txt = txt[:txt.index(A)] + block + txt[txt.index(B) + len(B):] if A in txt else txt + "\n\n## Live board\n\n" + block + "\n"
-rd.write_text(txt)
-print("\n".join(lines))

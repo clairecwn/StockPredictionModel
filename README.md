@@ -33,8 +33,7 @@ The app shows the same reasoning for each stock: the call, the bad case, the amo
 ## Contents
 
 1. [Approach](#approach)
-1. [Results at a glance](#results-at-a-glance)
-2. [Success metrics](#success-metrics)
+2. [Results](#results)
 3. [Architecture](#architecture)
 4. [Data](#data)
 5. [Data cleaning](#data-cleaning)
@@ -42,78 +41,35 @@ The app shows the same reasoning for each stock: the call, the bad case, the amo
 7. [Method](#method)
 8. [Validation](#validation)
 9. [Detailed results](#detailed-results)
-10. [Live board](#live-board)
+10. [The app](#the-app)
 11. [Reproducing the results](#reproducing-the-results)
 12. [Repository structure](#repository-structure)
 13. [Limitations](#limitations)
 14. [References](#references)
 
-## Results at a glance
+## Results
 
-All figures are out of sample and come from the models used on the live board, which include the earnings-calendar, pre-event liquidity and volatility-gap features described under [Detailed results](#detailed-results). Test years run from 2006 to 2025 under purged walk-forward validation, which is described in the [Validation](#validation) section. A rank correlation of 0 means no skill and 1 means a perfect ordering of outcomes.
+All figures are out of sample, from the models the app uses, on test years from 2006 to 2025 under purged walk-forward validation (see [Validation](#validation)). Ranking scores are rank correlations: 0 ranks events no better than chance and 1 ranks them perfectly. Models trained on shuffled outcomes, which can only find patterns by luck, score about 0.
 
-| What is predicted | Out-of-sample skill | Verdict |
-|---|---|---|
-| Volatility over days 2 to 20, relative to normal | rank correlation 0.51 (shuffled-label placebo -0.01) | Strong |
-| Trading volume over days 2 to 20, relative to normal | rank correlation 0.66 | Strong |
-| Deepest abnormal drop over days 2 to 20 | rank correlation 0.20; AUC 0.68 for the worst 20% (naive baseline 0.61) | Useful |
-| Downside bound ("at most a 10% chance of falling below this") | breached 9.4% of the time in 2021 to 2025 | Calibrated |
-| Buy-or-wait rule | entries 0.05 percentage points closer to the 20-day low than buying on day 1 (Holm-adjusted p = 0.020) | Small but significant |
-| Position sizing tiers | losses beyond the stated limit in 2.7%, 2.5% and 1.4% of trades, against promises of 5%, 10% and 10% | Promises kept |
-| Direction of the 20-day abnormal return | rank correlation 0.03, right sign 51% of the time | Not significant |
-| When the 20-day low will come (five windows, from already passed to 11 or more days away) | log loss 1.14 against 1.27 for a day-count baseline; most likely window right 53% of the time against 48.5% | Useful |
+| Forecast | How it is measured | Settle | Compared with | Verdict |
+|---|---|---|---|---|
+| Volatility, next four weeks | ranking score | 0.51 | HAR model 0.33 (Settle wins in 99% of test months); shuffled -0.01 | Strong |
+| Trading volume, next four weeks | ranking score | 0.66 | recent volume 0.61; shuffled 0.02 | Strong |
+| Deepest drop, next four weeks | ranking score | 0.20 | linear model 0.16; shuffled 0.08 | Useful |
+| Warning of a sharp drop | share of warned stocks that had one of the worst 20% of drops | 35% | 15% of the rest | Useful |
+| Bad case, 1 in 10 | share of stocks that fell further, 2021 to 2025 | 9.4% | promised 10% | Calibrated |
+| Forecast ranges | share of outcomes inside the 80% range | 79.7% to 80.0% | promised 80% | Calibrated |
+| Position sizes (Safest, Balanced, Bold) | share of trades that lost more than the limit | 2.7%, 2.5%, 1.4% | promised at most 5%, 10%, 10% | Promises kept |
+| When the low will come | most likely of five windows right | 53.1% | 48.5% for a guess from the day count | Useful |
+| Buy or wait | average entry above the four-week low | 4.78% | 4.83% for buying the day after the news (Holm-adjusted p = 0.020) | Small but significant |
+| Earnings preview, size of the move | ranking score | 0.37 | 0.36 for the stock's own past moves | Marginal |
+| Direction, next four weeks | ranking score / right direction | 0.03 / 51% | 0.00 / 50% for shuffled | Not significant |
 
-The pattern is consistent across every method tried. Risk is predictable, because volatility and trading activity cluster in time. Direction is not, because the market prices news within a day or two. The project is therefore built around managing risk rather than forecasting returns.
+**What this means.** Risk is predictable, because calm and busy periods tend to last. Direction is not, because the market prices public news within a day or two, so the app shows no direction and sizes positions from risk alone. The chances are also honest: when the timing model gave a 95% chance that the low had already passed, it had passed 94.6% of the time. The buy-or-wait edge is real but small, so the call is best used to time a purchase that was already planned.
 
-## Success metrics
+**How this compares with other work.** Professional investors judge stock-picking signals with the same ranking score, and about 0.05 is usually called strong (Zhang, Guo and Cao, 2020). Settle's 0.03 for direction is in the normal range for real signals, though not reliable enough to use. Gu, Kelly and Xiu (2020) show that even the best machine-learning models explain less than 1% of monthly stock returns, and Fischer and Krauss (2018) found that the edge of deep learning on S&P 500 stocks disappeared after costs from 2010 on. The volatility model, by contrast, beats the standard textbook model on the same data, as the [benchmark experiment](#experiment-the-risk-models-against-standard-benchmarks) shows.
 
-Each part of Settle makes a different promise, so each one is judged in the way that fits it. All the numbers below come from test years that the models never saw while they were being built.
-
-### What works well
-
-**Risk forecasts.** Settle's strongest forecasts are about risk: how much a stock will swing, and how busily it will trade, in the four weeks after news. To score them, every past event is ranked twice, once by its forecast and once by what actually happened, and the two rankings are compared. A score of 0 means the forecast ranks events no better than chance, and 1 means it ranks them perfectly. The volatility forecast scores 0.51 and the trading-volume forecast scores 0.67. The same models trained on shuffled outcomes, which can only find patterns by luck, score about 0. On the same events, the standard textbook model for volatility (the HAR model) scores 0.33, and Settle's model beats it in 99% of test months.
-
-**Bad cases and ranges.** A bad case that says only 1 stock in 10 falls further should be passed about 10% of the time. From 2021 to 2025, it was passed 9.4% of the time. Every forecast also comes with a range that should hold the real outcome 8 times out of 10, and these ranges did so 79.7% to 80.0% of the time. The position sizes built on these bounds kept their promises as well. The three risk levels promise that no more than 5%, 10% and 10% of trades lose more than their limit, and in testing only 2.7%, 2.5% and 1.4% did.
-
-**When the low will come.** This forecast is clearly better than guessing from the number of days since the news. Its most likely window was right 53.1% of the time, compared with 48.5% for the guess. Its chances can also be taken at face value: when it gave a 95% chance that the low had already passed, the low had passed 94.6% of the time.
-
-### What works a little
-
-**How far a stock may fall.** Settle can tell riskier events from safer ones, but it cannot say exactly how far a stock will fall. Its forecast of the deepest drop scores 0.20 on the same ranking scale, compared with 0.08 for the shuffled version. Its warning of a sharp drop is more useful than that score suggests: 35% of the stocks it warned about went on to one of the worst drops, compared with 15% of the rest.
-
-**Buy or wait.** The call has a real but small edge. Following it bought stocks, on average, 4.78% above their lowest price of the four weeks. Buying the day after the news bought them 4.83% above it. The difference is small, but it is statistically significant, which is why the call is best used to time a purchase that was already planned.
-
-**Earnings previews.** The forecast of how much a stock will move after its earnings report scores 0.37, just above the 0.36 scored by the stock's own past moves. It does not say which way the stock will move.
-
-### What does not work
-
-No model in this project can reliably say whether a stock will beat the market over the next four weeks. The best one scores 0.03 and picks the right direction 51% of the time, which is close to a coin flip and not statistically significant. This is what should be expected, because public news is priced within a day or two. For this reason, the board does not show a direction.
-
-### How this compares with other work
-
-Comparisons are only made where the task is close enough to be fair.
-
-Professional investors judge stock-picking signals with the same ranking score. A score of about 0.05 is usually called strong (Zhang, Guo and Cao, 2020), so Settle's 0.03 for direction is in the normal range for real signals, even though it is not reliable enough to use here. Large studies find the same limits. Gu, Kelly and Xiu (2020) show that even the best machine-learning models explain less than 1% of monthly stock returns, and Fischer and Krauss (2018) found that the edge of deep learning on S&P 500 stocks disappeared after costs from 2010 on. A hit rate near 50% is therefore an honest result, not a weak one.
-
-Studies also agree that volatility and trading activity are much easier to predict than direction, because calm and busy periods tend to last. Settle shows the same gap, with scores of 0.51 and 0.67 for risk against 0.03 for direction. Its volatility model also beats the standard textbook model on the same data, as the [benchmark experiment](#experiment-the-risk-models-against-standard-benchmarks) shows.
-
-### All scores
-
-| Forecast | How it is measured | Settle | Compared with |
-|---|---|---|---|
-| Volatility, next four weeks | ranking score (0 to 1) | 0.51 | HAR model 0.33; shuffled 0.00 |
-| Trading volume, next four weeks | ranking score | 0.67 | recent volume 0.61; shuffled 0.02 |
-| Deepest drop, next four weeks | ranking score | 0.20 | shuffled 0.08 |
-| Warning of a sharp drop | share of warned stocks that had one of the worst drops | 35% | 15% of the rest |
-| Bad case, 1 in 10 | share of stocks that fell further, 2021 to 2025 | 9.4% | promised 10% |
-| Forecast ranges | share of outcomes inside the range | 79.7% to 80.0% | promised 80% |
-| Position sizes (Safest, Balanced, Bold) | share of trades that lost more than the limit | 2.7%, 2.5%, 1.4% | promised at most 5%, 10%, 10% |
-| When the low will come | most likely window right | 53.1% | 48.5% for a guess from the day count |
-| Buy or wait | average entry above the four-week low | 4.78% | 4.83% for buying the day after the news |
-| Earnings preview, size of the move | ranking score | 0.37 | 0.36 for the stock's own past moves |
-| Direction, next four weeks | ranking score / right direction | 0.03 / 51% | 0.00 / 50% for shuffled |
-
-The live board also records every forecast it makes (`docs/data/forward_log.csv`) and scores each one once four weeks have passed (`docs/data/forward_scores.json`). That record began in November 2026 and will be reported here once it holds enough events to judge.
+**Live record.** The app saves every forecast before its outcome is known (`docs/data/forward_log.csv`) and scores it once four weeks have passed (`docs/data/forward_scores.json`). The record began in November 2026 and will be reported here once it holds enough events to judge.
 
 ## Architecture
 
@@ -127,7 +83,7 @@ flowchart LR
     D --> F[Entry engine<br/>buy or wait, daily]
     E --> G[Conformal bounds<br/>CQR, ACI, Mondrian]
     G --> H[Position sizing<br/>chance-constrained Kelly]
-    F --> L[Live board]
+    F --> L[Settle app]
     H --> L
     E --> L
     Y[Live: Yahoo prices,<br/>Finnhub news and earnings,<br/>FRED, FINRA] --> L
@@ -138,7 +94,7 @@ The pipeline runs in four stages:
 1. **Events.** Company news is collected from licensed databases, linked to stock returns, and filtered to a tradeable universe.
 2. **Features and targets.** Each event is described by information known at the close of the day after the news, and labelled with what happened over the following weeks.
 3. **Models.** Separate models forecast risk, entry timing and downside bounds. Every model is trained and tested with the same time-ordered splits.
-4. **Live board.** The same feature code runs on free live data. A parity check confirms that the live features match the training features before any prediction is published.
+4. **The app.** The same feature code runs on free live data. A parity check confirms that the live features match the training features before any prediction is published.
 
 ## Data
 
@@ -157,7 +113,7 @@ The pipeline runs in four stages:
 
 **Licence note.** WRDS data is licensed and is not included in this repository. Neither are models trained on it. The code expects the files in a git-ignored `data/` folder, and `docs/WRDS_GUIDE.md` lists exactly which files to download.
 
-**Sample.** The raw event table holds 400,557 events. The tradeable universe keeps events where the stock traded at \$5 or more and was not in the smallest 20% of firms by market value that year. This leaves 317,041 events across 3,400 firms from 2001 to 2025. Small, illiquid stocks are excluded because their prices are noisy and their apparent patterns are too expensive to trade.
+**Sample.** The raw event table holds 400,557 events. After the cleaning steps below, 317,041 events across 3,400 firms from 2001 to 2025 remain.
 
 ## Data cleaning
 
@@ -167,7 +123,7 @@ Raw records from different databases describe the same company with different id
 2. **Dating.** Each event is placed on the first trading day on or after its announcement date. Earnings dates come from I/B/E/S announcement dates, and an earnings release takes priority over an analyst rating change on the same firm and day.
 3. **Same-day news.** Several items about one firm on one day are merged into a single event. The number of items is kept as a feature.
 4. **History requirement.** An event needs at least 120 valid trading days in the estimation window (days $-250$ to $-30$), so that each stock's normal behaviour can be estimated.
-5. **Tradeable universe.** Events are kept only if the stock closed at \$5 or more the day before and was not in the smallest 20% of firms by market value that year. This removes 83,516 of the 400,557 events.
+5. **Tradeable universe.** Events are kept only if the stock closed at \$5 or more the day before and was not in the smallest 20% of firms by market value that year. This removes 83,516 of the 400,557 events. Small, illiquid stocks are excluded because their prices are noisy and their apparent patterns are too expensive to trade.
 6. **Outliers.** Return targets are clipped at their 0.5th and 99.5th percentiles, which removes data errors without discarding events. Volatility and volume ratios are floored at 0.05 before taking logs.
 7. **Missing values.** Gradient boosting handles missing values directly, so gaps are left as missing rather than filled with guesses. Series that start late are blank before they begin by design: FINRA short-sale data starts in August 2009 and Compustat short interest in July 2006.
 8. **Publication lags.** Every input is dated to when it was actually public. Short-sale volume is lagged one day, executive compensation data is dated July 1 of the following year, consumer sentiment is lagged one month, and short interest uses the raw reported figure rather than one adjusted for later stock splits.
@@ -186,6 +142,7 @@ The size of an earnings surprise strongly predicts the immediate reaction but no
 
 ![Earnings surprise deciles](docs/figures/03_pead.png)
 
+## Method
 
 ### 1. Abnormal returns
 
@@ -386,7 +343,7 @@ Financial data makes overfitting easy, so the evaluation is deliberately strict.
 | Trough, days 2 to 20 | 0.16 | 0.20 | 0.20 | 0.08 |
 | Drift, days 2 to 20 | 0.02 | 0.03 | 0.03 | 0.00 |
 
-The values are Spearman rank correlations, computed out of sample. The first two columns come from the models used on the live board, and the ensemble column from the full research models. The 80% prediction intervals contain the realised outcome 80% of the time for every target, and they are narrower for large firms than for small ones.
+The values are Spearman rank correlations, computed out of sample. The first two columns come from the models the app uses, and the ensemble column from the full research models. The 80% prediction intervals contain the realised outcome 80% of the time for every target, and they are narrower for large firms than for small ones.
 
 The figure below sorts events into ten groups by their prediction and compares the average prediction with the average outcome in each group. For volatility and volume, the realised values rise steadily with the prediction. For the 20-day drift, the realised line is almost flat, which is what a rank correlation of 0.03 looks like.
 
@@ -404,7 +361,7 @@ Post-earnings announcement drift (Bernard and Thomas, 1989) does not appear in t
 | Expected-value rule | 4.74% | 0.001 |
 | Optimal stopping (fitted Q-iteration) | 4.74% | 0.09 |
 
-The live board uses the expected-value rule retrained on live features, which keeps a significant edge (4.76%, Holm-adjusted p below 0.001).
+The app uses the expected-value rule retrained on live features, which keeps a significant edge (4.76%, Holm-adjusted p below 0.001).
 
 ### Position sizing ($200 account, 2016 to 2025)
 
@@ -465,13 +422,13 @@ The Buy/Wait call is right only about 51% of the time, so a second model was tra
 
 ### Experiment: earnings preview
 
-A quiet stock with an earnings report coming up had nothing on the board, even though the report is the most predictable source of risk it faces. A second set of models was therefore trained on the 146,709 past earnings reports, using only information known at the close before each report, to forecast the size of the two-day reaction and the deepest fall over the following four weeks. To pass, a forecast had to beat two rules of thumb month by month on 2016 to 2025: the stock's own average move over its last eight reports, and its pre-report volatility.
+A quiet stock with an earnings report coming up had nothing in the app, even though the report is the most predictable source of risk it faces. A second set of models was therefore trained on the 146,709 past earnings reports, using only information known at the close before each report, to forecast the size of the two-day reaction and the deepest fall over the following four weeks. To pass, a forecast had to beat two rules of thumb month by month on 2016 to 2025: the stock's own average move over its last eight reports, and its pre-report volatility.
 
 | Forecast (live features) | Model | Own usual move | Pre-report volatility | Result |
 |---|---|---|---|---|
-| Size of the two-day move | 0.369 | 0.355 (t = 6.8) | 0.264 (t = 11.2) | Passed, shown on the board |
+| Size of the two-day move | 0.369 | 0.355 (t = 6.8) | 0.264 (t = 11.2) | Passed, shown in the app |
 | Deepest fall over four weeks | 0.180 | 0.134 (t = 5.7) | 0.174 (t = 1.2) | Failed at first |
-| Deepest fall, with analyst disagreement | 0.186 | 0.134 (t = 6.3) | 0.174 (t = 2.6) | Passed, shown on the board |
+| Deepest fall, with analyst disagreement | 0.186 | 0.134 (t = 6.3) | 0.174 (t = 2.6) | Passed, shown in the app |
 
 The predicted move sizes are well calibrated: in each fifth of reports ranked by the forecast, the average predicted move is within 0.2 percentage points of the realised one. The model also picks out reports that move at least twice the stock's usual amount (AUC 0.66). An upper bound that the move should exceed only 1 time in 10 is recalibrated on the latest 12 months, and on 2016 to 2025 it was exceeded in 10.2% of reports. The direction of an earnings reaction was not forecast, because nothing in this project has shown that direction is predictable.
 
@@ -505,7 +462,7 @@ One pattern is worth further work. The volatility forecast's errors line up with
 
 ### Experiment: volatility mean reversion and insider trading
 
-The volatility target divides the next four weeks' volatility by the volatility of the previous 60 days. When those 60 days were unusually calm or unusually wild for the stock, the ratio tends to move back towards normal. Tree models are poor at building ratios from raw inputs, so the model was given the gaps directly, as logarithms of long-run, last-week and range-based volatility over the 60-day level. This lifted the volatility forecast from a rank correlation of 0.488 to 0.499, better in 80% of test months (monthly t = 10.0) and by the same amount from 2021 on. The features are simple transformations of inputs the live board already has, so the live models use them, and the live volatility forecast rose from 0.49 to 0.51.
+The volatility target divides the next four weeks' volatility by the volatility of the previous 60 days. When those 60 days were unusually calm or unusually wild for the stock, the ratio tends to move back towards normal. Tree models are poor at building ratios from raw inputs, so the model was given the gaps directly, as logarithms of long-run, last-week and range-based volatility over the 60-day level. This lifted the volatility forecast from a rank correlation of 0.488 to 0.499, better in 80% of test months (monthly t = 10.0) and by the same amount from 2021 on. The features are simple transformations of inputs the app already has, so the live models use them, and the live volatility forecast rose from 0.49 to 0.51.
 
 Insider trades came from the SEC's free Form 4 data sets: 3.35 million open-market purchases and sales from 2006 on, 91% matched to a stock. Following Cohen, Malloy and Pomorski (2012), an insider who traded in the same calendar month in each of the previous three years was treated as routine, and one who traded every year but off that pattern as opportunistic, since only the second group's trades are known to carry information. Only trades filed by the day after the news were used. Neither all insider trades nor opportunistic trades alone improved any forecast after the Holm correction; the best was opportunistic buying on 60-day drift (monthly t = 1.5). Only 2.3% of events had an opportunistic purchase in the 90 days before, so the signal may be real but too rare to matter at the level of all events.
 
@@ -584,7 +541,7 @@ Most stocks on any given day have had no company news, so the news models have n
 | LightGBM, all price features | deepest fall against the market over 20 days | 0.091 | 17.8 | 0.110 |
 | Rising volatility alone | deepest fall over 20 days | 0.035 | 10.3 | 0.046 |
 
-For buy or wait, the simple reversal rule beat the model and held up from 2021, so the live board uses the rule. Among large stocks, those that rose more than the market over a week went on to trail it the next week (48 to 49 cases in 100 beat the market), and this held from 2021. Stocks that fell more than the market used to bounce, but that stopped holding from 2021, so those Buy calls are shown as a slight lean. For the size of the coming dip, the model is far stronger and also improved from 2021, so the live board uses a version of it built only from features that free daily prices can rebuild.
+For buy or wait, the simple reversal rule beat the model and held up from 2021, so the app uses the rule. Among large stocks, those that rose more than the market over a week went on to trail it the next week (48 to 49 cases in 100 beat the market), and this held from 2021. Stocks that fell more than the market used to bounce, but that stopped holding from 2021, so those Buy calls are shown as a slight lean. For the size of the coming dip, the model is far stronger and also improved from 2021, so the app uses a version of it built only from features that free daily prices can rebuild.
 
 Each call on the page now shows how often similar past cases went its way, as a slight lean, a mild lean or a clearer call. For calls after news, the odds come from the entry engine's test years: the strongest tenth of Buy calls beat the market over the next week in 53 of 100 cases, and the middle of the range is close to a coin flip.
 
@@ -600,67 +557,20 @@ Published stock models often report directional accuracy of 90% or more. In almo
 
 This project avoids all five, so its accuracy for direction sits close to 50%, which is consistent with efficient pricing of public news. A directional accuracy far above that on this kind of data would be treated as a sign of leakage rather than as success.
 
-## Live board
+## The app
 
-<!-- LIVE-BOARD:START -->
-_Updated 2026-11-18 03:34 UTC. Research only, not financial advice._
+**Settle:** https://clairecwn.github.io/StockPredictionModel/
 
-516 stocks checked; 350 have company news in the last 15 trading days. The 40 most recent calls are listed below; the page shows all of them.
+The app covers the S&P 500 and the Nasdaq-100 (`universe.json`) plus the hand-picked stocks in `watchlist.json`. Stocks under $5 and new listings without enough history are left out, because the models were not trained on them. GitHub Actions rebuilds it before the US open and after the close:
 
-| Stock | Price | Event (day 0) | Day | Signal | Expected further dip | Most likely timing of the 20-day low | 1-in-10 worst point (20 days) | Risk vs normal | Balanced size |
-|---|---|---|---|---|---|---|---|---|---|
-| DVN | 43.46 | price or volume shock (2026-11-16) | 1 | BUY | 5.4% | in 11+ days (39%) | -9.7% | 0.85x | 10% |
-| KDP | 34.79 | price or volume shock (2026-11-16) | 1 | WAIT | 4.6% | in 11+ days (40%) | -8.2% | 0.79x | 0% |
-| PDD | 77.39 | earnings guidance (2026-11-16) | 1 | WAIT | 4.3% | in 11+ days (42%) | -7.3% | 1.03x | 9% |
-| TSN | 63.65 | earnings guidance (2026-11-16) | 1 | WAIT | 4.2% | in 11+ days (41%) | -7.0% | 0.89x | 0% |
-| SO | 93.60 | price or volume shock (2026-11-13) | 2 | WAIT | 2.9% | in 11+ days (42%) | -3.9% | 0.88x | 9% |
-| NVDA | 155.46 | price or volume shock (2026-11-12) | 3 | BUY (high drop risk) | 4.5% | in 11+ days (31%) | -15.1% | 1.06x | 12% |
-| AMAT | 349.23 | earnings guidance (2026-11-12) | 3 | BUY (high drop risk) | 5.8% | in 11+ days (35%) | -20.1% | 0.82x | 20% |
-| CRWV | 49.89 | price or volume shock (2026-11-12) | 3 | BUY (high drop risk) | 9.7% | already passed (34%) | -25.9% | 0.81x | 0% |
-| CSCO | 95.11 | earnings guidance (2026-11-12) | 3 | WAIT | 4.1% | already passed (42%) | -8.5% | 0.86x | 25% |
-| GPN | 85.32 | price or volume shock (2026-11-12) | 3 | BUY | 4.8% | in 11+ days (35%) | -11.2% | 0.85x | 4% |
-| NBIS | 106.04 | earnings guidance (2026-11-12) | 3 | BUY (high drop risk) | 11.5% | in 11+ days (34%) | -26.8% | 0.86x | 10% |
-| SE | 69.44 | earnings guidance (2026-11-10) | 5 | BUY (high drop risk) | 5.0% | in 11+ days (29%) | -15.0% | 1.13x | 17% |
-| AKAM | 84.64 | price or volume shock (2026-11-10) | 5 | BUY (high drop risk) | 6.1% | already passed (34%) | -17.9% | 0.84x | 0% |
-| CHTR | 138.50 | price or volume shock (2026-11-10) | 5 | WAIT (high drop risk) | 6.1% | already passed (50%) | -13.8% | 0.83x | 0% |
-| CLX | 106.70 | price or volume shock (2026-11-10) | 5 | WAIT | 4.1% | in 11+ days (31%) | -8.7% | 0.79x | 0% |
-| FOXA | 66.66 | price or volume shock (2026-11-10) | 5 | WAIT | 4.6% | already passed (34%) | -8.3% | 0.70x | 0% |
-| TDG | 1186.20 | earnings guidance (2026-11-10) | 5 | WAIT | 3.4% | already passed (32%) | -8.8% | 0.90x | 12% |
-| AXON | 298.59 | price or volume shock (2026-11-09) | 6 | BUY (high drop risk) | 6.1% | already passed (34%) | -18.9% | 0.87x | 19% |
-| CEG | 268.07 | earnings guidance (2026-11-09) | 6 | BUY | 4.5% | already passed (45%) | -13.8% | 0.88x | 4% |
-| FERG | 249.08 | earnings guidance (2026-11-09) | 6 | WAIT | 2.9% | already passed (38%) | -7.3% | 1.01x | 17% |
-| KKR | 94.50 | earnings guidance (2026-11-09) | 6 | WAIT | 3.7% | already passed (42%) | -11.0% | 0.92x | 20% |
-| MPWR | 1317.37 | price or volume shock (2026-11-09) | 6 | WAIT (high drop risk) | 5.4% | already passed (40%) | -17.4% | 0.91x | 9% |
-| NRG | 91.76 | earnings guidance (2026-11-09) | 6 | BUY (high drop risk) | 5.3% | in 11+ days (30%) | -15.4% | 0.85x | 1% |
-| OXY | 56.52 | earnings guidance (2026-11-09) | 6 | BUY | 3.6% | in 11+ days (28%) | -7.4% | 0.83x | 4% |
-| RKLB | 55.05 | earnings guidance (2026-11-09) | 6 | BUY (high drop risk) | 7.0% | in 11+ days (30%) | -22.2% | 0.96x | 6% |
-| SKYD | 6.92 | earnings guidance (2026-11-09) | 6 | BUY | 5.5% | in 11+ days (25%) | -14.1% | 0.64x | 2% |
-| TTWO | 203.93 | earnings guidance (2026-11-09) | 6 | BUY | 4.6% | in 11+ days (26%) | -7.7% | 0.86x | 6% |
-| BEN | 34.41 | earnings guidance (2026-11-06) | 7 | WAIT | 2.5% | in 11+ days (25%) | -8.3% | 1.20x | 11% |
-| HUM | 443.34 | earnings guidance (2026-11-06) | 7 | WAIT | 4.4% | already passed (70%) | -11.4% | 0.95x | 0% |
-| MRNA | 206.80 | earnings guidance (2026-11-06) | 7 | BUY (high drop risk) | 12.6% | in 11+ days (28%) | -19.4% | 0.19x | 21% |
-| PPL | 35.19 | earnings guidance (2026-11-06) | 7 | WAIT | 2.4% | in 11+ days (25%) | -3.4% | 1.02x | 0% |
-| TDY | 619.36 | price or volume shock (2026-11-06) | 7 | BUY | 2.5% | in 11+ days (29%) | -7.7% | 1.10x | 13% |
-| TECH | 72.63 | earnings guidance (2026-11-06) | 7 | WAIT | 2.5% | already passed (57%) | -1.9% | 0.76x | 0% |
-| VST | 127.15 | earnings guidance (2026-11-06) | 7 | BUY (high drop risk) | 4.8% | in 11+ days (26%) | -14.3% | 0.93x | 0% |
-| BABA | 86.65 | price or volume shock (2026-11-05) | 8 | BUY | 4.6% | in 6-10 days (25%) | -18.5% | 1.11x | 10% |
-| GRAB | 3.18 | price or volume shock (2026-11-05) | 8 | WAIT (high drop risk) | 3.8% | already passed (48%) | -16.1% | 0.91x | 5% |
-| ABNB | 180.94 | earnings guidance (2026-11-05) | 8 | WAIT | 3.4% | already passed (67%) | -10.6% | 0.95x | 25% |
-| ADI | 383.67 | price or volume shock (2026-11-05) | 8 | WAIT | 4.0% | already passed (81%) | -17.2% | 1.36x | 11% |
-| AEE | 111.94 | earnings guidance (2026-11-05) | 8 | WAIT | 2.0% | in 6-10 days (27%) | -4.5% | 1.18x | 0% |
-| APD | 306.92 | earnings guidance (2026-11-05) | 8 | WAIT | 2.6% | already passed (31%) | -6.4% | 1.35x | 0% |
-<!-- LIVE-BOARD:END -->
+1. Download daily prices from Yahoo Finance (Alpaca as a fallback). Unfinished intraday bars are never used, because the models were trained on closing values.
+2. Find the latest event in the last 15 trading days: an earnings date first, then a headline that names the company, then an unexplained price or volume shock.
+3. Rebuild the features with the same code that was checked against the training data (rank correlations of 0.96 to 1.00 over 1,500 past events).
+4. Predict risk, entry timing, when the low may come and position sizes with the live models, retrained on the 69 features that free data can supply.
+5. Publish `docs/data/predictions.json`, which drives the page.
+6. Log every forecast in `docs/data/forward_log.csv` and score it once its 20-day outcome is known, a forward test that cannot be affected by look-ahead.
 
-The board covers the S&P 500 and the Nasdaq-100 (about 500 stocks, listed in `universe.json`) plus the hand-picked stocks in `watchlist.json`. Stocks under $5 and new listings without enough price history are left out, because the models were not trained on them. It runs on GitHub Actions twice per trading day, after the US close and before the open, and each run follows six steps:
-
-1. Download daily prices for the watchlist and SPY from Yahoo Finance. If Yahoo drops a ticker, the board retries it, then falls back to Alpaca's free consolidated daily bars, and if both fail it shows the last good reading with its date. An unfinished intraday bar is never used, because the models were trained on closing values.
-2. Look for an event in the last 15 trading days. An earnings date from the calendar comes first, then a classified headline that names the company, then an unexplained price or volume shock. Events are dated to the announcement day, which is the same convention as in training.
-3. Rebuild the features with the same code that was checked against the training data. Over 1,500 historical events, the live code matches the training values with rank correlations of 0.96 to 1.00.
-4. Predict risk, entry timing, the chances for when the 20-day low will come, and sizing with the live models. These models are retrained on the 69 features that free data can supply.
-5. Publish `docs/data/predictions.json`, which drives the page, and update the table above.
-6. Log each prediction in `docs/data/forward_log.csv` and score it once its 20-day outcome is known. This gives a forward test that cannot be affected by look-ahead.
-
-The page opens on a board that lists every stock with its call, today's move, a risk bar on a shared scale and the chance that its low has already passed, and it can be sorted, searched and compared side by side. Each stock page puts the price, the call and the chart on one screen, with the reason for the move, the after-hours price, today's volume and the S&P 500's move underneath. Six tiles summarise the rest (the next session, when the low may come, risk, the stock today, sizing and news), and each opens in full with a tap. While the market is open, the page asks a small Cloudflare Worker (`deploy/live-worker.js`) for the latest prices every 15 seconds, and every price-based number on the page (distance to the expected low and the bad case, the likely range, the levels to watch) is worked out again from that price. The forecasts themselves are made from closing prices, three times per trading day. As a fallback, and for the full list of stocks, `src/live/quotes.py` refreshes every 5 minutes during trading hours and hourly outside them; it runs in the public repository, where GitHub Actions minutes are free, and needs no private data.
+Live prices and headlines come from a small Cloudflare Worker (`deploy/live-worker.js`), so every price-based number on the page updates through the day.
 
 ## Reproducing the results
 
@@ -688,7 +598,7 @@ Download the WRDS files listed in `docs/WRDS_GUIDE.md` into `data/raw/wrds/`, th
 | Entry engine | `python src/pipeline/19_entry_engine.py` | `results/entry_engine.md` |
 | Position sizing | `python src/pipeline/20_position_sizing.py` and `python src/pipeline/22_sizing_calibration.py` | `results/sizing.md` |
 | Live models and parity check | `scripts/train_live_models.sh` | `models/live/`, `results/parity.md` |
-| Live board | `LIVE_FEATS=1 python src/live/board.py` | `docs/data/predictions.json` |
+| App data | `LIVE_FEATS=1 python src/live/board.py` | `docs/data/predictions.json` |
 | Figures and Monte Carlo | `LIVE_FEATS=1 python src/pipeline/23_readme_figures.py` | `docs/figures/` |
 
 `scripts/run_pipeline.sh` runs every pipeline step in order. A full run takes about 6 to 8 hours on a laptop. Most of that time is spent in the walk-forward training and the entry engine.
@@ -700,7 +610,7 @@ Download the WRDS files listed in `docs/WRDS_GUIDE.md` into `data/raw/wrds/`, th
 │   ├── lib/            shared code: paths, event rules, features, models, live rebuild, sizing maths, plain-English input names
 │   ├── pipeline/       research pipeline on the WRDS data, numbered in run order (01 to 23)
 │   ├── experiments/    one file per experiment, numbered in the order they were run (01 to 13)
-│   └── live/           the daily board, live quotes, forward scoring and the parity check
+│   └── live/           the app's daily data, live quotes, forward scoring and the parity check
 ├── scripts/            run_pipeline.sh (whole pipeline) and train_live_models.sh (live models, parity, first board)
 ├── models/live/        trained live models and the odds tables behind each call
 ├── docs/               the live page (index.html), its data, fonts, artwork and the README figures
