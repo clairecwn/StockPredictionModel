@@ -1150,7 +1150,8 @@ function render() {
   else if (v === "all") renderBoard(); else if (v === "compare") renderCompare(); else if (v === "research") renderResearch(); else renderHome();
   renderPlan();
 }
-addEventListener("hashchange", () => { editing = false; if (sheet.open) sheet.close(); render(); scrollTo(0, 0); if (DATA) liveTick(); });
+let tourNav = false;          // set while the walkthrough itself changes the page, so that change does not end it
+addEventListener("hashchange", () => { editing = false; if (sheet.open) sheet.close(); if (tourAt >= 0 && !tourNav) endTour(); tourNav = false; render(); scrollTo(0, 0); if (DATA) liveTick(); });
 /* headlines: the board's, plus any newer ones the live service has found since (checked on every open and refresh,
    then every 5 minutes). Only headlines about the company count: its ticker or name within the first 7 words */
 const LNEWS = {}, newsAt = {};
@@ -1685,7 +1686,7 @@ function installHow() {
 }
 const installable = () => !matchMedia("(display-mode: standalone)").matches && !navigator.standalone;   // installHow() decides by phone and browser
 let tourKind = "home";
-function startTour(which) { if (which === "stock" && !stockOf(route())) which = "home"; tourKind = which || (stockOf(route()) ? "stock" : "home"); STEPS = TOURS[tourKind].filter(st => !st.phone || (installable() && installHow() && !store.get("told_install", false)));   /* told once, in whichever walkthrough comes first */ if (tourKind === "home" && route()) location.hash = ""; tourAt = 0; showStep(); }
+function startTour(which) { if (which === "stock" && !stockOf(route())) which = "home"; tourKind = which || (stockOf(route()) ? "stock" : "home"); STEPS = TOURS[tourKind].filter(st => !st.phone || (installable() && installHow() && !store.get("told_install", false)));   /* told once, in whichever walkthrough comes first */ if (tourKind === "home" && route()) { tourNav = true; location.hash = ""; } tourAt = 0; showStep(); }
 function endTour() { document.body.style.paddingBottom = ""; if (tourAt < 0) return; document.querySelector(".spot")?.classList.remove("spot"); $("#tour").hidden = true; tourAt = -1; store.set(tourKind === "stock" ? "toured_stock" : "toured", true); }
 /* scroll so the highlighted part and the card both fit on screen, with the card beside the part, never on top of it.
    Only a part taller than the screen allows can sit partly under the card, and then its top is kept in view */
@@ -1757,9 +1758,17 @@ function liveTick() {
   }).catch(() => {});
 }
 /* redraw with the new numbers, unless the reader is in the middle of something */
+/* redraws wait while a finger is on the screen or the page is still gliding: redrawing mid-scroll stops the scroll dead
+   on iPhones. The research page has nothing live, so it is never redrawn */
+let touching = false, lastScroll = 0, waitTimer = 0;
+addEventListener("touchstart", () => { touching = true; }, {passive:true});
+addEventListener("touchend", () => { touching = false; lastScroll = Date.now(); }, {passive:true});
+addEventListener("touchcancel", () => { touching = false; }, {passive:true});
+addEventListener("scroll", () => { lastScroll = Date.now(); }, {passive:true});
 function refreshView() {
-  if (!DATA || tourAt >= 0 || Date.now() - chartTouch < 4000) return;
+  if (!DATA || tourAt >= 0 || Date.now() - chartTouch < 4000 || route() === "RESEARCH") return;
   if (document.activeElement?.matches?.("input, select, textarea") || !$("#pop").hidden) return;
+  if (touching || Date.now() - lastScroll < 1200) { clearTimeout(waitTimer); waitTimer = setTimeout(refreshView, 1300); return; }
   const y = scrollY; render();
   if (sheet.open && sheetKey && sheetKey !== "size") openSheet(sheetKey, true);
   requestAnimationFrame(() => { if (Math.abs(scrollY - y) > 2) scrollTo(0, y); });
