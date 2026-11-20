@@ -1,6 +1,6 @@
 {
- "generated_utc": "2026-11-19T23:13+00:00",
- "n_logged": 1335,
+ "generated_utc": "2026-11-20T02:48+00:00",
+ "n_logged": 1336,
  "n_scored": 0,
  "too_early": true,
  "note": "Rows on the same stock overlap in time, so the effective sample is smaller than n. Fewer than 30 scored rows = too early to judge."
